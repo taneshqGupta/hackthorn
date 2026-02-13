@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+	margin: 0;
+	padding: 0;
+	font-family: 'Silkscreen', monospace;
+	color: #1a1a1a;
+}
+
+#app {
+	min-height: 100vh;
+}
+
+.container {
+	width: 100%;
+	min-height: 100vh;
+	min-width: 100vw;
+	background: #d0d0d0;
+	background-image: linear-gradient(#c0c0c0 0.1em, transparent 0.1em);
+	background-size: 100% 30px;
+}
