@@ -1,12 +1,12 @@
 use crate::error::AppError;
-use crate::structs::{ApiResponse, GoogleUserInfo, Session, User, UserResponse, UserRole, UserStatus};
+use crate::structs::{ApiResponse, GoogleUserInfo, User, UserResponse, UserRole, UserStatus};
 use axum::{
     extract::{Query, State},
     http::StatusCode,
     response::{IntoResponse, Redirect},
     Json,
 };
-use chrono::{Duration, Utc};
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use std::env;
