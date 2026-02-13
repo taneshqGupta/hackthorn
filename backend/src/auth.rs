@@ -18,6 +18,7 @@ const SESSION_USER_ID_KEY: &str = "user_id";
 #[derive(Debug, Deserialize)]
 pub struct GoogleCallbackQuery {
     code: String,
+    state: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -34,13 +35,19 @@ struct GoogleTokenResponse {
     access_token: String,
 }
 
-pub async fn google_login_initiate() -> impl IntoResponse {
+pub async fn google_login_initiate(
+    Query(params): Query<std::collections::HashMap<String, String>>,
+) -> impl IntoResponse {
     let client_id = env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID must be set");
     let redirect_uri = env::var("GOOGLE_REDIRECT_URL").expect("GOOGLE_REDIRECT_URL must be set");
     
+    // Get the frontend origin from query parameter or default to FRONTEND_URL
+    let frontend_origin = params.get("origin").cloned()
+        .unwrap_or_else(|| env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:4173".to_string()));
+    
     let auth_url = format!(
-        "https://accounts.google.com/o/oauth2/v2/auth?client_id={}&redirect_uri={}&response_type=code&scope=openid%20email%20profile",
-        client_id, redirect_uri
+        "https://accounts.google.com/o/oauth2/v2/auth?client_id={}&redirect_uri={}&response_type=code&scope=openid%20email%20profile&state={}",
+        client_id, redirect_uri, urlencoding::encode(&frontend_origin)
     );
     
     Redirect::to(&auth_url)
@@ -84,10 +91,13 @@ pub async fn google_callback(
         .map_err(|e| AppError::HttpError(StatusCode::INTERNAL_SERVER_ERROR, e.into()))?;
 
     if !user_info.email.ends_with("@iitmandi.ac.in") && !user_info.email.ends_with("@students.iitmandi.ac.in") {
-        return Err(AppError::HttpError(
-            StatusCode::FORBIDDEN,
-            anyhow::anyhow!("Only IIT Mandi email addresses are allowed"),
-        ));
+        // Redirect to error page instead of returning error response
+        let frontend_url = query.state.as_ref()
+            .and_then(|s| urlencoding::decode(s).ok())
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:4173".to_string()));
+        let error_msg = urlencoding::encode("Only IIT Mandi email addresses are allowed");
+        return Ok(Redirect::to(&format!("{}/login?error={}", frontend_url, error_msg)));
     }
 
     let user = match sqlx::query_as::<_, User>(
@@ -143,7 +153,11 @@ pub async fn google_callback(
     .execute(&pool)
     .await?;
 
-    let frontend_url = env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:3000".to_string());
+    // Use state parameter to redirect to the correct frontend origin
+    let frontend_url = query.state.as_ref()
+        .and_then(|s| urlencoding::decode(s).ok())
+        .map(|s| s.to_string())
+        .unwrap_or_else(|| env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:4173".to_string()));
     Ok(Redirect::to(&format!("{}/dashboard", frontend_url)))
 }
 

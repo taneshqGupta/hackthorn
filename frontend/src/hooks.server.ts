@@ -1,12 +1,30 @@
 import type { Handle } from '@sveltejs/kit';
+import { user } from '$lib/auth';
+import { get } from 'svelte/store';
 
-// Server-side request handling
-// Since we're using session cookies from the backend, 
-// the browser automatically sends them with credentials: 'include'
 export const handle: Handle = async ({ event, resolve }) => {
-    // You can add server-side auth checks here if needed
-    // For now, we rely on client-side checks and backend session validation
-    
-    const response = await resolve(event);
-    return response;
+	console.log(`Handling request for: ${event.url.pathname}`);
+	const currentUser = get(user);
+	console.log('Current user from store:', currentUser);
+
+	if (!currentUser && event.url.pathname !== '/login') {
+		console.log('User not found and not on login page, redirecting to /login');
+		return new Response(null, {
+			status: 302,
+			headers: {
+				location: '/login'
+			}
+		});
+	}
+
+	console.log('Resolving request');
+	try {
+		const response = await resolve(event);
+		console.log(`Resolved request for: ${event.url.pathname} with status: ${response.status}`);
+		return response;
+	} catch (error) {
+		console.error(`Error resolving request for ${event.url.pathname}:`, error);
+		// Return a generic error response
+		return new Response('Internal Server Error', { status: 500 });
+	}
 };

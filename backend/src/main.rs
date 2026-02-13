@@ -23,7 +23,7 @@ use tower_sessions::{MemoryStore, SessionManagerLayer};
 async fn main() -> Result<(), AppError> {
     telemetry::init_telemetry();
 
-    let url = std::env::var("DATABASE_URL").unwrap_or_else(|_| "http://0.0.0.0:8000".to_string());
+    let url = std::env::var("DATABASE_URL").unwrap();
 
     tracing::info!("Attempting to connect to database using URL: {:?}", url);
     let pool = PgPool::connect(&url).await.map_err(|e| {
