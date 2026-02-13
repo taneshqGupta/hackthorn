@@ -1,9 +1,9 @@
-import { BACKEND_URL } from '$env/static/public';
+import { PUBLIC_BACKEND_URL } from '$env/static/public';
 import type { ApiResponse, UserResponse } from '$lib/types';
 
 // Check authentication status
 export async function checkAuth(): Promise<ApiResponse<UserResponse>> {
-    const response = await fetch(`${BACKEND_URL}auth/me`, {
+    const response = await fetch(`${PUBLIC_BACKEND_URL}auth/me`, {
         method: "GET",
         credentials: "include",
     });
@@ -16,7 +16,7 @@ export async function checkAuth(): Promise<ApiResponse<UserResponse>> {
 
 // Logout user
 export async function logout(): Promise<ApiResponse<void>> {
-    const response = await fetch(`${BACKEND_URL}auth/logout`, {
+    const response = await fetch(`${PUBLIC_BACKEND_URL}auth/logout`, {
         method: "GET",
         credentials: "include"
     });
@@ -30,7 +30,7 @@ export async function logout(): Promise<ApiResponse<void>> {
 
 // Get current user profile
 export async function getMyProfile(): Promise<ApiResponse<UserResponse>> {
-    const response = await fetch(`${BACKEND_URL}auth/me`, {
+    const response = await fetch(`${PUBLIC_BACKEND_URL}auth/me`, {
         method: "GET",
         credentials: "include",
     });
@@ -43,5 +43,5 @@ export async function getMyProfile(): Promise<ApiResponse<UserResponse>> {
 
 // Get Google OAuth login URL (for redirecting)
 export function getGoogleLoginUrl(): string {
-    return `${BACKEND_URL}auth/google`;
+    return `${PUBLIC_BACKEND_URL}auth/google`;
 }
