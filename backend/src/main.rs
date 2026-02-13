@@ -2,31 +2,21 @@ mod auth;
 mod cloudinary;
 mod error;
 mod partitioned_cookies;
-mod posts;
 mod structs;
 mod telemetry;
-use auth::{
-    check_auth, get_my_profile, get_my_user_id, get_user_profile, login, logout, register,
-    update_profile_picture,
-};
+
+use auth::{get_current_user, google_callback, google_login_initiate, logout};
 use axum::{
-    Router, middleware,
-    routing::{delete, get, post},
+    middleware, routing::get, Router,
 };
 use error::AppError;
 use http::{HeaderName, Method};
 use partitioned_cookies::add_partitioned_attribute;
-use posts::{
-    create_post, delete_post, list_community_offers, list_community_posts, list_community_requests,
-    list_my_posts, list_offers, list_requests, update_post,
-};
 use sqlx::PgPool;
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
 use tower_sessions::{MemoryStore, SessionManagerLayer};
-
-use crate::posts::list_user_posts;
 
 #[tokio::main]
 async fn main() -> Result<(), AppError> {
@@ -60,25 +50,10 @@ async fn main() -> Result<(), AppError> {
         .with_same_site(tower_sessions::cookie::SameSite::None);
 
     let app = Router::new()
-        .route("/", get(list_my_posts))
-        .route("/posts", get(list_my_posts))
-        .route("/posts/offers", get(list_offers))
-        .route("/posts/requests", get(list_requests))
-        .route("/foreignposts/{userid}", get(list_user_posts))
-        .route("/community", get(list_community_posts))
-        .route("/community/offers", get(list_community_offers))
-        .route("/community/requests", get(list_community_requests))
-        .route("/posts/create", post(create_post))
-        .route("/posts/delete/{id}", delete(delete_post))
-        .route("/posts/update", post(update_post))
-        .route("/auth/register", post(register))
-        .route("/auth/login", post(login))
-        .route("/auth/logout", post(logout))
-        .route("/auth/check", get(check_auth))
-        .route("/auth/myprofile", get(get_my_profile))
-        .route("/auth/my_userid", get(get_my_user_id))
-        .route("/auth/myprofile/picture", post(update_profile_picture))
-        .route("/auth/userprofile/{user_id}", get(get_user_profile))
+        .route("/auth/google", get(google_login_initiate))
+        .route("/auth/google/callback", get(google_callback))
+        .route("/auth/logout", get(logout))
+        .route("/auth/me", get(get_current_user))
         .with_state(pool)
         .layer(session_layer)
         .layer(middleware::from_fn(add_partitioned_attribute))
