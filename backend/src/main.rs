@@ -7,9 +7,10 @@ mod telemetry;
 
 use auth::{get_current_user, google_callback, google_login_initiate, logout};
 use axum::{
-    middleware, routing::get, Router,
+    middleware, routing::get, Json, Router,
 };
 use error::AppError;
+use serde_json::json;
 use http::{HeaderName, Method};
 use partitioned_cookies::add_partitioned_attribute;
 use sqlx::PgPool;
@@ -33,7 +34,7 @@ async fn main() -> Result<(), AppError> {
 
     let cors = CorsLayer::new()
         .allow_origin([
-            "http://localhost:3000".parse().unwrap(),
+            "http://localhost:3001".parse().unwrap(),
             std::env::var("FRONTEND_URL").unwrap().parse().unwrap(),
         ])
         .allow_methods([Method::GET, Method::POST, Method::DELETE])
@@ -50,6 +51,7 @@ async fn main() -> Result<(), AppError> {
         .with_same_site(tower_sessions::cookie::SameSite::None);
 
     let app = Router::new()
+        .route("/", get(|| async { Json(json!({"status": "ok", "message": "Backend is running"})) }))
         .route("/auth/google", get(google_login_initiate))
         .route("/auth/google/callback", get(google_callback))
         .route("/auth/logout", get(logout))
