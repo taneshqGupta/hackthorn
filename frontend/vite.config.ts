@@ -6,6 +6,14 @@ export default defineConfig({
 	plugins: [sveltekit()],
 	server: {
 		host: '0.0.0.0',
-		port: 3000
+		port: 4173,
+		hmr: {
+			host: 'aegis.taneshq.iitmandi.in.net'
+		}
+	},
+	preview: {
+		host: '0.0.0.0',
+		port: 4173,
+		allowedHosts: ['aegis.taneshq.iitmandi.in.net']
 	}
 });
