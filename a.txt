@@ -1,0 +1,22 @@
+Phase 1: Database Setup (DO THIS FIRST)
+
+Create migration file with 5 tables above
+Run migration on Railway PostgreSQL
+Phase 2: Backend Core
+
+Set up models (User, Session, OTP structs)
+Implement auth services (OTP, Resend, Turnstile)
+Build Google OAuth flow
+Build Email OTP flow
+Session middleware
+Phase 3: API Routes
+
+Auth routes (Google, Email, logout, me)
+Profile routes
+Admin routes
+Phase 4: Frontend
+
+Login page with both flows
+Profile completion page
+Dashboard skeleton
+Profile page
