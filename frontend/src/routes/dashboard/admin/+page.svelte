@@ -61,17 +61,29 @@
 		Citadel Status: {isSystemHealthy ? "Operational" : "Critical Failure"}
 	</div>
 	<nav
-		class="flex gap-4 mb-4 border-b-2 border-black/10 pb-2 w-full justify-center"
+		class="w-full flex mb-6 border-2 border-[#2b0b0b] bg-transparent shadow-[4px_4px_0px_rgba(0,0,0,0.1)]"
 	>
-		<button onclick={() => goto("/dashboard/admin")} class="nav-link"
-			>PANEL</button
+		<button
+			onclick={() => goto("/dashboard/admin")}
+			class="nav-tab border-r-2 border-[#2b0b0b]"
+			class:active={$page.url.pathname === "/dashboard/admin"}
 		>
-		<button onclick={() => goto("/admin/users")} class="nav-link"
-			>ROSTER</button
+			PANEL
+		</button>
+		<button
+			onclick={() => goto("/admin/users")}
+			class="nav-tab border-r-2 border-[#2b0b0b]"
+			class:active={$page.url.pathname === "/admin/users"}
 		>
-		<button onclick={() => goto("/admin/logs")} class="nav-link"
-			>TRAIL</button
+			ROSTER
+		</button>
+		<button
+			onclick={() => goto("/admin/logs")}
+			class="nav-tab"
+			class:active={$page.url.pathname === "/admin/logs"}
 		>
+			TRAIL
+		</button>
 	</nav>
 	<h1
 		class="text-8xl font-bold mb-6 text-[#2b0b0b] tracking-tighter uppercase text-center w-full"
