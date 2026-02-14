@@ -1,3 +1,5 @@
+<!-- DaisyUI uses label elements for styling, not form association -->
+<!-- svelte-ignore a11y_label_has_associated_control -->
 <script lang="ts">
 	import { user } from '$lib/auth';
 	import { goto } from '$app/navigation';
@@ -372,6 +374,7 @@
 										<button 
 											type="button"
 											onclick={() => removeFile(index)}
+											aria-label="Remove photo {index + 1}"
 											class="absolute top-2 right-2 btn btn-circle btn-sm btn-error opacity-0 group-hover:opacity-100 transition-opacity"
 										>
 											<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">

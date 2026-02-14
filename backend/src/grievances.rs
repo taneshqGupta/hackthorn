@@ -155,34 +155,15 @@ pub async fn get_grievances(
     let limit = filters.limit.unwrap_or(20).clamp(1, 100);
     let offset = (page - 1) * limit;
 
-    // Build dynamic query based on user role and filters
+    // Build dynamic query based on filters
+    // Public feed: Everyone sees all grievances (like Reddit)
+    // RBAC is enforced on ACTIONS (update, assign, delete), not viewing
     let mut query = String::from(
         r#"
         SELECT g.* FROM grievances g
         WHERE 1=1
         "#,
     );
-
-    // Role-based visibility
-    match user.role {
-        UserRole::Student => {
-            // Students can see their own grievances and all non-anonymous ones
-            query.push_str(&format!(
-                " AND (g.submitted_by = '{}' OR g.is_anonymous = false)",
-                user.id
-            ));
-        }
-        UserRole::Faculty => {
-            // Faculty can see assigned grievances and public ones
-            query.push_str(&format!(
-                " AND (g.assigned_to = '{}' OR g.is_anonymous = false)",
-                user.id
-            ));
-        }
-        UserRole::Authority | UserRole::Admin => {
-            // Authority and Admin can see all
-        }
-    }
 
     // Apply filters
     if let Some(status) = &filters.status {

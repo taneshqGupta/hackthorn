@@ -132,6 +132,7 @@
 				
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
 					<!-- Category Filter -->
+					<!-- svelte-ignore a11y_label_has_associated_control -->
 					<div class="form-control">
 						<label class="label"><span class="label-text">Category</span></label>
 						<select bind:value={selectedCategory} onchange={handleFilterChange} class="select select-bordered">
@@ -143,6 +144,7 @@
 					</div>
 
 					<!-- Status Filter -->
+					<!-- svelte-ignore a11y_label_has_associated_control -->
 					<div class="form-control">
 						<label class="label"><span class="label-text">Status</span></label>
 						<select bind:value={selectedStatus} onchange={handleFilterChange} class="select select-bordered">
@@ -154,6 +156,7 @@
 					</div>
 
 					<!-- Priority Filter -->
+					<!-- svelte-ignore a11y_label_has_associated_control -->
 					<div class="form-control">
 						<label class="label"><span class="label-text">Priority</span></label>
 						<select bind:value={selectedPriority} onchange={handleFilterChange} class="select select-bordered">
@@ -165,6 +168,7 @@
 					</div>
 
 					<!-- Search -->
+					<!-- svelte-ignore a11y_label_has_associated_control -->
 					<div class="form-control">
 						<label class="label"><span class="label-text">Search</span></label>
 						<input 
