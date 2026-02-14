@@ -74,8 +74,8 @@
 
 	.burger {
 		position: relative;
-		width: 26px;
-		height: 20px;
+		width: 20px;
+		height: 16px;
 		background: transparent;
 		cursor: pointer;
 		display: flex;
@@ -88,7 +88,7 @@
 
 	.burger span {
 		display: block;
-		height: 3px;
+		height: 2px;
 		width: 100%;
 		background: #7a1a1a;
 		border-radius: 2px;
