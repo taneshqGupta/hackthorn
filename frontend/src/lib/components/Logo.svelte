@@ -15,6 +15,6 @@
 		font-weight: normal;
 		letter-spacing: 2px;
 		color: #d06065;
-		margin: 0;
+		margin: 2;
 	}
 </style>
