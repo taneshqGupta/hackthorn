@@ -42,7 +42,7 @@
 </script>
 
 <div class="container">
-    <div class="w-[400px] flex flex-col items-center gap-4 mb-8 px-2">
+    <div class="w-100 flex flex-col items-center gap-4 mb-8 px-2">
         <h1 class="text-12xl font-bold text-[#2b0b0b] tracking-tighter uppercase text-center w-full">
             Vault
         </h1>
@@ -76,7 +76,7 @@
     {#if loading}
         <div class="loading">DECIPHERING_ARCHIVES...</div>
     {:else}
-        <div class="w-[400px] flex flex-col gap-4">
+        <div class="w-100 flex flex-col gap-4">
             {#each filteredResources as res}
                 <div class="brutalist-card">
                     <div class="flex justify-between items-center mb-2">
