@@ -93,24 +93,32 @@
 	}
 
 	async function handleSubmit() {
+		console.log('[SUBMIT] handleSubmit called');
+		console.log('[SUBMIT] Current user:', currentUser);
+		
 		// Validation
 		if (!title.trim()) {
+			console.log('[SUBMIT] Validation failed: Title is empty');
 			error = 'Title is required';
 			return;
 		}
 		if (!description.trim()) {
+			console.log('[SUBMIT] Validation failed: Description is empty');
 			error = 'Description is required';
 			return;
 		}
 		if (title.length < 10) {
+			console.log('[SUBMIT] Validation failed: Title too short:', title.length);
 			error = 'Title must be at least 10 characters';
 			return;
 		}
 		if (description.length < 20) {
+			console.log('[SUBMIT] Validation failed: Description too short:', description.length);
 			error = 'Description must be at least 20 characters';
 			return;
 		}
 
+		console.log('[SUBMIT] Validation passed, starting submission');
 		loading = true;
 		error = '';
 
@@ -125,25 +133,39 @@
 				is_anonymous: isAnonymous,
 				department_id: departmentId || null
 			};
+			
+			console.log('[SUBMIT] Grievance data:', grievanceData);
+			console.log('[SUBMIT] Posting to /grievances endpoint');
 
 			const response = await api.post('/grievances', grievanceData);
 			const grievanceId = response.id;
+			
+			console.log('[SUBMIT] Grievance created successfully, ID:', grievanceId);
 
 			// Upload photos if any
 			if (selectedFiles.length > 0) {
+				console.log('[SUBMIT] Uploading', selectedFiles.length, 'photos');
 				const formData = new FormData();
 				selectedFiles.forEach(file => {
+					console.log('[SUBMIT] Adding photo:', file.name, file.size, 'bytes');
 					formData.append('photos', file);
 				});
 
+				console.log('[SUBMIT] Posting photos to /grievances/' + grievanceId + '/photos');
 				await api.post(`/grievances/${grievanceId}/photos`, formData);
+				console.log('[SUBMIT] Photos uploaded successfully');
+			} else {
+				console.log('[SUBMIT] No photos to upload');
 			}
 
+			console.log('[SUBMIT] Submission complete, redirecting to grievance page');
 			success = true;
 			setTimeout(() => {
 				goto(`/grievances/${grievanceId}`);
 			}, 1500);
 		} catch (err: any) {
+			console.error('[SUBMIT] Submission failed:', err);
+			console.error('[SUBMIT] Error message:', err.message);
 			error = err.message || 'Failed to submit grievance';
 			loading = false;
 		}
