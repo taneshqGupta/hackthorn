@@ -4,6 +4,7 @@
 	import { onMount } from "svelte";
 	import api from "$lib/api";
 	import type { ApiResponse } from "$lib/types";
+	import { page } from '$app/stores';
 
 	let currentUser = $derived($user);
 
