@@ -7,6 +7,7 @@
 	import type { User } from '$lib/types';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
+	import { onMount } from 'svelte';
 
 	let { children } = $props();
 	
@@ -15,6 +16,32 @@
 	
 	// Show dev role switcher in development mode
 	const isDev = browser && (import.meta.env.DEV || import.meta.env.MODE === 'development');
+
+	// PWA Service Worker Registration
+	onMount(async () => {
+		if ('serviceWorker' in navigator) {
+			try {
+				const registration = await navigator.serviceWorker.register('/service-worker.js', {
+					scope: '/'
+				});
+				console.log('[PWA] Service Worker registered:', registration);
+				
+				// Check for updates
+				registration.addEventListener('updatefound', () => {
+					const newWorker = registration.installing;
+					if (newWorker) {
+						newWorker.addEventListener('statechange', () => {
+							if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+								console.log('[PWA] New content available, please refresh');
+							}
+						});
+					}
+				});
+			} catch (error) {
+				console.log('[PWA] Service Worker registration failed:', error);
+			}
+		}
+	});
 </script>
 
 <div class="h-screen flex flex-col overflow-hidden container">
