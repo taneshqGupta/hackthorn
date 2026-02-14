@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { user } from "$lib/auth";
 	import { goto } from "$app/navigation";
+	import { onMount } from "svelte";
+	import api from "$lib/api";
+	import type { ApiResponse } from "$lib/types";
 
 	let currentUser = $derived($user);
 
@@ -12,10 +15,6 @@
 		}
 	});
 
-	import { onMount } from "svelte";
-	import api from "$lib/api";
-	import type { ApiResponse } from "$lib/types";
-
 	// State for analytics
 	let stats = $state<any>(null);
 	let logs = $state<any[]>([]);
@@ -23,7 +22,7 @@
 
 	onMount(async () => {
 		try {
-			// Parallel fetch for stats and logs
+			// Hits get_system_stats and get_audit_logs in admin.rs
 			const [statsRes, logsRes] = await Promise.all([
 				api.get<ApiResponse<any>>("/api/admin/stats"),
 				api.get<ApiResponse<any[]>>("/api/admin/audit-logs?limit=5"),
@@ -39,20 +38,24 @@
 </script>
 
 <div class="dashboard-container">
-	<h1 class="text-6xl font-bold mb-8 text-[#2b0b0b] tracking-tighter">
-		ADMIN PANEL
+	<h1
+		class="text-8xl font-bold mb-6 text-[#2b0b0b] tracking-tighter uppercase text-center w-full"
+	>
+		Admin
 	</h1>
 
 	{#if loading}
-		<div class="loading">SYNCING DATA...</div>
+		<div class="loading text-center uppercase tracking-widest opacity-50">
+			Syncing Citadel...
+		</div>
 	{:else}
-		<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+		<div class="grid grid-cols-2 gap-2 mb-6 w-full">
 			<div class="stat-box">
-				<span class="label">ACTIVE USERS</span>
+				<span class="label">ACTIVE</span>
 				<span class="value">{stats?.active_users ?? 0}</span>
 			</div>
 			<div class="stat-box">
-				<span class="label">TOTAL ISSUES</span>
+				<span class="label">TOTAL</span>
 				<span class="value">{stats?.total_grievances ?? 0}</span>
 			</div>
 			<div class="stat-box alert">
@@ -65,50 +68,53 @@
 			</div>
 		</div>
 
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+		<div class="flex flex-col gap-6 w-full">
 			<div class="brutalist-card">
-				<h3 class="mb-4 text-2xl border-b-2 border-black">
-					CORE MANAGEMENT
+				<h3
+					class="mb-4 text-xl border-b-2 border-[#2b0b0b] uppercase font-black"
+				>
+					Command
 				</h3>
-				<div class="flex flex-col gap-4">
+				<div class="flex flex-col gap-2">
 					<button
 						onclick={() => goto("/admin/users")}
 						class="retro-btn"
 					>
-						MANAGE USER ROSTERS
+						USER ROSTERS
 					</button>
 					<button
 						onclick={() => goto("/grievances")}
 						class="retro-btn"
 					>
-						COMMAND GRIEVANCE FEED
+						GRIEVANCE FEED
 					</button>
 				</div>
 			</div>
 
 			<div class="brutalist-card">
-				<h3 class="mb-4 text-2xl border-b-2 border-black">
-					RECENT AUDIT LOGS
+				<h3
+					class="mb-4 text-xl border-b-2 border-[#2b0b0b] uppercase font-black"
+				>
+					Audit Trail
 				</h3>
 				<div class="log-list">
 					{#each logs as log}
 						<div class="log-item">
-							<span class="time"
-								>{new Date(
-									log.created_at,
-								).toLocaleTimeString()}</span
+							<span class="action"
+								>{log.action.replace("_", " ")}</span
 							>
-							<span class="action">{log.action}</span>
 							<span class="user"
-								>by {log.user?.first_name ?? "SYSTEM"}</span
+								>BY {log.user?.first_name ?? "SYSTEM"}</span
 							>
 						</div>
 					{/each}
 				</div>
 				<button
 					onclick={() => goto("/admin/logs")}
-					class="mt-4 text-xs underline">VIEW ALL LOGS</button
+					class="mt-4 text-[10px] underline uppercase font-bold tracking-tighter hover:text-[#b31b34]"
 				>
+					Open Full Logs →
+				</button>
 			</div>
 		</div>
 	{/if}
@@ -116,28 +122,37 @@
 
 <style>
 	.dashboard-container {
-		max-width: 1200px;
+		width: 400px; /* Locked width to match search/filters */
 		margin: 0 auto;
-		padding: 2rem;
+		padding: 2rem 1rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 	}
+
 	.stat-box {
-		border: 2px solid #2b0b0b;
-		padding: 1rem;
+		border: 2px solid rgba(198, 225, 237, 0.6);
+		padding: 0.75rem;
 		display: flex;
 		flex-direction: column;
 		background: transparent;
 		box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
 	}
+
 	.stat-box .label {
-		font-size: 0.75rem;
+		font-size: 10px;
 		color: #666;
-		font-weight: bold;
+		font-weight: 900;
+		letter-spacing: 1px;
 	}
+
 	.stat-box .value {
 		font-size: 2.5rem;
 		font-family: "Jersey 25", sans-serif;
 		line-height: 1;
+		color: #2b0b0b;
 	}
+
 	.stat-box.alert .value {
 		color: #b31b34;
 	}
@@ -146,37 +161,59 @@
 	}
 
 	.brutalist-card {
-		border: 2px solid #2b0b0b;
-		padding: 1.5rem;
-		box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.1);
+		border: 2px solid rgba(198, 225, 237, 0.6);
+		padding: 1.25rem;
+		box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+		background: transparent;
 	}
 
 	.retro-btn {
+		font-family: inherit;
 		background: #b31b34;
 		color: white;
-		padding: 1rem;
+		padding: 0.75rem;
 		border: 2px solid #2b0b0b;
 		font-weight: bold;
+		font-size: 16px; /* Matched to filter font size */
 		cursor: pointer;
 		box-shadow: 4px 4px 0px #000;
+		text-transform: uppercase;
+		transition: 0.2s ease;
 	}
+
 	.retro-btn:hover {
 		transform: translate(-2px, -2px);
 		box-shadow: 6px 6px 0px #000;
 	}
 
+	.log-list {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
 	.log-item {
 		display: flex;
-		gap: 10px;
-		font-size: 0.8rem;
+		justify-content: space-between;
+		font-size: 11px;
 		padding: 4px 0;
-		border-bottom: 1px dashed #ccc;
+		border-bottom: 1px dashed rgba(198, 225, 237, 0.6);
+		text-transform: uppercase;
 	}
-	.log-item .time {
-		color: #888;
-	}
+
 	.log-item .action {
-		font-weight: bold;
+		font-weight: 900;
 		color: #b31b34;
+	}
+
+	.log-item .user {
+		color: #666;
+	}
+
+	.loading {
+		font-family: "Jersey 25", sans-serif;
+		font-size: 1.5rem;
+		color: #2b0b0b;
+		margin-top: 3rem;
 	}
 </style>
