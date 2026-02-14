@@ -47,6 +47,47 @@
 	}
 </script>
 
+<style>
+	.button {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 10px 15px;
+		gap: 15px;
+		background-color: #181717;
+		outline: 3px #181717 solid;
+		outline-offset: -3px;
+		border-radius: 5px;
+		border: none;
+		cursor: pointer;
+		transition: 400ms;
+		text-decoration: none;
+	}
+
+	.button .text {
+		color: white;
+		font-weight: 700;
+		font-size: 1em;
+		transition: 400ms;
+	}
+
+	.button svg path {
+		transition: 400ms;
+	}
+
+	.button:hover {
+		background-color: transparent;
+	}
+
+	.button:hover .text {
+		color: #181717;
+	}
+
+	.button:hover svg path {
+		fill: #181717;
+	}
+</style>
+
 <div class="h-screen flex items-center justify-center">
 	<Card>
 		{#if error}
@@ -67,11 +108,11 @@
 			</div>
 		{/if}
 
-		<button class="btn bg-white text-black border-[#e5e5e5]">
+		<a href={loginUrl} class="button">
 			<svg
 				aria-label="Google logo"
-				width="16"
-				height="16"
+				width="20"
+				height="20"
 				xmlns="http://www.w3.org/2000/svg"
 				viewBox="0 0 512 512"
 				><g
@@ -90,8 +131,8 @@
 					></path></g
 				></svg
 			>
-			Login with Google
-		</button>
+			<span class="text">Login with Google</span>
+		</a>
 		<p class="text-center mt-2">
 			Only @iitmandi.ac.in and @students.iitmandi.ac.in emails allowed
 		</p>
