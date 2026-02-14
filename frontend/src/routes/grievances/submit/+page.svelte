@@ -365,9 +365,9 @@
 	</div>
 {/snippet}
 
-<div class="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-	<div class="fixed left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-6">
-		<h1 class="text-2xl font-bold text-gray-200 tracking-wide uppercase" style="font-family: ui-monospace, monospace;">Share Your Grievance</h1>
+<div class="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-auto">
+	<div class="fixed left-1/2 top-[52%] md:top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 md:gap-6 scale-[0.7] sm:scale-[0.85] md:scale-100">
+		<h1 class="text-xl sm:text-2xl font-bold text-gray-200 tracking-wide uppercase" style="font-family: ui-monospace, monospace;">Share Your Grievance</h1>
 		<PDA 
 			pages={[
 				{ id: 'details', title: 'DETAILS', icon: '<svg class="pda2__ico" viewBox="0 0 24 24"><path class="pda2__st" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke="var(--lcd-ink)" stroke-width="1.7" fill="none"/></svg>', content: detailsPage },

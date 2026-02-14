@@ -36,7 +36,7 @@
 	{#each pages as page, i}
 		<input type="radio" id="pda2Tab{page.id}" class="pda2__tab" name="pdaTab" checked={activeTab === page.id} />
 	{/each}
-	<input type="checkbox" id="pda2Backlight" class="pda2__backlight" checked />
+	<input type="checkbox" id="pda2__backlight" class="pda2__backlight" />
 
 	<div class="pda2__bezel">
 		<!-- Screws -->
