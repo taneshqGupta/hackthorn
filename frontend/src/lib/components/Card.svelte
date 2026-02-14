@@ -16,7 +16,7 @@
 
 <style>
 	.card {
-		width: 300px;
+		width: 100%;
 		min-height: 250px;
 		translate: -6px -6px;
 		background: #ff66a3;
