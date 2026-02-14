@@ -68,6 +68,7 @@
 			<div class="pda2__statusbar">
 				<div class="pda2__logo">
 					<span class="pda2__blink"></span>
+					<span>AEGIS-VOICE</span>
 				</div>
 				<div class="pda2__ind">
 					<div class="pda2__sig">
