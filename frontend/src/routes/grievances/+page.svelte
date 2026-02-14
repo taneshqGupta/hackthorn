@@ -43,7 +43,7 @@
 			if (showOnlyMine) params.append('submitter_id', currentUser?.id || '');
 
 			const response = await api.get(`/api/grievances?${params.toString()}`);
-			grievances = response || [];
+		grievances = response.data || response || [];
 		} catch (err: any) {
 			error = err.message || 'Failed to load grievances';
 			grievances = [];
