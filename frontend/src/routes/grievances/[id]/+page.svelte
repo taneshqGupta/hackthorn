@@ -54,7 +54,7 @@
 		loading = true;
 		error = '';
 		try {
-			grievance = await api.get(`/grievances/${grievanceId}`);
+			grievance = await api.get(`/api/grievances/${grievanceId}`);
 			upvotesCount = grievance?.upvotes_count || 0;
 			// Check if current user has upvoted (would need another endpoint or include in response)
 		} catch (err: any) {
@@ -66,7 +66,7 @@
 
 	async function loadHistory() {
 		try {
-			history = await api.get(`/grievances/${grievanceId}/history`);
+			history = await api.get(`/api/grievances/${grievanceId}/history`);
 		} catch (err) {
 			console.error('Failed to load history:', err);
 		}
@@ -74,7 +74,7 @@
 
 	async function loadComments() {
 		try {
-			comments = await api.get(`/grievances/${grievanceId}/comments`);
+			comments = await api.get(`/api/grievances/${grievanceId}/comments`);
 		} catch (err) {
 			console.error('Failed to load comments:', err);
 		}
