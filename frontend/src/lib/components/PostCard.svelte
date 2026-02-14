@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { untrack } from 'svelte'; // Import untrack
+
     interface Props {
         id: string;
         username: string;
@@ -31,30 +33,27 @@
         onupvote
     }: Props = $props();
 
-    // 1. Initialize State ONCE
-    // svelte-ignore state_referenced_locally
-        let localUpvotes = $state(upvotes);
-    // svelte-ignore state_referenced_locally
-        let hasLiked = $state(isLiked);
+    // 1. Initialize State
+    let localUpvotes = $state(upvotes);
+    let hasLiked = $state(isLiked);
 
-    // 2. ONLY update from props if the Post ID changes (e.g. scrolling a feed)
-    // We intentionally ignore updates to 'upvotes' for the SAME id to prevent the double-counting bug.
+    // 2. THE FIX: Only reset if the ID changes.
+    // We use a keyed effect on 'id'. When 'id' changes, we reset the state to the new props.
+    // If 'upvotes' or 'isLiked' change while 'id' is the same (e.g. parent re-render), we IGNORE them.
     $effect(() => {
-        // This line simply "reads" id to track it
-        id; 
-        // We use untracked to prevent resetting when only upvotes/isLiked change partially
-        resetState();
+        id; // Dependency: run this effect when ID changes
+        
+        // Use untrack so reading upvotes/isLiked doesn't trigger this effect again
+        untrack(() => {
+            localUpvotes = upvotes;
+            hasLiked = isLiked;
+        });
     });
-
-    function resetState() {
-        localUpvotes = upvotes;
-        hasLiked = isLiked;
-    }
 
     function handleUpvote(e: MouseEvent | KeyboardEvent) {
         e.stopPropagation?.();
         
-        // Simple Toggle Logic
+        // Standard Toggle Logic
         if (hasLiked) {
             localUpvotes -= 1;
             hasLiked = false;
@@ -153,8 +152,6 @@
 </div>
 
 <style>
-    /* ... Keep all your previous styles ... */
-    
     .card {
         position: relative;
         background-color: transparent;
