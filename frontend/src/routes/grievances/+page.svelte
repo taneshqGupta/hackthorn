@@ -59,7 +59,6 @@
     }
 
     async function handleUpvote(grievanceId: string) {
-        // Optimistic Update
         grievances = grievances.map((g) => {
             if (g.id === grievanceId) {
                 const newLikedState = !g.user_has_upvoted;
@@ -80,7 +79,6 @@
         }
     }
 
-    // Helper to safely get name
     function getSubmitterName(g: Grievance): string {
         if (g.is_anonymous) return "Anonymous";
         return g.submitter
@@ -152,6 +150,7 @@
             </select>
         </div>
     </div>
+
     <button
         class="submit-btn"
         onclick={() => goto("/grievances/submit")}
@@ -174,7 +173,7 @@
     {#if loading}
         <div class="loading">Loading...</div>
     {:else}
-        {#each grievances as grievance}
+        {#each filteredGrievances as grievance}
             <PostCard
                 id={grievance.id}
                 username={getSubmitterName(grievance)}
@@ -191,6 +190,12 @@
                 onupvote={() => handleUpvote(grievance.id)}
             />
         {/each}
+
+        {#if filteredGrievances.length === 0}
+            <div class="text-[#6e0f1c] uppercase text-sm mt-8 opacity-50">
+                No issues found
+            </div>
+        {/if}
     {/if}
 </div>
 
@@ -238,5 +243,11 @@
         width: 28px;
         height: 28px;
         stroke: #fff;
+    }
+
+    /* Ensure select options are readable against your theme background */
+    option {
+        background-color: #f0f2f5;
+        color: #2b0b0b;
     }
 </style>
