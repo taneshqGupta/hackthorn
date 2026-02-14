@@ -81,28 +81,47 @@
 
 <style>
 	.install-btn {
+		font-size: 18px;
+		color: #e1e1e1;
+		font-family: inherit;
+		font-weight: 800;
+		cursor: pointer;
+		position: relative;
+		border: none;
+		background: none;
+		text-transform: uppercase;
+		transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+		transition-duration: 400ms;
+		transition-property: color;
+		padding: 0;
 		display: flex;
 		align-items: center;
-		justify-content: center;
-		width: 32px;
-		height: 32px;
-		background: #ffb3ba;
-		border: 2px solid #000;
-		border-radius: 4px;
-		cursor: pointer;
-		transition: all 0.2s;
-		color: #000;
-		padding: 0;
+		gap: 0.5rem;
 	}
 
+	.install-btn:focus,
 	.install-btn:hover {
-		background: #d06065;
 		color: #fff;
-		transform: translateY(-2px);
 	}
 
-	.install-btn:active {
-		transform: translateY(0);
+	.install-btn:focus:after,
+	.install-btn:hover:after {
+		width: 100%;
+		left: 0%;
+	}
+
+	.install-btn:after {
+		content: "";
+		pointer-events: none;
+		bottom: -2px;
+		left: 50%;
+		position: absolute;
+		width: 0%;
+		height: 2px;
+		background-color: #fff;
+		transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+		transition-duration: 400ms;
+		transition-property: width, left;
 	}
 </style>
 
@@ -115,11 +134,12 @@
 		<div class="flex items-center gap-2">
 			{#if showInstallButton}
 				<button onclick={handleInstallClick} class="install-btn" aria-label="Install App">
-					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
 						<polyline points="7 10 12 15 17 10"></polyline>
 						<line x1="12" y1="15" x2="12" y2="3"></line>
 					</svg>
+					<span>Install</span>
 				</button>
 			{/if}
 			<BurgerMenu />
