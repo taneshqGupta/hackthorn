@@ -52,7 +52,7 @@
 </script>
 
 <div class="container">
-	<button class="submit-btn" onclick={() => goto('/grievances/submit')}>
+	<button class="submit-btn" onclick={() => goto('/grievances/submit')} aria-label="Submit new grievance">
 		<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2">
 			<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
 		</svg>
@@ -75,6 +75,7 @@
 			category={formatCategory(grievance.category)}
 			onclick={() => goto(`/grievances/${grievance.id}`)}
 			onupvote={() => handleUpvote(grievance.id)}
+		/>
 		{/each}
 	{/if}
 </div>
