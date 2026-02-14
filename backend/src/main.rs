@@ -1,30 +1,32 @@
+mod academic;
 mod admin;
 mod auth;
 mod cloudinary;
 mod error;
 mod grievances;
+mod opportunity;
 mod partitioned_cookies;
 mod structs;
 mod telemetry;
-mod academic; // Added module declaration
 
 use admin::{
-    get_all_users, get_audit_logs, get_system_stats, get_user_by_id, update_own_role,
-    update_user_role, update_user_status, seed_dummy_users,
+    get_all_users, get_audit_logs, get_system_stats, get_user_by_id, seed_dummy_users,
+    update_own_role, update_user_role, update_user_status,
 };
 use auth::{get_current_user, google_callback, google_login_initiate, logout};
-use grievances::{
-    add_comment, assign_grievance, create_grievance, delete_grievance, get_comments,
-    get_departments, get_grievance_by_id, get_grievance_history, get_grievances,
-    resolve_grievance, toggle_upvote, update_grievance_status, upload_grievance_photos,
-};
 use axum::{
-    middleware, routing::{delete, get, post, put}, Json, Router,
+    Json, Router, middleware,
+    routing::{delete, get, post, put},
 };
 use error::AppError;
-use serde_json::json;
+use grievances::{
+    add_comment, assign_grievance, create_grievance, delete_grievance, get_comments,
+    get_departments, get_grievance_by_id, get_grievance_history, get_grievances, resolve_grievance,
+    toggle_upvote, update_grievance_status, upload_grievance_photos,
+};
 use http::{HeaderName, Method};
 use partitioned_cookies::add_partitioned_attribute;
+use serde_json::json;
 use sqlx::PgPool;
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
@@ -66,7 +68,10 @@ async fn main() -> Result<(), AppError> {
         .with_path("/");
 
     let app = Router::new()
-        .route("/", get(|| async { Json(json!({"status": "ok", "message": "Backend is running"})) }))
+        .route(
+            "/",
+            get(|| async { Json(json!({"status": "ok", "message": "Backend is running"})) }),
+        )
         // Auth routes
         .route("/auth/google", get(google_login_initiate))
         .route("/auth/google/callback", get(google_callback))
@@ -98,18 +103,62 @@ async fn main() -> Result<(), AppError> {
         .route("/api/dev/seed", post(seed_dummy_users))
         // --- ACADEMIC ROUTES ---
         // Course Management
-        .route("/api/courses", post(academic::create_course).get(academic::get_courses))
+        .route(
+            "/api/courses",
+            post(academic::create_course).get(academic::get_courses),
+        )
         .route("/api/courses/enroll", post(academic::enroll_course))
-        .route("/api/courses/my-enrollments", get(academic::get_my_enrollments))
+        .route(
+            "/api/courses/my-enrollments",
+            get(academic::get_my_enrollments),
+        )
         .route("/api/courses/{id}", get(academic::get_course_details))
         // Attendance
         .route("/api/attendance/mark", post(academic::mark_attendance))
         .route("/api/attendance/{id}", get(academic::get_my_attendance))
         // Resources (Vault)
-        .route("/api/courses/{id}/resources", post(academic::create_resource).get(academic::get_course_resources))
+        .route(
+            "/api/courses/{id}/resources",
+            post(academic::create_resource).get(academic::get_course_resources),
+        )
         // Calendar
-        .route("/api/events", post(academic::create_event).get(academic::get_my_calendar))
-        
+        .route(
+            "/api/events",
+            post(academic::create_event).get(academic::get_my_calendar),
+        )
+        // --- OPPORTUNITY ROUTES (PILLAR 4) ---
+        // 1. Opportunities (Faculty post, Students browse)
+        .route(
+            "/api/opportunities",
+            post(opportunity::create_opportunity).get(opportunity::get_opportunities),
+        )
+        // 2. Applications (Apply & View My History)
+        .route(
+            "/api/opportunities/:id/apply",
+            post(opportunity::apply_opportunity),
+        )
+        .route(
+            "/api/applications/my-applications",
+            get(opportunity::get_my_applications),
+        )
+        // 3. Faculty Management (View Applicants & Update Status)
+        .route(
+            "/api/opportunities/:id/applications",
+            get(opportunity::get_opportunity_applications),
+        )
+        .route(
+            "/api/applications/:id/status",
+            put(opportunity::update_application_status),
+        )
+        // 4. The Scholar's Ledger (Personal Tasks)
+        .route(
+            "/api/tasks",
+            post(opportunity::create_task).get(opportunity::get_tasks),
+        )
+        .route(
+            "/api/tasks/:id",
+            put(opportunity::update_task).delete(opportunity::delete_task),
+        )
         .with_state(pool)
         .layer(session_layer)
         .layer(middleware::from_fn(add_partitioned_attribute))
