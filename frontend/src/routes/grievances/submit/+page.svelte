@@ -131,9 +131,9 @@
 			};
 			
 			console.log('[SUBMIT] Grievance data:', grievanceData);
-			console.log('[SUBMIT] Posting to /grievances endpoint');
+			console.log('[SUBMIT] Posting to /api/grievances endpoint');
 
-			const response = await api.post('/grievances', grievanceData);
+			const response = await api.post('/api/grievances', grievanceData);
 			const grievanceId = response.id;
 			
 			console.log('[SUBMIT] Grievance created successfully, ID:', grievanceId);
@@ -146,8 +146,8 @@
 					formData.append('photos', file);
 				});
 
-				console.log('[SUBMIT] Posting photos to /grievances/' + grievanceId + '/photos');
-				await api.post(`/grievances/${grievanceId}/photos`, formData);
+				console.log('[SUBMIT] Posting photos to /api/grievances/' + grievanceId + '/photos');
+				await api.post(`/api/grievances/${grievanceId}/photos`, formData);
 				console.log('[SUBMIT] Photos uploaded successfully');
 			} else {
 				console.log('[SUBMIT] No photos to upload');
