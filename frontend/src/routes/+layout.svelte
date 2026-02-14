@@ -81,7 +81,7 @@
 
 <style>
 	.install-btn {
-		font-size: 14px;
+		font-size: 16px;
 		color: #000;
 		font-family: 'Oswald', sans-serif;
 		font-weight: 600;
@@ -96,6 +96,7 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
+		margin-right: 2rem;
 	}
 
 	.install-btn:focus,
