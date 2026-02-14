@@ -54,59 +54,118 @@
 </script>
 
 <div class="dashboard-container">
-    <div class="content-stack">
-        <div class="health-indicator {isSystemHealthy ? 'healthy' : 'critical'}">
-            CITADEL STATUS: {isSystemHealthy ? "OPERATIONAL" : "CRITICAL FAILURE"}
-        </div>
+	<div
+		class="health-indicator {isSystemHealthy
+			? 'bg-green-100 text-green-700'
+			: 'bg-red-100 text-red-700'} text-[10px] font-bold px-2 py-1 mb-4 uppercase tracking-tighter border border-current"
+	>
+		Citadel Status: {isSystemHealthy ? "Operational" : "Critical Failure"}
+	</div>
+	<nav
+		class="w-full flex mb-6 border-2 border-[#2b0b0b] bg-transparent shadow-[4px_4px_0px_rgba(0,0,0,0.1)]"
+	>
+		<button
+			onclick={() => goto("/dashboard/admin")}
+			class="nav-tab border-r-2 border-[#2b0b0b]"
+			class:active={$page.url.pathname === "/dashboard/admin"}
+		>
+			PANEL
+		</button>
+		<button
+			onclick={() => goto("/admin/users")}
+			class="nav-tab border-r-2 border-[#2b0b0b]"
+			class:active={$page.url.pathname === "/admin/users"}
+		>
+			ROSTER
+		</button>
+		<button
+			onclick={() => goto("/admin/logs")}
+			class="nav-tab"
+			class:active={$page.url.pathname === "/admin/logs"}
+		>
+			TRAIL
+		</button>
+	</nav>
+	<h1
+		class="text-8xl font-bold mb-6 text-[#2b0b0b] tracking-tighter uppercase text-center w-full"
+	>
+		Admin Panel
+	</h1>
 
-		<h1 class="title">Admin Panel</h1>
+	{#if loading}
+		<div class="loading text-center uppercase tracking-widest opacity-50">
+			Syncing Citadel...
+		</div>
+	{:else}
+		<div class="grid grid-cols-2 gap-2 mb-6 w-full">
+			<div class="stat-box">
+				<span class="label">ACTIVE</span>
+				<span class="value">{stats?.active_users ?? 0}</span>
+			</div>
+			<div class="stat-box">
+				<span class="label">TOTAL</span>
+				<span class="value">{stats?.total_grievances ?? 0}</span>
+			</div>
+			<div class="stat-box alert">
+				<span class="label">PENDING</span>
+				<span class="value">{stats?.pending_grievances ?? 0}</span>
+			</div>
+			<div class="stat-box success">
+				<span class="label">RESOLVED</span>
+				<span class="value">{stats?.resolved_grievances ?? 0}</span>
+			</div>
+		</div>
 
-        {#if loading}
-            <div class="loading">Syncing Citadel...</div>
-        {:else}
-            <div class="stat-grid">
-                <div class="stat-box">
-                    <span class="label">ACTIVE</span>
-                    <span class="value">{stats?.active_users ?? 0}</span>
-                </div>
-                <div class="stat-box">
-                    <span class="label">TOTAL</span>
-                    <span class="value">{stats?.total_grievances ?? 0}</span>
-                </div>
-                <div class="stat-box alert">
-                    <span class="label">PENDING</span>
-                    <span class="value">{stats?.pending_grievances ?? 0}</span>
-                </div>
-                <div class="stat-box success">
-                    <span class="label">RESOLVED</span>
-                    <span class="value">{stats?.resolved_grievances ?? 0}</span>
-                </div>
-            </div>
+		<div class="flex flex-col gap-6 w-full">
+			<div class="brutalist-card">
+				<h3
+					class="mb-4 text-xl border-b-2 border-[#2b0b0b] uppercase font-black"
+				>
+					Command
+				</h3>
+				<div class="flex flex-col gap-2">
+					<button
+						onclick={() => goto("/admin/users")}
+						class="retro-btn"
+					>
+						USER ROSTERS
+					</button>
+					<button
+						onclick={() => goto("/dashboard/student/grievances")}
+						class="retro-btn"
+					>
+						GRIEVANCE FEED
+					</button>
+				</div>
+			</div>
 
-            <div class="command-stack">
-                <div class="brutalist-card">
-                    <h3>Command</h3>
-                    <div class="btn-group">
-                        <button onclick={() => goto("/admin/users")} class="retro-btn">USER ROSTERS</button>
-                        <button onclick={() => goto("/dashboard/student/grievances")} class="retro-btn">GRIEVANCE FEED</button>
-                    </div>
-                </div>
-
-                <div class="brutalist-card">
-                    <h3>Audit Trail</h3>
-                    <div class="log-list">
-                        {#each logs as log}
-                            <div class="log-item">
-                                <span class="action">{log.action.replace("_", " ")}</span>
-                                <span class="user">BY {log.user?.first_name ?? "SYSTEM"}</span>
-                            </div>
-                        {/each}
-                    </div>
-                    <button onclick={() => goto("/admin/logs")} class="log-link">Open Full Logs →</button>
-                </div>
-            </div>
-        {/if}
-    </div>
+			<div class="brutalist-card">
+				<h3
+					class="mb-4 text-xl border-b-2 border-[#2b0b0b] uppercase font-black"
+				>
+					Audit Trail
+				</h3>
+				<div class="log-list">
+					{#each logs as log}
+						<div class="log-item">
+							<span class="action"
+								>{log.action.replace("_", " ")}</span
+							>
+							<span class="user"
+								>BY {log.user?.first_name ?? "SYSTEM"}</span
+							>
+						</div>
+					{/each}
+				</div>
+				<button
+					onclick={() => goto("/admin/logs")}
+					class="mt-4 text-[10px] underline uppercase font-bold tracking-tighter hover:text-[#b31b34]"
+				>
+					Open Full Logs →
+				</button>
+			</div>
+		</div>
+	{/if}
 </div>
 
 <style>
