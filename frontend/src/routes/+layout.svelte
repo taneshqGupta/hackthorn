@@ -23,21 +23,16 @@
 		style="border-color: #d06065; height: 40px;"
 	>
 		<Logo />
-		<div class="flex items-center">
+		<div class="flex items-center gap-2">
 			{#if currentUser}
-				<div class="mr-4">
-					<button onclick={() => goto('/profile')} class="btn btn-ghost btn-circle">
-						<div class="avatar">
-							<div class="w-10 rounded-full">
-								<img
-									src={currentUser.avatar ||
-										`https://ui-avatars.com/api/?name=${currentUser.name}&background=random`}
-									alt="user avatar"
-								/>
-							</div>
-						</div>
-					</button>
-				</div>
+				<button onclick={() => goto('/profile')} class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+					<img
+						src={currentUser.avatar ||
+							`https://ui-avatars.com/api/?name=${currentUser.name}&background=random&size=32`}
+						alt="user avatar"
+						class="w-8 h-8 rounded-full object-cover"
+					/>
+				</button>
 			{/if}
 			<BurgerMenu isOpen={false} ontoggle={() => {}} />
 		</div>
