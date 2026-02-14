@@ -825,4 +825,38 @@
 			filter: invert(1);
 		}
 	}
+	.back-to-feed-btn {
+		position: fixed;
+		bottom: 2rem;
+		right: 2rem;
+		width: 60px;
+		height: 60px;
+		border-radius: 0; /* Brutalist sharp corners */
+		background-color: rgba(
+			43,
+			11,
+			11,
+			0.9
+		); /* Darker tone to distinguish from 'Create' red */
+		border: 2px solid rgba(198, 225, 237, 0.6);
+		box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: 200ms ease-in-out;
+		z-index: 100;
+	}
+
+	.back-to-feed-btn:hover {
+		transform: translate(-2px, -2px);
+		box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.7);
+		background-color: rgba(43, 11, 11, 1);
+	}
+
+	.back-to-feed-btn svg {
+		width: 28px;
+		height: 28px;
+		stroke: #fff;
+	}
 </style>
