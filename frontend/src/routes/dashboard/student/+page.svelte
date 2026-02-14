@@ -20,7 +20,7 @@
     </header>
 
     <div class="gateway-grid">
-        <button onclick={() => goto('/grievances')} class="gateway-card red">
+        <button onclick={() => goto('/dashboard/student/grievances')} class="gateway-card red">
             <div class="card-inner">
                 <span class="pillar-no">PILLAR_II</span>
                 <h2>THE_SILENT_SCROLL</h2>

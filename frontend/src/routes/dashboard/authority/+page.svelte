@@ -24,7 +24,7 @@
 			<div class="card-body items-center text-center">
 				<h2 class="card-title text-2xl mb-4">Grievance Management</h2>
 				<p class="mb-6">Track, assign, and resolve campus issues</p>
-				<button onclick={() => goto('/grievances')} class="btn btn-primary btn-lg">
+				<button onclick={() => goto('/dashboard/student/grievances')} class="btn btn-primary btn-lg">
 					Go to Grievance System
 				</button>
 			</div>
