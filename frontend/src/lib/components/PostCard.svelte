@@ -129,7 +129,7 @@
 	}
 
 	.username {
-		color: #c6e1ed;
+		color: #6e0f1c;
 		font-size: 0.85em;
 		font-weight: 600;
 		margin-bottom: 0.5em;
@@ -142,7 +142,7 @@
 	}
 
 	.title {
-		color: #e0e3f5;
+		color: #2b0b0b;
 		font-size: 1.1em;
 		font-weight: 600;
 		margin-bottom: 0.5em;
@@ -152,7 +152,7 @@
 	.body .text {
 		margin: 0 10px 0 0;
 		white-space: pre-line;
-		color: #c0c3d7;
+		color: #3b0b12;
 		font-weight: 400;
 		line-height: 1.5;
 		margin-bottom: 4px;
@@ -212,7 +212,7 @@
 	.footer {
 		position: relative;
 		width: 100%;
-		color: #9fa4aa;
+		color: #5a0f1a;
 		font-size: 12px;
 		display: flex;
 		align-items: center;
@@ -230,7 +230,7 @@
 	}
 
 	.footer-item:hover {
-		color: #c6e1ed;
+		color: #b31b34;
 	}
 
 	.footer-item svg {
