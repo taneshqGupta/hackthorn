@@ -108,8 +108,7 @@
 <style>
 	.card {
 		position: relative;
-		background-color: rgba(48, 52, 76, 0.3);
-		backdrop-filter: blur(10px);
+		background-color: transparent;
 		padding: 1em;
 		z-index: 5;
 		box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
@@ -120,6 +119,7 @@
 		cursor: pointer;
 		text-align: left;
 		width: 100%;
+		font-family: inherit;
 	}
 
 	.card:hover {
@@ -133,6 +133,7 @@
 		font-size: 0.85em;
 		font-weight: 600;
 		margin-bottom: 0.5em;
+		font-family: inherit;
 	}
 
 	.body {
@@ -145,6 +146,7 @@
 		font-size: 1.1em;
 		font-weight: 600;
 		margin-bottom: 0.5em;
+		font-family: inherit;
 	}
 
 	.body .text {
@@ -159,12 +161,14 @@
 		line-clamp: 3;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
+		font-family: inherit;
 	}
 
 	.images {
 		margin-top: 10px;
-		border-radius: 8px;
+		border-radius: 0px;
 		overflow: hidden;
+		border: 2px solid rgba(198, 225, 237, 0.6);
 	}
 
 	.images.single {
