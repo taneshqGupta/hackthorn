@@ -82,7 +82,7 @@
 <style>
 	.install-btn {
 		font-size: 18px;
-		color: #e1e1e1;
+		color: #000;
 		font-family: inherit;
 		font-weight: 800;
 		cursor: pointer;
@@ -101,7 +101,7 @@
 
 	.install-btn:focus,
 	.install-btn:hover {
-		color: #fff;
+		color: #000;
 	}
 
 	.install-btn:focus:after,
@@ -118,7 +118,7 @@
 		position: absolute;
 		width: 0%;
 		height: 2px;
-		background-color: #fff;
+		background-color: #000;
 		transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
 		transition-duration: 400ms;
 		transition-property: width, left;
@@ -131,15 +131,10 @@
 		style="border-color: #d06065; height: 40px;"
 	>
 		<Logo />
-		<div class="flex items-center gap-2">
+		<div class="flex items-center gap-6">
 			{#if showInstallButton}
 				<button onclick={handleInstallClick} class="install-btn" aria-label="Install App">
-					<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-						<polyline points="7 10 12 15 17 10"></polyline>
-						<line x1="12" y1="15" x2="12" y2="3"></line>
-					</svg>
-					<span>Install</span>
+					Install App
 				</button>
 			{/if}
 			<BurgerMenu />
