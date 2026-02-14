@@ -41,7 +41,7 @@
 		return postDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 	}
 
-	const displayImages = images.slice(0, 5);
+	const displayImages = $derived(images.slice(0, 5));
 </script>
 
 <button class="card" onclick={onclick}>
@@ -154,6 +154,7 @@
 		margin-bottom: 4px;
 		display: -webkit-box;
 		-webkit-line-clamp: 3;
+		line-clamp: 3;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 	}
