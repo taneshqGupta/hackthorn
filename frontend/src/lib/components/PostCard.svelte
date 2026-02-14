@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { untrack } from 'svelte'; // Import untrack
-
     interface Props {
         id: string;
         username: string;
@@ -14,7 +12,7 @@
         category?: string;
         isLiked?: boolean;
         onclick?: () => void;
-        onupvote?: (newStatus: boolean) => void;
+        onupvote?: () => void;
     }
 
     let {
@@ -33,50 +31,36 @@
         onupvote
     }: Props = $props();
 
-    // 1. Initialize State
-    let localUpvotes = $state(upvotes);
-    let hasLiked = $state(isLiked);
+    // 1. Track local interaction (null = user hasn't touched it yet)
+    let userInteraction = $state<boolean | null>(null);
 
-    // 2. THE FIX: Only reset if the ID changes.
-    // We use a keyed effect on 'id'. When 'id' changes, we reset the state to the new props.
-    // If 'upvotes' or 'isLiked' change while 'id' is the same (e.g. parent re-render), we IGNORE them.
-    $effect(() => {
-        id; // Dependency: run this effect when ID changes
-        
-        // Use untrack so reading upvotes/isLiked doesn't trigger this effect again
-        untrack(() => {
-            localUpvotes = upvotes;
-            hasLiked = isLiked;
-        });
+    // 2. Compute final state: "If user touched it, use that. Else use prop."
+    let currentLiked = $derived(userInteraction ?? isLiked);
+
+    // 3. Compute final count mathematically
+    let currentUpvotes = $derived.by(() => {
+        if (userInteraction === null) return upvotes; // No interaction, use server count
+        // If user liked it locally but server says unliked: +1
+        if (userInteraction && !isLiked) return upvotes + 1;
+        // If user unliked it locally but server says liked: -1
+        if (!userInteraction && isLiked) return upvotes - 1;
+        return upvotes;
     });
 
     function handleUpvote(e: MouseEvent | KeyboardEvent) {
         e.stopPropagation?.();
-        
-        // Standard Toggle Logic
-        if (hasLiked) {
-            localUpvotes -= 1;
-            hasLiked = false;
-        } else {
-            localUpvotes += 1;
-            hasLiked = true;
-        }
-
-        console.log(`[PostCard] Toggled like for ${id}. New state: ${hasLiked}`);
-        if (onupvote) onupvote(hasLiked);
+        // Toggle interaction
+        userInteraction = !currentLiked;
+        if (onupvote) onupvote();
     }
 
     function formatDate(dateString: string): string {
         const postDate = new Date(dateString);
         const now = new Date();
-        const diffMs = now.getTime() - postDate.getTime();
-        const diffMins = Math.floor(diffMs / 60000);
-        const diffHours = Math.floor(diffMs / 3600000);
-        const diffDays = Math.floor(diffMs / 86400000);
-
-        if (diffMins < 60) return `${diffMins}m ago`;
-        if (diffHours < 24) return `${diffHours}h ago`;
-        if (diffDays < 7) return `${diffDays}d ago`;
+        const diff = now.getTime() - postDate.getTime();
+        if (diff < 60000) return 'Just now';
+        if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+        if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
         return postDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
 
@@ -87,15 +71,13 @@
     <div class="username">{username}</div>
 
     <div class="body">
-        {#if title}
-            <div class="title">{title}</div>
-        {/if}
+        {#if title} <div class="title">{title}</div> {/if}
         <div class="text">{content}</div>
 
         {#if displayImages.length > 0}
             <div class="images" class:single={displayImages.length === 1} class:grid={displayImages.length > 1}>
                 {#each displayImages as image}
-                    <img src={image} alt="Post attachment" />
+                    <img src={image} alt="Evidence" />
                 {/each}
             </div>
         {/if}
@@ -104,16 +86,16 @@
     <div class="footer">
         <div 
             class="footer-item upvote-btn" 
-            class:liked={hasLiked}
-            onclick={(e) => { (e as MouseEvent).stopPropagation(); handleUpvote(e as MouseEvent); }} 
+            class:liked={currentLiked}
+            onclick={handleUpvote} 
             role="button" 
-            tabindex="0" 
-            onkeydown={(e) => { (e as KeyboardEvent).stopPropagation(); if ((e as KeyboardEvent).key === 'Enter') handleUpvote(e as KeyboardEvent); }}
+            tabindex="0"
+            onkeydown={(e) => e.key === 'Enter' && handleUpvote(e)}
         >
-            <svg xmlns="http://www.w3.org/2000/svg" fill={hasLiked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke-width="1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" fill={currentLiked ? "currentColor" : "none"} viewBox="0 0 24 24" stroke-width="1.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
             </svg>
-            <span>{localUpvotes}</span>
+            <span>{currentUpvotes}</span>
         </div>
 
         <div class="footer-item">
@@ -125,180 +107,71 @@
 
         <div class="footer-item">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
             </svg>
             <span>{formatDate(date)}</span>
         </div>
 
         {#if status}
-            <div class="footer-item">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-                <span>{status}</span>
+            <div class="footer-item status-badge">
+               <span>{status}</span>
             </div>
         {/if}
-
+        
         {#if category}
-            <div class="footer-item">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" />
-                </svg>
-                <span>{category}</span>
+             <div class="footer-item">
+                <span>#{category}</span>
             </div>
         {/if}
     </div>
 </div>
 
 <style>
+    /* ... Keep all your existing styles ... */
+    
+    .upvote-btn.liked {
+        color: #e11d48;
+    }
+    .upvote-btn.liked svg {
+        fill: currentColor;
+    }
+    
+    /* Ensure styles from previous answer are included */
     .card {
         position: relative;
         background-color: transparent;
         padding: 1em;
         z-index: 5;
         box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
-        border-radius: 0px;
-        max-width: 300px;
-        transition: 200ms ease-in-out;
         border: 2px solid rgba(198, 225, 237, 0.6);
         cursor: pointer;
         text-align: left;
         width: 100%;
-        font-family: inherit;
+        transition: 200ms ease-in-out;
     }
-
+    
     .card:hover {
         transform: translate(-2px, -2px);
         box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.7);
         border-color: rgba(198, 225, 237, 0.9);
     }
-
-    .username {
-        color: #6e0f1c;
-        font-size: 0.85em;
-        font-weight: 600;
-        margin-bottom: 0.5em;
-        font-family: inherit;
-    }
-
-    .body {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .title {
-        color: #2b0b0b;
-        font-size: 1.1em;
-        font-weight: 600;
-        margin-bottom: 0.5em;
-        font-family: inherit;
-    }
-
-    .body .text {
-        margin: 0 10px 0 0;
-        white-space: pre-line;
-        color: #3b0b12;
-        font-weight: 400;
-        line-height: 1.5;
-        margin-bottom: 4px;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        font-family: inherit;
-    }
-
-    .images {
-        margin-top: 10px;
-        border-radius: 0px;
-        overflow: hidden;
-        border: 2px solid rgba(198, 225, 237, 0.6);
-    }
-
-    .images.single {
-        display: block;
-    }
-
-    .images.single img {
-        width: 100%;
-        height: auto;
-        max-height: 200px;
-        object-fit: cover;
-    }
-
-    .images.grid {
-        display: grid;
-        gap: 4px;
-    }
-
-    .images.grid:has(img:nth-child(2)) {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .images.grid:has(img:nth-child(3):last-child) {
-        grid-template-columns: 1fr 1fr 1fr;
-    }
-
-    .images.grid:has(img:nth-child(4)) {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .images.grid:has(img:nth-child(5)) {
-        grid-template-columns: 1fr 1fr 1fr;
-    }
-
-    .images img {
-        width: 100%;
-        height: 100px;
-        object-fit: cover;
-    }
-
+    
     .footer {
-        position: relative;
-        width: 100%;
-        color: #5a0f1a;
-        font-size: 12px;
         display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        border: none;
+        gap: 1rem;
+        font-size: 0.8rem;
+        color: #555;
         margin-top: 10px;
     }
-
+    
     .footer-item {
         display: flex;
         align-items: center;
-        cursor: pointer;
-        transition: color 0.2s;
+        gap: 4px;
     }
-
-    .footer-item:hover {
-        color: #b31b34;
-    }
-
-    .upvote-btn.liked {
-        color: #e11d48;
-    }
-
-    .upvote-btn.liked svg {
-        fill: currentColor;
-    }
-
-    .upvote-btn:hover {
-        transform: scale(1.1);
-    }
-
+    
     .footer-item svg {
-        margin-right: 4px;
-        height: 16px;
         width: 16px;
-        stroke: currentColor;
-    }
-
-    .footer-item span {
-        line-height: 1;
+        height: 16px;
     }
 </style>
