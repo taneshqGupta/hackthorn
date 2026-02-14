@@ -91,13 +91,14 @@ pub async fn google_callback(
         .map_err(|e| AppError::HttpError(StatusCode::INTERNAL_SERVER_ERROR, e.into()))?;
 
     if !user_info.email.ends_with("@iitmandi.ac.in") && !user_info.email.ends_with("@students.iitmandi.ac.in") {
-        // Redirect to error page instead of returning error response
+        // Redirect to dedicated error page for non-institute emails
         let frontend_url = query.state.as_ref()
             .and_then(|s| urlencoding::decode(s).ok())
             .map(|s| s.to_string())
             .unwrap_or_else(|| env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:4173".to_string()));
         let error_msg = urlencoding::encode("Only IIT Mandi email addresses are allowed");
-        return Ok(Redirect::to(&format!("{}/login?error={}", frontend_url, error_msg)));
+        let error_details = urlencoding::encode("Please use your @iitmandi.ac.in or @students.iitmandi.ac.in email address");
+        return Ok(Redirect::to(&format!("{}/auth-error?error={}&details={}", frontend_url, error_msg, error_details)));
     }
 
     let user = match sqlx::query_as::<_, User>(
