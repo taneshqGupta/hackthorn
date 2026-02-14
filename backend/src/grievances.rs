@@ -74,6 +74,10 @@ pub async fn create_grievance(
         None
     };
 
+    tracing::info!("[CREATE_GRIEVANCE] Inserting into database");
+    tracing::info!("[CREATE_GRIEVANCE] submitted_by={:?}, anonymous={}, identifier={:?}", 
+        submitted_by, payload.is_anonymous, anonymous_identifier);
+    
     let grievance = sqlx::query_as::<_, Grievance>(
         r#"
         INSERT INTO grievances (
@@ -97,6 +101,8 @@ pub async fn create_grievance(
     .fetch_one(&pool)
     .await?;
 
+    tracing::info!("[CREATE_GRIEVANCE] Grievance created successfully: id={}", grievance.id);
+
     // Log the creation
     sqlx::query(
         "INSERT INTO audit_logs (user_id, action, metadata) VALUES ($1, $2, $3)"
@@ -109,8 +115,13 @@ pub async fn create_grievance(
         "priority": grievance.priority,
     }))
     .execute(&pool)
-    .await?;
+    .await
+    .map_err(|e| {
+        tracing::error!("[CREATE_GRIEVANCE] Audit log insert failed: {:?}", e);
+        e
+    })?;
 
+    tracing::info!("[CREATE_GRIEVANCE] Building response object");
     let response = GrievanceResponse {
         id: grievance.id,
         submitter: None,
@@ -134,6 +145,7 @@ pub async fn create_grievance(
         updated_at: grievance.updated_at,
     };
 
+    tracing::info!("[CREATE_GRIEVANCE] Successfully created grievance id={}, returning response", response.id);
     Ok(Json(ApiResponse {
         success: true,
         data: Some(response),

@@ -61,29 +61,57 @@ export function getGoogleLoginUrl(): string {
 // Generic API helper
 const api = {
     async get<T = any>(path: string): Promise<T> {
-        const response = await fetch(`${PUBLIC_BACKEND_URL}${path.startsWith('/') ? path.slice(1) : path}`, {
+        const url = `${PUBLIC_BACKEND_URL}${path.startsWith('/') ? path.slice(1) : path}`;
+        console.log(`[API] GET ${url}`);
+        
+        const response = await fetch(url, {
             method: 'GET',
             credentials: 'include',
         });
+        
+        console.log(`[API] GET ${path} - Status: ${response.status}`);
+        
         if (!response.ok) {
             const error = await response.json().catch(() => ({ message: response.statusText }));
+            console.error(`[API] GET ${path} - Failed:`, error);
             throw new Error(error.message || `GET ${path} failed`);
         }
-        return response.json();
+        const data = await response.json();
+        console.log(`[API] GET ${path} - Success:`, data);
+        return data;
     },
     async post<T = any>(path: string, data?: any): Promise<T> {
         const isFormData = data instanceof FormData;
-        const response = await fetch(`${PUBLIC_BACKEND_URL}${path.startsWith('/') ? path.slice(1) : path}`, {
+        const url = `${PUBLIC_BACKEND_URL}${path.startsWith('/') ? path.slice(1) : path}`;
+        
+        console.log(`[API] POST ${url}`);
+        console.log(`[API] POST ${path} - Request body:`, isFormData ? '[FormData]' : data);
+        console.log(`[API] POST ${path} - Content-Type:`, isFormData ? 'multipart/form-data' : 'application/json');
+        
+        const response = await fetch(url, {
             method: 'POST',
             credentials: 'include',
             headers: isFormData ? {} : { 'Content-Type': 'application/json' },
             body: isFormData ? data : JSON.stringify(data),
         });
+        
+        console.log(`[API] POST ${path} - Status: ${response.status}`);
+        console.log(`[API] POST ${path} - Status text: ${response.statusText}`);
+        console.log(`[API] POST ${path} - Headers:`, Object.fromEntries(response.headers.entries()));
+        
         if (!response.ok) {
-            const error = await response.json().catch(() => ({ message: response.statusText }));
+            console.error(`[API] POST ${path} - Response not OK, attempting to parse error`);
+            const error = await response.json().catch((e) => {
+                console.error(`[API] POST ${path} - Failed to parse error response:`, e);
+                return { message: response.statusText };
+            });
+            console.error(`[API] POST ${path} - Error response:`, error);
             throw new Error(error.message || `POST ${path} failed`);
         }
-        return response.json();
+        
+        const responseData = await response.json();
+        console.log(`[API] POST ${path} - Success response:`, responseData);
+        return responseData;
     },
     async put<T = any>(path: string, data?: any): Promise<T> {
         const response = await fetch(`${PUBLIC_BACKEND_URL}${path.startsWith('/') ? path.slice(1) : path}`, {

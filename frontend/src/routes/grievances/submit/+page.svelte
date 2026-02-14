@@ -159,8 +159,17 @@
 				goto(`/grievances/${grievanceId}`);
 			}, 1500);
 		} catch (err: any) {
-			console.error('[SUBMIT] Submission failed:', err);
+			console.error('[SUBMIT] ===== SUBMISSION FAILED ===== ');
+			console.error('[SUBMIT] Error object:', err);
+			console.error('[SUBMIT] Error type:', typeof err);
 			console.error('[SUBMIT] Error message:', err.message);
+			console.error('[SUBMIT] Error stack:', err.stack);
+			if (err.response) {
+				console.error('[SUBMIT] Error response:', err.response);
+				console.error('[SUBMIT] Error response status:', err.response?.status);
+				console.error('[SUBMIT] Error response data:', err.response?.data);
+			}
+			console.error('[SUBMIT] Full error details:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
 			error = err.message || 'Failed to submit grievance';
 			loading = false;
 		}
