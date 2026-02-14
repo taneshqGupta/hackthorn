@@ -48,8 +48,8 @@
 				{#if currentUser}
 					<button class="menu-item" onclick={() => navigate('/profile')}>
 						<img
-							src={currentUser.avatar ||
-								`https://ui-avatars.com/api/?name=${currentUser.name}&background=random&size=32`}
+							src={currentUser.profile_picture ||
+								`https://ui-avatars.com/api/?name=${currentUser.first_name}&background=random&size=32`}
 							alt="avatar"
 							class="avatar-small"
 						/>

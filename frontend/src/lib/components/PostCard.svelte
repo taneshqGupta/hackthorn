@@ -1,5 +1,70 @@
 <script lang="ts">
-    // ... Props logic stays exactly the same ...
+    interface Props {
+        id: string;
+        username: string;
+        title?: string;
+        content: string;
+        images?: string[];
+        upvotes?: number;
+        commentsCount?: number;
+        date: string;
+        status?: string;
+        category?: string;
+        isLiked?: boolean;
+        onclick?: () => void;
+        onupvote?: () => void;
+    }
+
+    let {
+        id,
+        username,
+        title,
+        content,
+        images = [],
+        upvotes = 0,
+        commentsCount = 0,
+        date,
+        status,
+        category,
+        isLiked = false,
+        onclick,
+        onupvote
+    }: Props = $props();
+
+    // 1. Track local interaction (null = user hasn't touched it yet)
+    let userInteraction = $state<boolean | null>(null);
+
+    // 2. Compute final state: "If user touched it, use that. Else use prop."
+    let currentLiked = $derived(userInteraction ?? isLiked);
+
+    // 3. Compute final count mathematically
+    let currentUpvotes = $derived.by(() => {
+        if (userInteraction === null) return upvotes; // No interaction, use server count
+        // If user liked it locally but server says unliked: +1
+        if (userInteraction && !isLiked) return upvotes + 1;
+        // If user unliked it locally but server says liked: -1
+        if (!userInteraction && isLiked) return upvotes - 1;
+        return upvotes;
+    });
+
+    function handleUpvote(e: MouseEvent | KeyboardEvent) {
+        e.stopPropagation?.();
+        // Toggle interaction
+        userInteraction = !currentLiked;
+        if (onupvote) onupvote();
+    }
+
+    function formatDate(dateString: string): string {
+        const postDate = new Date(dateString);
+        const now = new Date();
+        const diff = now.getTime() - postDate.getTime();
+        if (diff < 60000) return 'Just now';
+        if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+        if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+        return postDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    const displayImages = $derived(images.slice(0, 5));
 </script>
 
 <div class="card-wrapper">
