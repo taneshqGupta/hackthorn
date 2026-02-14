@@ -107,41 +107,53 @@
 
 	.loader-wrapper {
 		position: absolute;
-		bottom: 40px;
+		bottom: clamp(20px, 5vh, 40px);
 		left: 50%;
 		transform: translateX(-50%);
 		z-index: 1;
 	}
 
 	.loader {
-		width: 420px;
-		height: 487px;
+		width: clamp(210px, 50vw, 420px);
+		height: clamp(243px, 58vw, 487px);
 		position: relative;
 		background: #fff;
-		border-radius: 262px 262px 0 0;
+		border-radius: clamp(131px, 31vw, 262px) clamp(131px, 31vw, 262px) 0 0;
 	}
 
 	.loader:after {
 		content: "";
 		position: absolute;
-		width: 262px;
-		height: 328px;
+		width: clamp(131px, 31vw, 262px);
+		height: clamp(164px, 39vw, 328px);
 		left: 50%;
-		top: 66px;
+		top: clamp(33px, 8vw, 66px);
 		transform: translateX(-50%);
 		background-image: radial-gradient(circle, #000 48%, transparent 55%),
 			radial-gradient(circle, #000 48%, transparent 55%),
 			radial-gradient(circle, #fff 30%, transparent 45%),
 			radial-gradient(circle, #000 48%, transparent 51%),
-			linear-gradient(#000 52px, transparent 0),
-			linear-gradient(#cfecf9 157px, transparent 0),
+			linear-gradient(#000 clamp(26px, 6vw, 52px), transparent 0),
+			linear-gradient(#cfecf9 clamp(78px, 19vw, 157px), transparent 0),
 			radial-gradient(circle, #cfecf9 50%, transparent 51%),
 			radial-gradient(circle, #cfecf9 50%, transparent 51%);
 		background-repeat: no-repeat;
-		background-size: 42px 42px, 42px 42px, 26px 26px, 110px 110px, 31px 8px,
-			131px 66px, 184px 184px, 184px 184px;
-		background-position: 66px 26px, 144px 26px, 94px 115px, 50% 79px, 50% 223px,
-			50% 131px, 50% 58px, 50% 118px;
+		background-size: clamp(21px, 5vw, 42px) clamp(21px, 5vw, 42px), 
+			clamp(21px, 5vw, 42px) clamp(21px, 5vw, 42px), 
+			clamp(13px, 3vw, 26px) clamp(13px, 3vw, 26px), 
+			clamp(55px, 13vw, 110px) clamp(55px, 13vw, 110px), 
+			clamp(15px, 4vw, 31px) clamp(4px, 1vw, 8px),
+			clamp(65px, 16vw, 131px) clamp(33px, 8vw, 66px), 
+			clamp(92px, 22vw, 184px) clamp(92px, 22vw, 184px), 
+			clamp(92px, 22vw, 184px) clamp(92px, 22vw, 184px);
+		background-position: clamp(33px, 8vw, 66px) clamp(13px, 3vw, 26px), 
+			clamp(72px, 17vw, 144px) clamp(13px, 3vw, 26px), 
+			clamp(47px, 11vw, 94px) clamp(57px, 14vw, 115px), 
+			50% clamp(39px, 9vw, 79px), 
+			50% clamp(111px, 26vw, 223px),
+			50% clamp(65px, 16vw, 131px), 
+			50% clamp(29px, 7vw, 58px), 
+			50% clamp(59px, 14vw, 118px);
 		animation: faceLift 3s linear infinite alternate;
 	}
 
@@ -149,14 +161,14 @@
 		content: "";
 		position: absolute;
 		width: 140%;
-		height: 328px;
+		height: clamp(164px, 39vw, 328px);
 		left: -20%;
 		top: 0;
 		background-image: radial-gradient(circle, #fff 48%, transparent 50%),
 			radial-gradient(circle, #fff 48%, transparent 50%);
 		background-repeat: no-repeat;
-		background-size: 171px 171px;
-		background-position: 0px 31px, 381px 31px;
+		background-size: clamp(85px, 20vw, 171px) clamp(85px, 20vw, 171px);
+		background-position: 0px clamp(15px, 4vw, 31px), clamp(190px, 45vw, 381px) clamp(15px, 4vw, 31px);
 		animation: earLift 3s linear infinite alternate;
 	}
 
@@ -184,8 +196,8 @@
 		left: 50%;
 		transform: translateX(-50%);
 		z-index: 2;
-		max-width: 600px;
-		padding: 2rem;
+		max-width: min(600px, 90vw);
+		padding: clamp(1rem, 3vw, 2rem);
 		color: white;
 		text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 	}
