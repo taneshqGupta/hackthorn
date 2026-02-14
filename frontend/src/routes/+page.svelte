@@ -13,7 +13,8 @@
 
 <style>
 	.hero-section {
-		min-height: 100vh;
+		width: 100%;
+		height: 100%;
 		background: transparent;
 		position: relative;
 		display: flex;

@@ -520,7 +520,7 @@
 	}
 </style>
 
-<div class="h-screen flex items-center justify-center">
+<div class="flex items-center justify-center">
 	<div class="login-layout">
 		<div class="wheel-and-hamster" role="img" aria-label="Loading hamster">
 			<div class="wheel"></div>

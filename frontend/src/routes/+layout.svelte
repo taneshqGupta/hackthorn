@@ -126,7 +126,7 @@
 		</div>
 	</header>
 
-	<main class="flex-1 overflow-auto">
+	<main class="flex-1 flex items-center justify-center">
 		{@render children()}
 	</main>
 
