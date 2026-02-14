@@ -263,7 +263,7 @@
 </div>
 
 <style>
-    :global(body) { background-color: #f0f2f5; font-family: sans-serif; }
+    :global(body) { background-color: #f0f2f5;}
 
     .page-container {
         max-width: 1000px;
