@@ -109,6 +109,11 @@ async fn main() -> Result<(), AppError> {
             "/api/courses/my-enrollments",
             get(academic::get_my_enrollments),
         )
+        // Inside main.rs -> academic_routes
+        .route(
+            "/events",
+            post(academic::create_event).get(academic::get_my_calendar),
+        )
         .with_state(pool)
         .layer(session_layer)
         .layer(middleware::from_fn(add_partitioned_attribute))

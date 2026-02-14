@@ -6,6 +6,7 @@ use axum::{
     extract::{Path, Query, State},
     response::Json,
 };
+use chrono::{DateTime, Utc};
 use sqlx::PgPool;
 use tower_sessions::Session;
 use uuid::Uuid;
@@ -67,7 +68,7 @@ pub async fn create_course(
                 .fetch_optional(&pool)
                 .await?
                 .ok_or_else(|| AppError::BadRequest("Instructor email not found".to_string()))?;
-            
+
             Some(instructor.id)
         } else {
             None
@@ -135,7 +136,7 @@ pub async fn get_courses(
     _session: Session, // Kept to ensure user is logged in if middleware requires it
     Query(filters): Query<CourseFilter>,
 ) -> Result<Json<ApiResponse<Vec<CourseResponse>>>, AppError> {
-    // Note: We aren't strictly enforcing auth here to allow browsing, 
+    // Note: We aren't strictly enforcing auth here to allow browsing,
     // but if you want to lock it down, uncomment the next line:
     // let _user = get_session_user(&_session, &pool).await?;
 
@@ -158,9 +159,7 @@ pub async fn get_courses(
     query.push_str(" ORDER BY code ASC");
 
     // Execute Query
-    let courses = sqlx::query_as::<_, Course>(&query)
-        .fetch_all(&pool)
-        .await?;
+    let courses = sqlx::query_as::<_, Course>(&query).fetch_all(&pool).await?;
 
     // Enrich courses with Instructor details efficiently
     // (In a real high-scale app, we'd use a JOIN in the SQL, but this loop is fine for now)
@@ -213,10 +212,11 @@ pub async fn enroll_course(
     require_student(&user)?;
 
     // Check if course exists
-    let course_exists = sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM courses WHERE id = $1)")
-        .bind(payload.course_id)
-        .fetch_one(&pool)
-        .await?;
+    let course_exists =
+        sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM courses WHERE id = $1)")
+            .bind(payload.course_id)
+            .fetch_one(&pool)
+            .await?;
 
     if !course_exists {
         return Err(AppError::NotFound); // Or custom "Course not found"
@@ -224,7 +224,7 @@ pub async fn enroll_course(
 
     // Check if already enrolled
     let already_enrolled = sqlx::query_scalar::<_, bool>(
-        "SELECT EXISTS(SELECT 1 FROM course_enrollments WHERE student_id = $1 AND course_id = $2)"
+        "SELECT EXISTS(SELECT 1 FROM course_enrollments WHERE student_id = $1 AND course_id = $2)",
     )
     .bind(user.id)
     .bind(payload.course_id)
@@ -232,17 +232,17 @@ pub async fn enroll_course(
     .await?;
 
     if already_enrolled {
-        return Err(AppError::BadRequest("You are already enrolled in this course".to_string()));
+        return Err(AppError::BadRequest(
+            "You are already enrolled in this course".to_string(),
+        ));
     }
 
     // Perform Enrollment
-    sqlx::query(
-        "INSERT INTO course_enrollments (student_id, course_id) VALUES ($1, $2)"
-    )
-    .bind(user.id)
-    .bind(payload.course_id)
-    .execute(&pool)
-    .await?;
+    sqlx::query("INSERT INTO course_enrollments (student_id, course_id) VALUES ($1, $2)")
+        .bind(user.id)
+        .bind(payload.course_id)
+        .execute(&pool)
+        .await?;
 
     Ok(Json(ApiResponse {
         success: true,
@@ -268,7 +268,7 @@ pub async fn get_my_enrollments(
         INNER JOIN course_enrollments ce ON c.id = ce.course_id
         WHERE ce.student_id = $1
         ORDER BY c.semester DESC, c.code ASC
-        "#
+        "#,
     )
     .bind(user.id)
     .fetch_all(&pool)
@@ -322,10 +322,10 @@ pub async fn get_course_details(
     Path(course_id): Path<Uuid>,
 ) -> Result<Json<ApiResponse<CourseDetailStats>>, AppError> {
     let _user = get_session_user(&session, &pool).await?;
-    
+
     // Optional: Restrict to only the instructor or admin?
     // For now, let's allow faculty to check their course stats.
-    
+
     // Check if course exists
     let _course = sqlx::query_as::<_, Course>("SELECT * FROM courses WHERE id = $1")
         .bind(course_id)
@@ -334,14 +334,17 @@ pub async fn get_course_details(
         .ok_or(AppError::NotFound)?;
 
     // Get enrollment count
-    let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM course_enrollments WHERE course_id = $1")
-        .bind(course_id)
-        .fetch_one(&pool)
-        .await?;
+    let count: i64 =
+        sqlx::query_scalar("SELECT COUNT(*) FROM course_enrollments WHERE course_id = $1")
+            .bind(course_id)
+            .fetch_one(&pool)
+            .await?;
 
     Ok(Json(ApiResponse {
         success: true,
-        data: Some(CourseDetailStats { enrolled_count: count }),
+        data: Some(CourseDetailStats {
+            enrolled_count: count,
+        }),
         message: None,
     }))
 }
@@ -359,35 +362,39 @@ pub struct MarkAttendanceRequest {
     pub remarks: Option<String>,
 }
 
-// 1. Mark Attendance (Faculty Only)
+// UPDATED: Allows Students to mark their own attendance
 pub async fn mark_attendance(
     State(pool): State<PgPool>,
     session: Session,
     Json(payload): Json<MarkAttendanceRequest>,
 ) -> Result<Json<ApiResponse<String>>, AppError> {
     let user = get_session_user(&session, &pool).await?;
-    require_faculty_or_admin(&user)?;
 
-    // 1. Find the Enrollment ID (link between student and course)
+    // Logic:
+    // If Student -> Can only mark for themselves (student_id in payload is ignored or must match user.id)
+    // If Faculty -> Can mark for anyone
+
+    let target_student_id = if user.role == UserRole::Student {
+        user.id
+    } else {
+        payload.student_id // Faculty marking for someone else
+    };
+
+    // 1. Verify Enrollment
     let enrollment_id: Option<Uuid> = sqlx::query_scalar(
-        "SELECT id FROM course_enrollments WHERE student_id = $1 AND course_id = $2"
+        "SELECT id FROM course_enrollments WHERE student_id = $1 AND course_id = $2",
     )
-    .bind(payload.student_id)
+    .bind(target_student_id)
     .bind(payload.course_id)
     .fetch_optional(&pool)
     .await?;
 
-    let enrollment_id = enrollment_id.ok_or_else(|| {
-        AppError::BadRequest("Student is not enrolled in this course".to_string())
-    })?;
+    let enrollment_id = enrollment_id
+        .ok_or_else(|| AppError::BadRequest("Not enrolled in this course".to_string()))?;
 
-    // 2. Insert or Update Log (Upsert logic to prevent duplicate logs for same day)
-    // Note: If you want to allow multiple logs per day (e.g. 2 lectures), remove the constraint or handling.
-    // Assuming 1 log per day per course for simplicity here.
-    
-    // Check if log exists for this date
+    // 2. Insert/Update Log (Same as before)
     let exists = sqlx::query_scalar::<_, bool>(
-        "SELECT EXISTS(SELECT 1 FROM attendance_logs WHERE enrollment_id = $1 AND date = $2)"
+        "SELECT EXISTS(SELECT 1 FROM attendance_logs WHERE enrollment_id = $1 AND date = $2)",
     )
     .bind(enrollment_id)
     .bind(payload.date)
@@ -395,7 +402,6 @@ pub async fn mark_attendance(
     .await?;
 
     if exists {
-        // Update existing
         sqlx::query(
             "UPDATE attendance_logs SET status = $1, remarks = $2 WHERE enrollment_id = $3 AND date = $4"
         )
@@ -406,7 +412,6 @@ pub async fn mark_attendance(
         .execute(&pool)
         .await?;
     } else {
-        // Insert new
         sqlx::query(
             "INSERT INTO attendance_logs (enrollment_id, date, status, remarks) VALUES ($1, $2, $3, $4)"
         )
@@ -420,7 +425,7 @@ pub async fn mark_attendance(
 
     Ok(Json(ApiResponse {
         success: true,
-        data: Some("Attendance marked successfully".to_string()),
+        data: Some("Attendance logged".to_string()),
         message: None,
     }))
 }
@@ -442,23 +447,22 @@ pub async fn get_my_attendance(
 ) -> Result<Json<ApiResponse<AttendanceSummary>>, AppError> {
     let user = get_session_user(&session, &pool).await?;
     // Students can see their own, Faculty can see (logic omitted for brevity, adding check for student)
-    
+
     // 1. Get Enrollment ID
     let enrollment_id: Option<Uuid> = sqlx::query_scalar(
-        "SELECT id FROM course_enrollments WHERE student_id = $1 AND course_id = $2"
+        "SELECT id FROM course_enrollments WHERE student_id = $1 AND course_id = $2",
     )
     .bind(user.id)
     .bind(course_id)
     .fetch_optional(&pool)
     .await?;
 
-    let enrollment_id = enrollment_id.ok_or_else(|| {
-        AppError::BadRequest("You are not enrolled in this course".to_string())
-    })?;
+    let enrollment_id = enrollment_id
+        .ok_or_else(|| AppError::BadRequest("You are not enrolled in this course".to_string()))?;
 
     // 2. Fetch Logs
     let logs = sqlx::query_as::<_, AttendanceLog>(
-        "SELECT * FROM attendance_logs WHERE enrollment_id = $1 ORDER BY date DESC"
+        "SELECT * FROM attendance_logs WHERE enrollment_id = $1 ORDER BY date DESC",
     )
     .bind(enrollment_id)
     .fetch_all(&pool)
@@ -466,8 +470,11 @@ pub async fn get_my_attendance(
 
     // 3. Calculate Stats
     let total_classes = logs.len() as i64;
-    let present_count = logs.iter().filter(|l| matches!(l.status, AttendanceStatus::Present)).count() as i64;
-    
+    let present_count = logs
+        .iter()
+        .filter(|l| matches!(l.status, AttendanceStatus::Present))
+        .count() as i64;
+
     let percentage = if total_classes > 0 {
         (present_count as f64 / total_classes as f64) * 100.0
     } else {
@@ -491,25 +498,26 @@ pub async fn get_my_attendance(
 // ACADEMIC RESOURCES (THE VAULT)
 // ============================================================================
 
-// 1. Upload Resource (Faculty Only)
+// UPDATED: Allows Students to upload (sets verified=false)
 pub async fn create_resource(
     State(pool): State<PgPool>,
     session: Session,
-    Json(payload): Json<CreateResourceRequest>, // Defined in structs.rs earlier
-    // Note: course_id needs to be passed. Let's assume it's in the query or body. 
-    // Since CreateResourceRequest in structs.rs didn't have course_id, let's accept it via Path or extend struct.
-    // I will use a Path wrapper here for clean REST design: POST /api/courses/:id/resources
     Path(course_id): Path<Uuid>,
+    Json(payload): Json<CreateResourceRequest>,
 ) -> Result<Json<ApiResponse<AcademicResource>>, AppError> {
     let user = get_session_user(&session, &pool).await?;
-    require_faculty_or_admin(&user)?;
+
+    // Logic:
+    // Admin/Faculty -> is_verified = true
+    // Student -> is_verified = false (needs approval)
+    let is_verified = matches!(user.role, UserRole::Admin | UserRole::Faculty);
 
     let resource = sqlx::query_as::<_, AcademicResource>(
         r#"
         INSERT INTO academic_resources (
             course_id, uploaded_by, title, description, resource_type, file_url, year, tags, is_verified
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING *
         "#
     )
@@ -521,13 +529,18 @@ pub async fn create_resource(
     .bind(&payload.file_url)
     .bind(payload.year)
     .bind(&payload.tags)
+    .bind(is_verified)
     .fetch_one(&pool)
     .await?;
 
     Ok(Json(ApiResponse {
         success: true,
         data: Some(resource),
-        message: Some("Resource uploaded successfully".to_string()),
+        message: Some(if is_verified {
+            "Resource uploaded successfully".to_string()
+        } else {
+            "Resource uploaded and pending verification".to_string()
+        }),
     }))
 }
 
@@ -541,15 +554,18 @@ pub async fn get_course_resources(
     let _user = get_session_user(&session, &pool).await?; // Ensure logged in
 
     // Check course exists first
-    let exists = sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM courses WHERE id = $1)")
-        .bind(course_id)
-        .fetch_one(&pool)
-        .await?;
-        
-    if !exists { return Err(AppError::NotFound); }
+    let exists =
+        sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM courses WHERE id = $1)")
+            .bind(course_id)
+            .fetch_one(&pool)
+            .await?;
+
+    if !exists {
+        return Err(AppError::NotFound);
+    }
 
     let mut query = String::from("SELECT * FROM academic_resources WHERE course_id = $1");
-    
+
     // Simple filter for type (e.g. ?type=pyq)
     if let Some(res_type) = filters.get("type") {
         query.push_str(&format!(" AND resource_type = '{}'", res_type)); // Warning: Bind safer, but strict enum check needed
@@ -567,11 +583,13 @@ pub async fn get_course_resources(
     for res in resources {
         // Fetch uploader info
         let uploader = if let Some(uid) = res.uploaded_by {
-             sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = $1")
+            sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = $1")
                 .bind(uid)
                 .fetch_optional(&pool)
                 .await?
-        } else { None };
+        } else {
+            None
+        };
 
         responses.push(AcademicResourceResponse {
             id: res.id,
@@ -585,6 +603,126 @@ pub async fn get_course_resources(
             created_at: res.created_at,
         });
     }
+
+    Ok(Json(ApiResponse {
+        success: true,
+        data: Some(responses),
+        message: None,
+    }))
+}
+
+// ============================================================================
+// ACADEMIC CALENDAR (EVENTS)
+// ============================================================================
+
+// 1. Create Event (Faculty/Admin for Global/Course events)
+// Students could theoretically create personal events if you want,
+// but let's stick to official ones for now.
+#[derive(serde::Deserialize)]
+pub struct CreateEventRequest {
+    pub title: String,
+    pub description: Option<String>,
+    pub event_type: EventType,
+    pub start_time: DateTime<Utc>,
+    pub end_time: Option<DateTime<Utc>>,
+    pub course_id: Option<Uuid>, // Optional: If provided, it's specific to a course
+}
+
+pub async fn create_event(
+    State(pool): State<PgPool>,
+    session: Session,
+    Json(payload): Json<CreateEventRequest>,
+) -> Result<Json<ApiResponse<AcademicEvent>>, AppError> {
+    let user = get_session_user(&session, &pool).await?;
+    require_faculty_or_admin(&user)?; // Only staff creates official deadlines/exams
+
+    let event = sqlx::query_as::<_, AcademicEvent>(
+        r#"
+        INSERT INTO academic_events (
+            title, description, event_type, start_time, end_time, course_id, created_by
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING *
+        "#,
+    )
+    .bind(&payload.title)
+    .bind(&payload.description)
+    .bind(&payload.event_type)
+    .bind(payload.start_time)
+    .bind(payload.end_time)
+    .bind(payload.course_id)
+    .bind(user.id)
+    .fetch_one(&pool)
+    .await?;
+
+    Ok(Json(ApiResponse {
+        success: true,
+        data: Some(event),
+        message: Some("Event created successfully".to_string()),
+    }))
+}
+
+// 2. Get My Calendar (Personalized View)
+// Returns: Global Events + Events for courses I am enrolled in
+pub async fn get_my_calendar(
+    State(pool): State<PgPool>,
+    session: Session,
+    Query(_params): Query<std::collections::HashMap<String, String>>, // ?month=10&year=2025
+) -> Result<Json<ApiResponse<Vec<AcademicEventResponse>>>, AppError> {
+    let user = get_session_user(&session, &pool).await?;
+
+    // We fetch:
+    // 1. Events where course_id IS NULL (Global events like "Diwali")
+    // 2. Events where course_id matches one of the student's enrollments
+
+    let query = r#"
+        SELECT e.*, c.code as course_code, c.title as course_title 
+        FROM academic_events e
+        LEFT JOIN courses c ON e.course_id = c.id
+        LEFT JOIN course_enrollments ce ON c.id = ce.course_id AND ce.student_id = $1
+        WHERE 
+            (e.course_id IS NULL) -- Global Event
+            OR 
+            (ce.student_id IS NOT NULL) -- User is enrolled in this course
+        ORDER BY e.start_time ASC
+    "#;
+
+    // Note: To map this to AcademicEventResponse, we need a custom struct or manual mapping
+    // because standard SQLx structs don't usually include joined fields (course_code).
+    // Let's do a manual map for flexibility.
+
+    // We need a temporary struct to hold the JOIN result
+    #[derive(sqlx::FromRow)]
+    struct EventRow {
+        id: Uuid,
+        title: String,
+        description: Option<String>,
+        event_type: EventType,
+        start_time: DateTime<Utc>,
+        end_time: Option<DateTime<Utc>>,
+        course_id: Option<Uuid>,
+        course_code: Option<String>,
+        course_title: Option<String>,
+    }
+
+    let rows = sqlx::query_as::<_, EventRow>(query)
+        .bind(user.id)
+        .fetch_all(&pool)
+        .await?;
+
+    let responses: Vec<AcademicEventResponse> = rows
+        .into_iter()
+        .map(|row| AcademicEventResponse {
+            id: row.id,
+            title: row.title,
+            description: row.description,
+            event_type: row.event_type,
+            start_time: row.start_time,
+            end_time: row.end_time,
+            course_code: row.course_code,
+            course_title: row.course_title,
+        })
+        .collect();
 
     Ok(Json(ApiResponse {
         success: true,
