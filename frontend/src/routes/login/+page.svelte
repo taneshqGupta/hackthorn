@@ -564,7 +564,7 @@
 
 					<div class="center-content">
 						<a href={loginUrl} class="ui-btn">
-							<span>LOGIN with GOOGLE</span>
+							<span>LOGIN WITH GOOGLE</span>
 						</a>
 					</div>
 
