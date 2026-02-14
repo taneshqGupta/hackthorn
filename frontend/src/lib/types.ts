@@ -110,3 +110,48 @@ export interface ApiResponse<T> {
 }
 
 export type User = UserResponse;
+
+// --- Academic Mastery (Pillar III) ---
+
+export type CourseType = 'core' | 'elective' | 'major' | 'minor';
+export type ResourceType = 'pyq' | 'notes' | 'lecture' | 'assignment';
+export type AttendanceStatus = 'present' | 'absent' | 'cancelled';
+
+export interface Course {
+    id: string;
+    code: string;
+    title: string;
+    description: string | null;
+    credits: number;
+    department: string;
+    course_type: CourseType;
+    instructor: UserResponse | null;
+    semester: string;
+}
+
+export interface AttendanceLog {
+    id: string;
+    date: string;
+    status: AttendanceStatus;
+    remarks: string | null;
+}
+
+export interface AttendanceSummary {
+    course_id: string;
+    total_classes: number;
+    present_count: number;
+    percentage: number;
+    logs: AttendanceLog[];
+}
+
+export interface AcademicResource {
+    id: string;
+    title: string;
+    description: string | null;
+    resource_type: ResourceType;
+    file_url: string;
+    uploaded_by: UserResponse | null;
+    year: number | null;
+    tags: string[];
+    created_at: string;
+}

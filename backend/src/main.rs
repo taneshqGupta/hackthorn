@@ -134,7 +134,7 @@ async fn main() -> Result<(), AppError> {
         )
         // 2. Applications (Apply & View My History)
         .route(
-            "/api/opportunities/:id/apply",
+            "/api/opportunities/{id}/apply",
             post(opportunity::apply_opportunity),
         )
         .route(
@@ -143,11 +143,11 @@ async fn main() -> Result<(), AppError> {
         )
         // 3. Faculty Management (View Applicants & Update Status)
         .route(
-            "/api/opportunities/:id/applications",
+            "/api/opportunities/{id}/applications",
             get(opportunity::get_opportunity_applications),
         )
         .route(
-            "/api/applications/:id/status",
+            "/api/applications/{id}/status",
             put(opportunity::update_application_status),
         )
         // 4. The Scholar's Ledger (Personal Tasks)
@@ -156,7 +156,7 @@ async fn main() -> Result<(), AppError> {
             post(opportunity::create_task).get(opportunity::get_tasks),
         )
         .route(
-            "/api/tasks/:id",
+            "/api/tasks/{id}",
             put(opportunity::update_task).delete(opportunity::delete_task),
         )
         .with_state(pool)

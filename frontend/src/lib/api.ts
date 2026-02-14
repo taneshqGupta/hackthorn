@@ -14,7 +14,6 @@ export async function checkAuth(): Promise<ApiResponse<UserResponse>> {
 
     console.log('[API] checkAuth response status:', response.status);
     console.log('[API] checkAuth response ok:', response.ok);
-    console.log('[API] checkAuth response headers:', Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
         console.error('[API] checkAuth failed with status:', response.status);
@@ -97,7 +96,6 @@ const api = {
         
         console.log(`[API] POST ${path} - Status: ${response.status}`);
         console.log(`[API] POST ${path} - Status text: ${response.statusText}`);
-        console.log(`[API] POST ${path} - Headers:`, Object.fromEntries(response.headers.entries()));
         
         if (!response.ok) {
             console.error(`[API] POST ${path} - Response not OK, attempting to parse error`);
