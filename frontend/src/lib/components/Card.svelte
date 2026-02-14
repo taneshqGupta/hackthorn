@@ -30,9 +30,9 @@
 		font-size: 14px;
 		font-weight: 900;
 		width: 100%;
-		height: 32px;
+		height: 24px;
 		background: #ffffff;
-		padding: 5px 12px;
+		padding: 2px 12px;
 		color: #000000;
 		border-bottom: 3px solid #000000;
 	}

@@ -48,93 +48,240 @@
 </script>
 
 <style>
-	.button {
+	.login-container {
 		display: flex;
-		justify-content: center;
+		flex-direction: column;
+		height: 100%;
+		justify-content: space-between;
+	}
+
+	.center-content {
+		display: flex;
 		align-items: center;
-		padding: 10px 15px;
-		gap: 15px;
-		background-color: #181717;
-		outline: 3px #181717 solid;
-		outline-offset: -3px;
-		border-radius: 5px;
+		justify-content: center;
+		gap: 20px;
+		flex: 1;
+	}
+
+	.google-icon {
+		width: 40px;
+		height: 40px;
+	}
+
+	.ui-btn {
+		--btn-default-bg: rgb(41, 41, 41);
+		--btn-padding: 15px 20px;
+		--btn-hover-bg: rgb(51, 51, 51);
+		--btn-transition: .3s;
+		--btn-letter-spacing: .1rem;
+		--btn-animation-duration: 1.2s;
+		--btn-shadow-color: rgba(0, 0, 0, 0.137);
+		--btn-shadow: 0 2px 10px 0 var(--btn-shadow-color);
+		--hover-btn-color: #FAC921;
+		--default-btn-color: #fff;
+		--font-size: 16px;
+		--font-weight: 600;
+		--font-family: Menlo,Roboto Mono,monospace;
+	}
+
+	.ui-btn {
+		box-sizing: border-box;
+		padding: var(--btn-padding);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--default-btn-color);
+		font: var(--font-weight) var(--font-size) var(--font-family);
+		background: var(--btn-default-bg);
 		border: none;
 		cursor: pointer;
-		transition: 400ms;
+		transition: var(--btn-transition);
+		overflow: hidden;
+		box-shadow: var(--btn-shadow);
 		text-decoration: none;
 	}
 
-	.button .text {
-		color: white;
-		font-weight: 700;
-		font-size: 1em;
-		transition: 400ms;
+	.ui-btn span {
+		letter-spacing: var(--btn-letter-spacing);
+		transition: var(--btn-transition);
+		box-sizing: border-box;
+		position: relative;
+		background: inherit;
 	}
 
-	.button svg path {
-		transition: 400ms;
+	.ui-btn span::before {
+		box-sizing: border-box;
+		position: absolute;
+		content: "";
+		background: inherit;
 	}
 
-	.button:hover {
-		background-color: transparent;
+	.ui-btn:hover, .ui-btn:focus {
+		background: var(--btn-hover-bg);
 	}
 
-	.button:hover .text {
-		color: #181717;
+	.ui-btn:hover span, .ui-btn:focus span {
+		color: var(--hover-btn-color);
 	}
 
-	.button:hover svg path {
-		fill: #181717;
+	.ui-btn:hover span::before, .ui-btn:focus span::before {
+		animation: chitchat linear both var(--btn-animation-duration);
+	}
+
+	@keyframes chitchat {
+		0% {
+			content: "#";
+		}
+
+		5% {
+			content: ".";
+		}
+
+		10% {
+			content: "^{";
+		}
+
+		15% {
+			content: "-!";
+		}
+
+		20% {
+			content: "#$_";
+		}
+
+		25% {
+			content: "№:0";
+		}
+
+		30% {
+			content: "#{+.";
+		}
+
+		35% {
+			content: "@}-?";
+		}
+
+		40% {
+			content: "?{4@%";
+		}
+
+		45% {
+			content: "=.,^!";
+		}
+
+		50% {
+			content: "?2@%";
+		}
+
+		55% {
+			content: "\;1}]";
+		}
+
+		60% {
+			content: "?{%:%";
+			right: 0;
+		}
+
+		65% {
+			content: "|{f[4";
+			right: 0;
+		}
+
+		70% {
+			content: "{4%0%";
+			right: 0;
+		}
+
+		75% {
+			content: "'1_0<";
+			right: 0;
+		}
+
+		80% {
+			content: "{0%";
+			right: 0;
+		}
+
+		85% {
+			content: "]>'";
+			right: 0;
+		}
+
+		90% {
+			content: "4";
+			right: 0;
+		}
+
+		95% {
+			content: "2";
+			right: 0;
+		}
+
+		100% {
+			content: "";
+			right: 0;
+		}
+	}
+
+	.email-restriction {
+		text-align: center;
+		font-size: 12px;
+		margin-top: auto;
+		padding-top: 8px;
 	}
 </style>
 
 <div class="h-screen flex items-center justify-center">
-	<Card>
-		{#if error}
-			<div class="alert alert-error mb-4">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					class="stroke-current shrink-0 h-6 w-6"
-					fill="none"
-					viewBox="0 0 24 24"
-					><path
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"
-						d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-					/></svg
-				>
-				<span>{decodeURIComponent(error)}</span>
-			</div>
-		{/if}
+	<Card title="Login">
+		<div class="login-container">
+			{#if error}
+				<div class="alert alert-error mb-4">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="stroke-current shrink-0 h-6 w-6"
+						fill="none"
+						viewBox="0 0 24 24"
+						><path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+						/></svg
+					>
+					<span>{decodeURIComponent(error)}</span>
+				</div>
+			{/if}
 
-		<a href={loginUrl} class="button">
-			<svg
-				aria-label="Google logo"
-				width="20"
-				height="20"
-				xmlns="http://www.w3.org/2000/svg"
-				viewBox="0 0 512 512"
-				><g
-					><path d="m0 0H512V512H0" fill="#fff"></path><path
-						fill="#34a853"
-						d="M153 292c30 82 118 95 171 60h62v48A192 192 0 0190 341"
-					></path><path
-						fill="#4285f4"
-						d="m386 400a140 175 0 0053-179H260v74h102q-7 37-38 57"
-					></path><path
-						fill="#fbbc02"
-						d="m90 341a208 200 0 010-171l63 49q-12 37 0 73"
-					></path><path
-						fill="#ea4335"
-						d="m153 219c22-69 116-109 179-50l55-54c-78-75-230-72-297 55"
-					></path></g
-				></svg
-			>
-			<span class="text">Login with Google</span>
-		</a>
-		<p class="text-center mt-2">
-			Only @iitmandi.ac.in and @students.iitmandi.ac.in emails allowed
-		</p>
+			<div class="center-content">
+				<svg
+					aria-label="Google logo"
+					class="google-icon"
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 512 512"
+					><g
+						><path d="m0 0H512V512H0" fill="#fff"></path><path
+							fill="#34a853"
+							d="M153 292c30 82 118 95 171 60h62v48A192 192 0 0190 341"
+						></path><path
+							fill="#4285f4"
+							d="m386 400a140 175 0 0053-179H260v74h102q-7 37-38 57"
+						></path><path
+							fill="#fbbc02"
+							d="m90 341a208 200 0 010-171l63 49q-12 37 0 73"
+						></path><path
+							fill="#ea4335"
+							d="m153 219c22-69 116-109 179-50l55-54c-78-75-230-72-297 55"
+						></path></g
+					></svg
+				>
+				<a href={loginUrl} class="ui-btn">
+					<span>ENTER</span>
+				</a>
+			</div>
+
+			<p class="email-restriction">
+				Only @iitmandi.ac.in and @students.iitmandi.ac.in emails allowed
+			</p>
+		</div>
 	</Card>
 </div>
