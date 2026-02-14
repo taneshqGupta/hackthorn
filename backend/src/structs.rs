@@ -376,3 +376,212 @@ pub struct UserFilters {
     pub page: Option<i64>,
     pub limit: Option<i64>,
 }
+
+// ============================================================================
+// ACADEMIC SYSTEM STRUCTS (PILLAR III)
+// ============================================================================
+
+// --- Enums ---
+
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type, PartialEq)]
+#[sqlx(type_name = "course_type", rename_all = "lowercase")]
+pub enum CourseType {
+    #[serde(rename = "core")]
+    Core,
+    #[serde(rename = "elective")]
+    Elective,
+    #[serde(rename = "major")]
+    Major,
+    #[serde(rename = "minor")]
+    Minor,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type, PartialEq)]
+#[sqlx(type_name = "resource_type", rename_all = "lowercase")]
+pub enum ResourceType {
+    #[serde(rename = "pyq")]
+    Pyq,
+    #[serde(rename = "notes")]
+    Notes,
+    #[serde(rename = "lecture")]
+    Lecture,
+    #[serde(rename = "assignment")]
+    Assignment,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type, PartialEq)]
+#[sqlx(type_name = "event_type", rename_all = "lowercase")]
+pub enum EventType {
+    #[serde(rename = "exam")]
+    Exam,
+    #[serde(rename = "deadline")]
+    Deadline,
+    #[serde(rename = "holiday")]
+    Holiday,
+    #[serde(rename = "class")]
+    Class,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type, PartialEq)]
+#[sqlx(type_name = "attendance_status", rename_all = "lowercase")]
+pub enum AttendanceStatus {
+    #[serde(rename = "present")]
+    Present,
+    #[serde(rename = "absent")]
+    Absent,
+    #[serde(rename = "cancelled")]
+    Cancelled,
+}
+
+// --- Database Entities ---
+
+#[derive(Debug, Clone, Serialize, FromRow)]
+pub struct Course {
+    pub id: Uuid,
+    pub code: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub credits: i32,
+    pub department: String,
+    pub course_type: CourseType,
+    pub instructor_id: Option<Uuid>,
+    pub semester: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, FromRow)]
+pub struct CourseEnrollment {
+    pub id: Uuid,
+    pub student_id: Uuid,
+    pub course_id: Uuid,
+    pub enrolled_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, FromRow)]
+pub struct AttendanceLog {
+    pub id: Uuid,
+    pub enrollment_id: Uuid,
+    pub date: chrono::NaiveDate, // Uses NaiveDate for DATE types
+    pub status: AttendanceStatus,
+    pub remarks: Option<String>,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, FromRow)]
+pub struct AcademicResource {
+    pub id: Uuid,
+    pub course_id: Uuid,
+    pub uploaded_by: Option<Uuid>,
+    pub title: String,
+    pub description: Option<String>,
+    pub resource_type: ResourceType,
+    pub file_url: String,
+    pub year: Option<i32>,
+    pub tags: Option<Vec<String>>,
+    pub is_verified: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, FromRow)]
+pub struct AcademicEvent {
+    pub id: Uuid,
+    pub course_id: Option<Uuid>, // Nullable for global events
+    pub created_by: Option<Uuid>,
+    pub title: String,
+    pub description: Option<String>,
+    pub event_type: EventType,
+    pub start_time: DateTime<Utc>,
+    pub end_time: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+// --- API Response DTOs ---
+
+#[derive(Debug, Serialize)]
+pub struct CourseResponse {
+    pub id: Uuid,
+    pub code: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub credits: i32,
+    pub department: String,
+    pub course_type: CourseType,
+    pub instructor: Option<UserResponse>, // Expanded user object
+    pub semester: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct AcademicResourceResponse {
+    pub id: Uuid,
+    pub title: String,
+    pub description: Option<String>,
+    pub resource_type: ResourceType,
+    pub file_url: String,
+    pub uploaded_by: Option<UserResponse>, // Expanded user
+    pub year: Option<i32>,
+    pub tags: Vec<String>,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct AcademicEventResponse {
+    pub id: Uuid,
+    pub title: String,
+    pub description: Option<String>,
+    pub event_type: EventType,
+    pub start_time: DateTime<Utc>,
+    pub end_time: Option<DateTime<Utc>>,
+    pub course_code: Option<String>, // Helpful context if it's a course event
+    pub course_title: Option<String>,
+}
+
+// --- API Request DTOs ---
+
+#[derive(Debug, Deserialize)]
+pub struct CreateCourseRequest {
+    pub code: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub credits: i32,
+    pub department: String,
+    pub course_type: CourseType,
+    pub semester: String,
+    pub instructor_email: Option<String>, // Easier to bind by email than UUID from frontend
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateResourceRequest {
+    pub title: String,
+    pub description: Option<String>,
+    pub resource_type: ResourceType,
+    pub file_url: String, // Likely returned from an upload handler first
+    pub year: Option<i32>,
+    pub tags: Option<Vec<String>>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateEventRequest {
+    pub title: String,
+    pub description: Option<String>,
+    pub event_type: EventType,
+    pub start_time: DateTime<Utc>,
+    pub end_time: Option<DateTime<Utc>>,
+    pub course_id: Option<Uuid>, // Optional: if null, it's a global/personal event
+}
+
+#[derive(Debug, Deserialize)]
+pub struct LogAttendanceRequest {
+    pub date: chrono::NaiveDate,
+    pub status: AttendanceStatus,
+    pub remarks: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CourseFilter {
+    pub semester: Option<String>,
+    pub department: Option<String>,
+    pub search: Option<String>,
+}
