@@ -3,6 +3,66 @@
 </script>
 
 <style>
+	.hero-section {
+		min-height: 100vh;
+		background: #ffb3ba;
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+	}
+
+	.campus-image-frame {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 60vw;
+		max-width: 800px;
+		height: 50vh;
+		clip-path: polygon(0% 0%, 100% 0%, 100% 70%, 90% 100%, 10% 100%, 0% 70%);
+		border: 4px solid #000;
+		box-shadow: 12px 12px 0 #000;
+		z-index: 0;
+	}
+
+	.campus-image-frame img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+	}
+
+	.content-wrapper {
+		position: relative;
+		z-index: 1;
+		max-width: 600px;
+		padding: 2rem;
+		margin-top: 60vh;
+	}
+
+	.protocol-title {
+		font-size: 3rem;
+		font-weight: 900;
+		color: #000;
+		text-align: center;
+		margin-bottom: 2rem;
+		text-shadow: 3px 3px 0 #fff;
+	}
+
+	.protocol-text {
+		font-size: 1.1rem;
+		font-weight: 600;
+		color: #000;
+		text-align: center;
+		margin-bottom: 2rem;
+		background: rgba(255, 255, 255, 0.8);
+		padding: 1.5rem;
+		border: 3px solid #000;
+		box-shadow: 6px 6px 0 #000;
+	}
+
 	.cosmic-portal-btn {
 		--btn-bg: #1a1a2e;
 		--btn-color: #e94560;
@@ -24,6 +84,8 @@
 		overflow: hidden;
 		transition: all 0.3s ease;
 		clip-path: polygon(0% 0%, 100% 0%, 100% 70%, 90% 100%, 10% 100%, 0% 70%);
+		display: block;
+		margin: 0 auto;
 	}
 
 	.cosmic-portal-btn::before {
@@ -122,27 +184,25 @@
 	}
 </style>
 
-<div
-	class="hero min-h-screen"
-	style="background-image: url(/1000111266.webp); background-size: cover; background-position: center;"
->
-	<div class="hero-overlay"></div>
-	<div class="hero-content text-neutral-content text-center">
-		<div class="max-w-md">
-			<h1 class="mb-5 text-5xl font-bold">THE AEGIS PROTOCOL</h1>
-			<p class="mb-5">
-				For years, the Great Institute has functioned in fragmented
-				silence. Knowledge is scattered across unofficial drives,
-				grievances vanish into administrative voids, and students wander
-				lost between hostel blocks and academic buildings. Scholars pool
-				their resources for transport in secret WhatsApp groups,
-				research opportunities reach only the chosen few, and lost
-				belongings drift unclaimed in the shadows of campus corners.
-			</p>
-			<button class="cosmic-portal-btn">
-				<span class="btn-text">The chaos must end.</span>
-				<div class="portal-effect"></div>
-			</button>
-		</div>
+<div class="hero-section">
+	<div class="campus-image-frame">
+		<img src="/1000111266.webp" alt="Campus" />
+	</div>
+
+	<div class="content-wrapper">
+		<h1 class="protocol-title">THE AEGIS PROTOCOL</h1>
+		<p class="protocol-text">
+			For years, the Great Institute has functioned in fragmented
+			silence. Knowledge is scattered across unofficial drives,
+			grievances vanish into administrative voids, and students wander
+			lost between hostel blocks and academic buildings. Scholars pool
+			their resources for transport in secret WhatsApp groups,
+			research opportunities reach only the chosen few, and lost
+			belongings drift unclaimed in the shadows of campus corners.
+		</p>
+		<button class="cosmic-portal-btn">
+			<span class="btn-text">The chaos must end.</span>
+			<div class="portal-effect"></div>
+		</button>
 	</div>
 </div>
