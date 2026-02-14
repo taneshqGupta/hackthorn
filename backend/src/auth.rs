@@ -123,29 +123,54 @@ pub async fn google_callback(
 
     tracing::info!("USER_INFO: Received email={}", user_info.email);
     tracing::info!("EMAIL_CHECK: Checking if email domain is allowed");
+    
+    let ends_with_iitmandi = user_info.email.ends_with("@iitmandi.ac.in");
+    let ends_with_students = user_info.email.ends_with("@students.iitmandi.ac.in");
+    tracing::info!("EMAIL_CHECK: ends_with @iitmandi.ac.in = {}", ends_with_iitmandi);
+    tracing::info!("EMAIL_CHECK: ends_with @students.iitmandi.ac.in = {}", ends_with_students);
 
-    if !user_info.email.ends_with("@iitmandi.ac.in") && !user_info.email.ends_with("@students.iitmandi.ac.in") {
-        tracing::warn!("EMAIL_REJECTED: Non-institute email detected: {}", user_info.email);
+    if !ends_with_iitmandi && !ends_with_students {
+        tracing::warn!("========================================");
+        tracing::warn!("EMAIL_REJECTED: Non-institute email detected");
+        tracing::warn!("EMAIL_REJECTED: Email = {}", user_info.email);
+        tracing::warn!("EMAIL_REJECTED: Starting redirect to auth-error page");
+        tracing::warn!("========================================");
         
-        let frontend_url = query.state.as_ref()
+        let state_value = query.state.as_ref();
+        tracing::info!("STATE_DECODE: state parameter = {:?}", state_value);
+        
+        let frontend_url = state_value
             .and_then(|s| {
-                tracing::info!("STATE_DECODE: Decoding state parameter: {}", s);
-                let result = urlencoding::decode(s).ok();
-                tracing::info!("STATE_DECODE: Result={:?}", result);
-                result
+                tracing::info!("STATE_DECODE: Attempting to decode state: {}", s);
+                let decoded = urlencoding::decode(s);
+                tracing::info!("STATE_DECODE: Decode result = {:?}", decoded);
+                decoded.ok()
             })
-            .map(|s| s.to_string())
+            .map(|s| {
+                let url = s.to_string();
+                tracing::info!("STATE_DECODE: Decoded frontend URL = {}", url);
+                url
+            })
             .unwrap_or_else(|| {
                 let fallback = env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:4173".to_string());
-                tracing::info!("STATE_DECODE: Using fallback frontend URL: {}", fallback);
+                tracing::info!("STATE_DECODE: No state found, using fallback = {}", fallback);
                 fallback
             });
         
+        tracing::info!("REDIRECT_BUILD: Frontend URL = {}", frontend_url);
+        
         let error_msg = urlencoding::encode("Only IIT Mandi email addresses are allowed");
         let error_details = urlencoding::encode("Please use your @iitmandi.ac.in or @students.iitmandi.ac.in email address");
+        
+        tracing::info!("REDIRECT_BUILD: error_msg (encoded) = {}", error_msg);
+        tracing::info!("REDIRECT_BUILD: error_details (encoded) = {}", error_details);
+        
         let redirect_url = format!("{}/auth-error?error={}&details={}", frontend_url, error_msg, error_details);
         
-        tracing::warn!("EMAIL_REJECTED: Redirecting to {}", redirect_url);
+        tracing::warn!("========================================");
+        tracing::warn!("REDIRECT_FINAL: Redirecting to: {}", redirect_url);
+        tracing::warn!("REDIRECT_FINAL: This should be the auth-error page");
+        tracing::warn!("========================================");
         tracing::info!("CALLBACK_END: Rejected non-institute email");
         return Ok(Redirect::to(&redirect_url));
     }
