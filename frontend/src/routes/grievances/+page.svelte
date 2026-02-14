@@ -31,11 +31,13 @@
 	}
 
 	async function handleUpvote(grievanceId: string) {
+		console.log('[GRIEVANCES] handleUpvote called for', grievanceId);
 		try {
-			await api.post(`/api/grievances/${grievanceId}/upvote`);
-			// Update local count
+			const res = await api.post(`/api/grievances/${grievanceId}/upvote`);
+			console.log('[GRIEVANCES] upvote response:', res);
+			// Update local count optimistically
 			grievances = grievances.map(g => 
-				g.id === grievanceId ? { ...g, upvotes_count: g.upvotes_count + 1 } : g
+				g.id === grievanceId ? { ...g, upvotes_count: (g.upvotes_count || 0) + 1 } : g
 			);
 		} catch (err: any) {
 			console.error('[GRIEVANCES] Upvote failed:', err);
