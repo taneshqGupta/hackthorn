@@ -147,7 +147,7 @@
         cursor: pointer;
         text-align: left;
         width: 100%;
-        max-width: 300px;
+        max-width: 400px;
         transition: 200ms ease-in-out;
     }
     
