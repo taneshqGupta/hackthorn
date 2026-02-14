@@ -116,9 +116,9 @@
 				description: description.trim(),
 				category,
 				priority,
-				location: location.trim() || null,
-				is_anonymous: isAnonymous,
-				department_id: departmentId || null
+				location_type: departmentId || null,
+				location_details: location.trim() || null,
+				is_anonymous: isAnonymous
 			};
 			
 			console.log('[SUBMIT] Grievance data:', grievanceData);
