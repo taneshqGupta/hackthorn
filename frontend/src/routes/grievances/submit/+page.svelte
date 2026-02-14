@@ -25,11 +25,11 @@
 	let filePreviews: string[] = $state([]);
 
 	const categories = [
-		{ value: 'infrastructure', label: 'Infrastructure', icon: '🏗️' },
-		{ value: 'academics', label: 'Academics', icon: '📚' },
-		{ value: 'hostel', label: 'Hostel', icon: '🏠' },
-		{ value: 'food', label: 'Food', icon: '🍽️' },
-		{ value: 'other', label: 'Other', icon: '📋' }
+		{ value: 'infrastructure', label: 'Infrastructure', icon: '[INF]' },
+		{ value: 'academics', label: 'Academics', icon: '[ACA]' },
+		{ value: 'hostel', label: 'Hostel', icon: '[HST]' },
+		{ value: 'food', label: 'Food', icon: '[FOD]' },
+		{ value: 'other', label: 'Other', icon: '[OTH]' }
 	];
 
 	const priorities = [
