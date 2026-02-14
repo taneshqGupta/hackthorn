@@ -215,7 +215,7 @@
         <div class="error-state">{error}</div>
     {:else if grievance}
         <div class="header">
-            <button onclick={() => goto("/grievances")} class="back-btn"
+            <button onclick={() => goto("/dashboard/student/grievances")} class="back-btn"
                 >← Back to Feed</button
             >
             <div class="status-badge {grievance.status}">
