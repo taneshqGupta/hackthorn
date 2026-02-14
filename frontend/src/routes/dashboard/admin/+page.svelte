@@ -89,7 +89,7 @@
 	<h1
 		class="text-8xl font-bold mb-6 text-[#2b0b0b] tracking-tighter uppercase text-center w-full"
 	>
-		Admin
+		Admin Panel
 	</h1>
 
 	{#if loading}
