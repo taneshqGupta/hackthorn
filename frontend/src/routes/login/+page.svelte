@@ -253,8 +253,6 @@
 				</a>
 			</div>
 
-			<div class="flex h-full"></div>
-
 			<p class="email-restriction">
 				Only @iitmandi.ac.in and @students.iitmandi.ac.in emails allowed
 			</p>
