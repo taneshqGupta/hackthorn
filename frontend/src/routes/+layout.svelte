@@ -83,7 +83,7 @@
 	.install-btn {
 		font-size: 18px;
 		color: #000;
-		font-family: inherit;
+		font-family: 'Roboto Condensed', sans-serif;
 		font-weight: 800;
 		cursor: pointer;
 		position: relative;
