@@ -122,7 +122,7 @@
     </div>
     <div class="w-100 flex flex-col items-center gap-4 mb-8 px-2">
         <h1
-            class="text-12xl font-bold text-[#2b0b0b] tracking-tighter uppercase text-center w-full"
+            class="text-[12rem] font-bold text-[#2b0b0b] tracking-tighter uppercase text-center w-full"
         >
             Issues
         </h1>
@@ -211,7 +211,8 @@
                 date={grievance.created_at}
                 status={formatStatus(grievance.status)}
                 category={formatCategory(grievance.category)}
-                onclick={() => goto(`/dashboard/student/grievances/${grievance.id}`)}
+                onclick={() =>
+                    goto(`/dashboard/student/grievances/${grievance.id}`)}
                 onupvote={() => handleUpvote(grievance.id)}
             />
         {/each}
