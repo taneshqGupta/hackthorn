@@ -99,7 +99,7 @@
 </script>
 
 <div class="container">
-    <div class="capybaraloader mb-[-2rem]">
+    <div class="capybaraloader -mb-8">
         <div class="capybara">
             <div class="capyhead">
                 <div class="capyear"><div class="capyear2"></div></div>
@@ -178,7 +178,7 @@
     </div>
     <button
         class="submit-btn"
-        onclick={() => goto("/grievances/submit")}
+        onclick={() => goto("dashboard/student/grievances/submit")}
         aria-label="Submit new grievance"
     >
         <svg
@@ -211,7 +211,7 @@
                 date={grievance.created_at}
                 status={formatStatus(grievance.status)}
                 category={formatCategory(grievance.category)}
-                onclick={() => goto(`/grievances/${grievance.id}`)}
+                onclick={() => goto(`dashboard/student/grievances/${grievance.id}`)}
                 onupvote={() => handleUpvote(grievance.id)}
             />
         {/each}
