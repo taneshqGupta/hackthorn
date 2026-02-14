@@ -61,6 +61,31 @@
 	>
 		Citadel Status: {isSystemHealthy ? "Operational" : "Critical Failure"}
 	</div>
+	<nav
+		class="w-full flex mb-6 border-2 border-[#2b0b0b] bg-transparent shadow-[4px_4px_0px_rgba(0,0,0,0.1)]"
+	>
+		<button
+			onclick={() => goto("/dashboard/admin")}
+			class="nav-tab border-r-2 border-[#2b0b0b]"
+			class:active={$page.url.pathname === "/dashboard/admin"}
+		>
+			PANEL
+		</button>
+		<button
+			onclick={() => goto("/admin/users")}
+			class="nav-tab border-r-2 border-[#2b0b0b]"
+			class:active={$page.url.pathname === "/admin/users"}
+		>
+			ROSTER
+		</button>
+		<button
+			onclick={() => goto("/admin/logs")}
+			class="nav-tab"
+			class:active={$page.url.pathname === "/admin/logs"}
+		>
+			TRAIL
+		</button>
+	</nav>
 	<h1
 		class="text-8xl font-bold mb-6 text-[#2b0b0b] tracking-tighter uppercase text-center w-full"
 	>
@@ -239,7 +264,28 @@
 		color: #2b0b0b;
 		margin-top: 3rem;
 	}
+	.nav-tab {
+		flex: 1;
+		padding: 10px 0;
+		font-family: "Jersey 25", sans-serif;
+		font-size: 16px;
+		color: #2b0b0b;
+		background: transparent;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		text-transform: uppercase;
+		letter-spacing: 1px;
+		text-align: center;
+	}
 
+	.nav-tab:hover {
+		background: rgba(179, 27, 52, 0.1); /* Subtle red tint */
+	}
+
+	.nav-tab.active {
+		background: #2b0b0b;
+		color: white;
+	}
 
 	/* Health indicator refinement */
 	.health-indicator {
