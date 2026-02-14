@@ -100,25 +100,6 @@
         min-height: 100vh;
     }
 
-    .page-header {
-        margin-bottom: 4rem;
-    }
-
-    .title {
-        font-size: 4rem;
-        font-weight: 950;
-        text-transform: uppercase;
-        margin-bottom: 2rem;
-        border-bottom: 6px solid #000;
-        display: inline-block;
-    }
-
-    .stats-row {
-        display: flex;
-        gap: 2rem;
-        flex-wrap: wrap;
-    }
-
     .section-label {
         font-weight: 900;
         text-transform: uppercase;
