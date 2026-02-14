@@ -1,5 +1,14 @@
 <script>
-	// Add any logic here if needed
+	import { user } from '$lib/auth';
+	import { goto } from '$app/navigation';
+
+	function handleEnter() {
+		if ($user) {
+			goto('/dashboard');
+		} else {
+			goto('/login');
+		}
+	}
 </script>
 
 <style>
@@ -202,7 +211,7 @@
 			belongings drift unclaimed in the shadows of campus corners.
 		</p>
 	</div>
-	<button class="cosmic-portal-btn">
+	<button class="cosmic-portal-btn" onclick={handleEnter}>
 		<span class="btn-text">The chaos must end.</span>
 		<div class="portal-effect"></div>
 	</button>
