@@ -14,7 +14,8 @@
 		font-size: 24px;
 		font-weight: normal;
 		letter-spacing: 2px;
-		color: #d06065;
-		margin: 2;
+		color: #7a1a1a;
+		margin: 0;
+		margin-left: 1rem;
 	}
 </style>

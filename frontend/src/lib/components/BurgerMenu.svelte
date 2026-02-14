@@ -90,7 +90,7 @@
 		display: block;
 		height: 3px;
 		width: 100%;
-		background: #d06065;
+		background: #7a1a1a;
 		border-radius: 2px;
 		transition: all 0.3s ease;
 	}
