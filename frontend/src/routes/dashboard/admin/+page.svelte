@@ -131,7 +131,7 @@
 						USER ROSTERS
 					</button>
 					<button
-						onclick={() => goto("/grievances")}
+						onclick={() => goto("/dashboard/student/grievances")}
 						class="retro-btn"
 					>
 						GRIEVANCE FEED
