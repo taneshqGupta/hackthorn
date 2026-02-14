@@ -20,8 +20,15 @@
 	let activeTab = $derived(currentPage || pages[0]?.id || 'status');
 
 	function switchTab(pageId: string) {
+		console.log('[PDA] switchTab called with:', pageId);
+		console.log('[PDA] Current page before:', currentPage);
 		currentPage = pageId;
+		console.log('[PDA] Current page after:', currentPage);
 	}
+
+	$effect(() => {
+		console.log('[PDA] activeTab changed to:', activeTab);
+	});
 </script>
 
 <div class="pda2" style="--w: {width}; --h: {height};">
@@ -108,7 +115,11 @@
 			<!-- Dock -->
 			<div class="pda2__dock">
 				{#each pages as page}
-					<button class="pda2__db" onclick={() => switchTab(page.id)} aria-label="Switch to {page.title}">
+					<button 
+						class="pda2__db {activeTab === page.id ? 'pda2__db--active' : ''}" 
+						onclick={() => switchTab(page.id)} 
+						aria-label="Switch to {page.title}"
+					>
 						{@html page.icon}
 					</button>
 				{/each}
@@ -499,6 +510,8 @@
   bottom: 0;
   height: 26px;
   display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.5));
   border-top: 1px solid #0f0f0f;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -516,6 +529,16 @@
 }
 .pda2__db:hover {
 	filter: brightness(1.1);
-  filter: brightness(0.88) contrast(0.95) saturate(0.92);
+}
+.pda2__db--active::before {
+	content: '';
+	position: absolute;
+	bottom: 2px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 50%;
+	height: 2px;
+	background: var(--lcd-ink);
+	opacity: 0.8;
 }
 </style>

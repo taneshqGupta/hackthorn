@@ -13,6 +13,10 @@
 	let departments: Department[] = $state([]);
 	let currentPage = $state('details');
 
+	$effect(() => {
+		console.log('[SUBMIT] currentPage changed to:', currentPage);
+	});
+
 	// Form fields
 	let title = $state('');
 	let description = $state('');
@@ -49,9 +53,14 @@
 
 	async function loadDepartments() {
 		try {
-			departments = await api.get('/api/departments');
+			console.log('[SUBMIT] Loading departments...');
+			const response = await api.get('/api/departments');
+			console.log('[SUBMIT] Departments response:', response);
+			departments = response.data || response || [];
+			console.log('[SUBMIT] Departments loaded:', departments.length);
 		} catch (err) {
-			console.error('Failed to load departments:', err);
+			console.error('[SUBMIT] Failed to load departments:', err);
+			departments = [];
 		}
 	}
 
@@ -158,13 +167,18 @@
 	}
 
 	function nextPage() {
+		console.log('[SUBMIT] nextPage called, currentPage:', currentPage);
 		const pageIndex = ['details', 'category', 'upload', 'review'].indexOf(currentPage);
+		console.log('[SUBMIT] Current page index:', pageIndex);
 		if (pageIndex < 3) {
-			currentPage = ['details', 'category', 'upload', 'review'][pageIndex + 1];
+			const newPage = ['details', 'category', 'upload', 'review'][pageIndex + 1];
+			console.log('[SUBMIT] Switching to:', newPage);
+			currentPage = newPage;
 		}
 	}
 
 	function prevPage() {
+		console.log('[SUBMIT] prevPage called, currentPage:', currentPage);
 		const pageIndex = ['details', 'category', 'upload', 'review'].indexOf(currentPage);
 		if (pageIndex > 0) {
 			currentPage = ['details', 'category', 'upload', 'review'][pageIndex - 1];
