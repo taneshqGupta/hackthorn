@@ -105,7 +105,7 @@
 						<div class="pda2__app">
 							<div class="pda2__title">{page.title}</div>
 							<div class="pda2__scroll">
-								{@render page.content()}
+							{@render page.content()}
 							</div>
 						</div>
 					{/each}
@@ -127,7 +127,7 @@
 		</div>
 
 		<!-- Power Knob -->
-		<label for="pda2Backlight" class="pda2__knob">
+		<label for="pda2__backlight" class="pda2__knob">
 			<div class="pda2__knob-cap"></div>
 		</label>
 	</div>
@@ -495,7 +495,7 @@
 }
 
 .pda2__scroll {
-  overflow: auto;
+  overflow: hidden;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -540,5 +540,19 @@
 	height: 2px;
 	background: var(--lcd-ink);
 	opacity: 0.8;
+}
+
+.pda2__backlight {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.pda2__backlight:checked ~ .pda2__bezel .pda2__screen {
+	filter: brightness(1.12) contrast(1.05) saturate(1.06);
+}
+
+.pda2__backlight:not(:checked) ~ .pda2__bezel .pda2__screen {
+	filter: brightness(0.88) contrast(0.95) saturate(0.92);
 }
 </style>
