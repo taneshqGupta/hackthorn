@@ -31,25 +31,34 @@
         onupvote
     }: Props = $props();
 
-    // 1. Track local interaction (null = user hasn't touched it yet)
-    let userInteraction = $state<boolean | null>(null);
+    // Mapping API snake_case or formatted strings to brutalist colors
+    const statusColors: Record<string, string> = {
+        'submitted': 'bg-blue-500',
+        'under_review': 'bg-orange-500',
+        'in_progress': 'bg-green-500',
+        'resolved': 'bg-black text-white',
+        'closed': 'bg-gray-500',
+        // Fallbacks for formatted strings
+        'Submitted': 'bg-blue-500',
+        'Under Review': 'bg-orange-500',
+        'In Progress': 'bg-green-500',
+        'Resolved': 'bg-black text-white'
+    };
 
-    // 2. Compute final state: "If user touched it, use that. Else use prop."
+    let statusTheme = $derived(status ? (statusColors[status] || 'bg-zinc-700 text-white') : '');
+
+    let userInteraction = $state<boolean | null>(null);
     let currentLiked = $derived(userInteraction ?? isLiked);
 
-    // 3. Compute final count mathematically
     let currentUpvotes = $derived.by(() => {
-        if (userInteraction === null) return upvotes; // No interaction, use server count
-        // If user liked it locally but server says unliked: +1
+        if (userInteraction === null) return upvotes;
         if (userInteraction && !isLiked) return upvotes + 1;
-        // If user unliked it locally but server says liked: -1
         if (!userInteraction && isLiked) return upvotes - 1;
         return upvotes;
     });
 
     function handleUpvote(e: MouseEvent | KeyboardEvent) {
         e.stopPropagation?.();
-        // Toggle interaction
         userInteraction = !currentLiked;
         if (onupvote) onupvote();
     }
@@ -69,6 +78,13 @@
 
 <div class="card-wrapper">
     <div class="card" onclick={() => onclick?.()} role="button" tabindex="0" onkeydown={(e) => (e as KeyboardEvent).key === 'Enter' && onclick?.()}>
+        
+        {#if status}
+            <div class="status-badge-top {statusTheme}">
+                {status.replace('_', ' ')}
+            </div>
+        {/if}
+
         <div class="username">{username}</div>
 
         <div class="body">
@@ -116,10 +132,9 @@
             </div>
         </div>
 
-        {#if status || category}
+        {#if category}
             <div class="badge-row">
-                {#if status}<div class="footer-item status-badge"><span>{status}</span></div>{/if}
-                {#if category}<div class="footer-item category-tag"><span>#{category}</span></div>{/if}
+                <div class="footer-item category-tag"><span>#{category}</span></div>
             </div>
         {/if}
     </div>
@@ -141,13 +156,28 @@
         box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
         border: 2px solid rgba(198, 225, 237, 0.6);
         cursor: pointer;
-        text-align: center; /* Center text globally inside card */
+        text-align: center;
         width: 100%;
         max-width: 400px;
         transition: 200ms ease-in-out;
         display: flex;
         flex-direction: column;
-        align-items: center; /* Center children horizontally */
+        align-items: center;
+    }
+
+    /* TOP RIGHT BRUTALIST BADGE */
+    .status-badge-top {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        padding: 4px 10px;
+        font-size: 10px;
+        font-weight: 950;
+        text-transform: uppercase;
+        border: 2px solid #000;
+        box-shadow: 3px 3px 0px #000;
+        z-index: 50;
+        letter-spacing: 1px;
     }
 
     .username {
@@ -194,7 +224,7 @@
 
     .footer {
         display: flex;
-        justify-content: center; /* Center the icons */
+        justify-content: center;
         gap: 1.5rem;
         font-size: 0.8rem;
         color: #555;
@@ -220,14 +250,6 @@
     .footer-item svg {
         width: 16px;
         height: 16px;
-    }
-
-    .status-badge {
-        font-size: 10px;
-        text-transform: uppercase;
-        background: #000;
-        color: #fff;
-        padding: 2px 6px;
     }
 
     .category-tag {
