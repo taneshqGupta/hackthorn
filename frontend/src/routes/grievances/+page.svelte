@@ -106,42 +106,53 @@
             Issues
         </h1>
 
-        <div class="grid grid-cols-2 gap-2 w-full">
-            <input
-                type="text"
-                bind:value={searchQuery}
-                placeholder="SEARCH..."
-                class="filter-element col-span-2"
-            />
+        <div class="flex flex-col gap-2 w-full">
+            <div class="group-search">
+                <svg class="icon-search" aria-hidden="true" viewBox="0 0 24 24">
+                    <g
+                        ><path
+                            d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"
+                        ></path></g
+                    >
+                </svg>
+                <input
+                    type="text"
+                    bind:value={searchQuery}
+                    placeholder="SEARCH ISSUES..."
+                    class="input-search"
+                />
+            </div>
 
-            <select bind:value={filterCategory} class="filter-element">
-                <option value="">ALL CATEGORIES</option>
-                <option value="infrastructure">INFRASTRUCTURE</option>
-                <option value="academics">ACADEMICS</option>
-                <option value="hostel">HOSTEL</option>
-                <option value="food">FOOD</option>
-                <option value="other">OTHER</option>
-            </select>
+            <div class="grid grid-cols-2 gap-2 w-full">
+                <select bind:value={filterCategory} class="filter-element">
+                    <option value="">ALL CATEGORIES</option>
+                    <option value="infrastructure">INFRASTRUCTURE</option>
+                    <option value="academics">ACADEMICS</option>
+                    <option value="hostel">HOSTEL</option>
+                    <option value="food">FOOD</option>
+                    <option value="other">OTHER</option>
+                </select>
 
-            <select bind:value={filterStatus} class="filter-element">
-                <option value="">ALL STATUSES</option>
-                <option value="submitted">SUBMITTED</option>
-                <option value="under_review">UNDER REVIEW</option>
-                <option value="in_progress">IN PROGRESS</option>
-                <option value="resolved">RESOLVED</option>
-                <option value="closed">CLOSED</option>
-            </select>
+                <select bind:value={filterStatus} class="filter-element">
+                    <option value="">ALL STATUSES</option>
+                    <option value="submitted">SUBMITTED</option>
+                    <option value="under_review">UNDER REVIEW</option>
+                    <option value="in_progress">IN PROGRESS</option>
+                    <option value="resolved">RESOLVED</option>
+                    <option value="closed">CLOSED</option>
+                </select>
 
-            <select
-                bind:value={filterPriority}
-                class="filter-element col-span-2"
-            >
-                <option value="">ALL PRIORITIES</option>
-                <option value="low">LOW</option>
-                <option value="medium">MEDIUM</option>
-                <option value="high">HIGH</option>
-                <option value="urgent">URGENT</option>
-            </select>
+                <select
+                    bind:value={filterPriority}
+                    class="filter-element col-span-2"
+                >
+                    <option value="">ALL PRIORITIES</option>
+                    <option value="low">LOW</option>
+                    <option value="medium">MEDIUM</option>
+                    <option value="high">HIGH</option>
+                    <option value="urgent">URGENT</option>
+                </select>
+            </div>
         </div>
     </div>
     <button
@@ -238,9 +249,77 @@
         stroke: #fff;
     }
 
-    /* Ensure select options are readable against your theme background */
+    .group-search {
+        display: flex;
+        line-height: 28px;
+        align-items: center;
+        position: relative;
+        width: 100%; /* Overriding the 190px to fit your 400px layout */
+    }
+
+    .input-search {
+        width: 100%;
+        height: 45px;
+        line-height: 28px;
+        padding: 0 1rem;
+        padding-left: 2.5rem;
+        border: 2px solid rgba(198, 225, 237, 0.6);
+        border-radius: 0px; /* Removed radius to match brutalist theme */
+        outline: none;
+        background-color: transparent; /* Made transparent per your preference */
+        color: #2b0b0b;
+        transition: 0.3s ease;
+        font-family: inherit; /* Inherit Jersey 25 */
+        font-size: 16px;
+        text-transform: uppercase;
+    }
+
+    .input-search::placeholder {
+        color: rgba(110, 15, 28, 0.5);
+        font-family: inherit;
+    }
+
+    .input-search:focus,
+    .input-search:hover {
+        outline: none;
+        border-color: #b31b34;
+        background-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+    }
+
+    .icon-search {
+        position: absolute;
+        left: 1rem;
+        fill: rgba(110, 15, 28, 0.5);
+        width: 1rem;
+        height: 1rem;
+        pointer-events: none;
+    }
+
+    /* Shared style for the dropdowns below the search bar */
+    .filter-element {
+        font-family: inherit;
+        font-size: 16px;
+        background-color: transparent;
+        border: 2px solid rgba(198, 225, 237, 0.6);
+        padding: 0.5rem;
+        text-transform: uppercase;
+        width: 100%;
+        color: #2b0b0b;
+        cursor: pointer;
+        transition: 0.3s ease;
+    }
+
+    .filter-element:hover,
+    .filter-element:focus {
+        outline: none;
+        border-color: #b31b34;
+        box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+    }
+
     option {
         background-color: #f0f2f5;
         color: #2b0b0b;
+        font-family: inherit;
     }
 </style>
