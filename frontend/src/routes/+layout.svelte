@@ -131,7 +131,7 @@
 		style="border-color: #d06065; height: 40px;"
 	>
 		<Logo />
-		<div class="flex items-center gap-6">
+		<div class="flex items-center gap-8">
 			{#if showInstallButton}
 				<button onclick={handleInstallClick} class="install-btn" aria-label="Install App">
 					Install App
