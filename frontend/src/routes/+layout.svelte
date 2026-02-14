@@ -127,7 +127,7 @@
 
 <div class="h-screen flex flex-col overflow-hidden container">
 	<header
-		class="flex-none w-full border-b-2 flex items-center justify-between px-4"
+		class="flex-none w-full border-b-2 flex items-center justify-between"
 		style="border-color: #d06065; height: 40px;"
 	>
 		<Logo />
