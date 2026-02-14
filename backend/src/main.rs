@@ -47,15 +47,27 @@ async fn main() -> Result<(), AppError> {
 
     let session_store = MemoryStore::default();
     
-    // Only use Secure flag in production (HTTPS). For local development with HTTP, set to false.
-    let is_production = std::env::var("RAILWAY_ENVIRONMENT").is_ok();
-    tracing::info!("Session configuration: is_production={}, secure_cookies={}", is_production, is_production);
+    // Check if we should use development mode (HTTP-compatible) cookies
+    // Set FORCE_DEV_MODE=true when testing with http://localhost frontend
+    let force_dev = std::env::var("FORCE_DEV_MODE").unwrap_or_default() == "true";
+    let is_production = std::env::var("RAILWAY_ENVIRONMENT").is_ok() && !force_dev;
+    
+    // Production (HTTPS): Use SameSite=None + Secure for cross-origin
+    // Development (HTTP): Use SameSite=Lax without Secure for localhost
+    let same_site = if is_production {
+        tower_sessions::cookie::SameSite::None
+    } else {
+        tower_sessions::cookie::SameSite::Lax
+    };
+    
+    tracing::info!("Session configuration: is_production={}, secure={}, same_site={:?}", 
+                   is_production, is_production, same_site);
     
     let session_layer = SessionManagerLayer::new(session_store)
         .with_name("aegis_session")
         .with_secure(is_production)
         .with_http_only(true)
-        .with_same_site(tower_sessions::cookie::SameSite::None)
+        .with_same_site(same_site)
         .with_path("/");
 
     let app = Router::new()
