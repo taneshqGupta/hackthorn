@@ -1,3 +1,4 @@
+mod academic;
 mod admin;
 mod auth;
 mod cloudinary;
@@ -8,22 +9,23 @@ mod structs;
 mod telemetry;
 
 use admin::{
-    get_all_users, get_audit_logs, get_system_stats, get_user_by_id, update_own_role,
-    update_user_role, update_user_status, seed_dummy_users,
+    get_all_users, get_audit_logs, get_system_stats, get_user_by_id, seed_dummy_users,
+    update_own_role, update_user_role, update_user_status,
 };
 use auth::{get_current_user, google_callback, google_login_initiate, logout};
-use grievances::{
-    add_comment, assign_grievance, create_grievance, delete_grievance, get_comments,
-    get_departments, get_grievance_by_id, get_grievance_history, get_grievances,
-    resolve_grievance, toggle_upvote, update_grievance_status, upload_grievance_photos,
-};
 use axum::{
-    middleware, routing::{delete, get, post, put}, Json, Router,
+    Json, Router, middleware,
+    routing::{delete, get, post, put},
 };
 use error::AppError;
-use serde_json::json;
+use grievances::{
+    add_comment, assign_grievance, create_grievance, delete_grievance, get_comments,
+    get_departments, get_grievance_by_id, get_grievance_history, get_grievances, resolve_grievance,
+    toggle_upvote, update_grievance_status, upload_grievance_photos,
+};
 use http::{HeaderName, Method};
 use partitioned_cookies::add_partitioned_attribute;
+use serde_json::json;
 use sqlx::PgPool;
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
@@ -65,7 +67,10 @@ async fn main() -> Result<(), AppError> {
         .with_path("/");
 
     let app = Router::new()
-        .route("/", get(|| async { Json(json!({"status": "ok", "message": "Backend is running"})) }))
+        .route(
+            "/",
+            get(|| async { Json(json!({"status": "ok", "message": "Backend is running"})) }),
+        )
         // Auth routes
         .route("/auth/google", get(google_login_initiate))
         .route("/auth/google/callback", get(google_callback))
@@ -95,6 +100,15 @@ async fn main() -> Result<(), AppError> {
         // Dev/Testing route - allows users to change their own role
         .route("/api/user/role", put(update_own_role))
         .route("/api/dev/seed", post(seed_dummy_users))
+        .route(
+            "/api/courses",
+            post(academic::create_course).get(academic::get_courses),
+        )
+        .route("/api/courses/enroll", post(academic::enroll_course))
+        .route(
+            "/api/courses/my-enrollments",
+            get(academic::get_my_enrollments),
+        )
         .with_state(pool)
         .layer(session_layer)
         .layer(middleware::from_fn(add_partitioned_attribute))
