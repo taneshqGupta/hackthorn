@@ -122,7 +122,7 @@
     </div>
     <div class="w-100 flex flex-col items-center gap-4 mb-8 px-2">
         <h1
-            class="text-[12rem] font-bold text-[#2b0b0b] tracking-tighter uppercase text-center w-full"
+            class="text-7xl font-bold text-[#2b0b0b] tracking-tighter uppercase text-center w-full"
         >
             Issues
         </h1>
