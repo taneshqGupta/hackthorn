@@ -99,9 +99,9 @@
 </script>
 
 <div class="container">
-    <div class="w-full max-w-[400px] flex flex-col gap-4 mb-4 px-2">
+    <div class="w-[400px] flex flex-col items-center gap-4 mb-8 px-2">
         <h1
-            class="text-8xl font-bold text-[#2b0b0b] self-start tracking-tighter uppercase text-center"
+            class="text-8xl font-bold text-[#2b0b0b] tracking-tighter uppercase text-center w-full"
         >
             Issues
         </h1>
@@ -111,13 +111,10 @@
                 type="text"
                 bind:value={searchQuery}
                 placeholder="SEARCH..."
-                class="col-span-2 bg-transparent border-2 border-[rgba(198,225,237,0.6)] p-2 text-xs uppercase focus:outline-none focus:border-[#b31b34] placeholder:text-[#6e0f1c]/50"
+                class="filter-element col-span-2"
             />
 
-            <select
-                bind:value={filterCategory}
-                class="bg-transparent border-2 border-[rgba(198,225,237,0.6)] p-2 text-[10px] uppercase focus:outline-none appearance-none"
-            >
+            <select bind:value={filterCategory} class="filter-element">
                 <option value="">ALL CATEGORIES</option>
                 <option value="infrastructure">INFRASTRUCTURE</option>
                 <option value="academics">ACADEMICS</option>
@@ -126,10 +123,7 @@
                 <option value="other">OTHER</option>
             </select>
 
-            <select
-                bind:value={filterStatus}
-                class="bg-transparent border-2 border-[rgba(198,225,237,0.6)] p-2 text-[10px] uppercase focus:outline-none appearance-none"
-            >
+            <select bind:value={filterStatus} class="filter-element">
                 <option value="">ALL STATUSES</option>
                 <option value="submitted">SUBMITTED</option>
                 <option value="under_review">UNDER REVIEW</option>
@@ -140,7 +134,7 @@
 
             <select
                 bind:value={filterPriority}
-                class="bg-transparent border-2 border-[rgba(198,225,237,0.6)] p-2 text-[10px] uppercase focus:outline-none appearance-none col-span-2"
+                class="filter-element col-span-2"
             >
                 <option value="">ALL PRIORITIES</option>
                 <option value="low">LOW</option>
@@ -150,7 +144,6 @@
             </select>
         </div>
     </div>
-
     <button
         class="submit-btn"
         onclick={() => goto("/grievances/submit")}
