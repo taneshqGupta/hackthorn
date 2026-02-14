@@ -478,7 +478,7 @@
 {/snippet}
 
 <div
-	class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center justify-start p-4 overflow-hidden"
+	class="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center justify-start p-4 overflow-hidden"
 >
 	<h1
 		class="mt-8 mb-4 text-5xl font-bold text-white tracking-widest uppercase text-center"
@@ -487,7 +487,7 @@
 		Share any grievance
 	</h1>
 
-	<div class="flex-grow flex flex-col items-center justify-start w-full">
+	<div class="grow flex flex-col items-center justify-start w-full">
 		<PDA
 			pages={[
 				{
