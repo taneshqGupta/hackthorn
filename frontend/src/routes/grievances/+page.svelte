@@ -43,10 +43,20 @@
 			if (showOnlyMine) params.append('submitter_id', currentUser?.id || '');
 
 			const response = await api.get(`/api/grievances?${params.toString()}`);
-			grievances = response.data || [];
-		} catch (err: any) {
-			error = err.message || 'Failed to load grievances';
-			grievances = [];
+		console.log('[GRIEVANCES] Full response:', response);
+		console.log('[GRIEVANCES] response.data:', response.data);
+		console.log('[GRIEVANCES] Type of response.data:', Array.isArray(response.data) ? 'array' : typeof response.data);
+		grievances = response.data || [];
+		console.log('[GRIEVANCES] Set grievances to:', grievances);
+		console.log('[GRIEVANCES] grievances.length:', grievances.length);
+	} catch (err: any) {
+		console.error('[GRIEVANCES] Error loading:', err);
+		error = err.message || 'Failed to load grievances';
+		grievances = [];
+	} finally {
+		loading = false;
+		console.log('[GRIEVANCES] Loading complete. Final state:', { loading, grievances: grievances.length, error });
+	}
 		} finally {
 			loading = false;
 		}
