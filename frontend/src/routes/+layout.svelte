@@ -149,6 +149,7 @@
 		class="flex-none w-full border-t-2 flex items-center justify-center"
 		style="border-color: #d06065; background-color: rgba(255, 179, 186, 0.2); height: 40px;"
 	>
+	<DevRoleSwitcher/>
 	</footer>
 	
 	<!-- Dev Mode Role Switcher -->
