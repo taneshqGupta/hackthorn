@@ -28,9 +28,17 @@
 </script>
 
 <div class="attendance-page">
-    <div class="page-header">
-        <h2 class="title">Attendance_Log</h2>
-        <p class="subtitle">Self-track your presence in the citadel.</p>
+    <div class="flex flex-col items-center gap-4 mb-8 w-full">
+        <h1
+            class="text-12xl font-bold text-[#2b0b0b] tracking-tighter uppercase text-center w-full"
+        >
+            Logs
+        </h1>
+        <p
+            class="text-[10px] font-bold text-[#666] uppercase tracking-widest opacity-70"
+        >
+            Attendance Self-Tracking
+        </p>
     </div>
 
     {#if loading}

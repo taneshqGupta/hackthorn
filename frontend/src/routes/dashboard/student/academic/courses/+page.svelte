@@ -63,26 +63,18 @@
 </script>
 
 <div class="destiny-container">
-    <header class="page-header">
-        <h1 class="title">Destiny_Manager</h1>
-        <div class="stats-row">
-            <AcademicStatsCard
-                label="Total_Credits"
-                value={totalCredits}
-                subtext="Cumulative Score"
-            />
-            <AcademicStatsCard
-                label="Core_Credits"
-                value={coreCredits}
-                subtext="Foundation Progress"
-            />
-            <AcademicStatsCard
-                label="Courses"
-                value={enrolledCourses.length}
-                subtext="Active Paths"
-            />
-        </div>
-    </header>
+    <div class="flex flex-col items-center gap-4 mb-8 w-full">
+        <h1
+            class="text-8xl font-bold text-[#2b0b0b] tracking-tighter uppercase text-center w-full"
+        >
+            Destiny
+        </h1>
+        <p
+            class="text-[10px] font-bold text-[#666] uppercase tracking-widest opacity-70"
+        >
+            Course & Credit Ledger
+        </p>
+    </div>
 
     {#if loading}
         <div class="ink-loading">FETCHING_FROM_SCROLLS...</div>
