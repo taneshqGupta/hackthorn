@@ -32,7 +32,7 @@ fn can_view_grievance(user: &User, grievance: &Grievance) -> bool {
         UserRole::Admin | UserRole::Authority => true,
         UserRole::Faculty => grievance.assigned_to == Some(user.id),
         UserRole::Student => {
-            grievance.submitted_by == Some(user.id) || !grievance.is_anonymous
+            true
         }
     }
 }
