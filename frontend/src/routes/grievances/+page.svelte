@@ -101,7 +101,7 @@
 <div class="container">
     <div class="w-full max-w-[400px] flex flex-col gap-4 mb-4 px-2">
         <h1
-            class="text-4xl font-bold text-[#2b0b0b] self-start tracking-tighter uppercase"
+            class="text-8xl font-bold text-[#2b0b0b] self-start tracking-tighter uppercase text-center"
         >
             Issues
         </h1>
