@@ -17,6 +17,10 @@
 	// Show dev role switcher in development mode
 	const isDev = browser && (import.meta.env.DEV || import.meta.env.MODE === 'development');
 
+	// PWA Install prompt
+	let deferredPrompt: any = $state(null);
+	let showInstallButton = $state(false);
+
 	// PWA Service Worker Registration
 	onMount(async () => {
 		if ('serviceWorker' in navigator) {
@@ -41,8 +45,66 @@
 				console.log('[PWA] Service Worker registration failed:', error);
 			}
 		}
+
+		// Listen for the beforeinstallprompt event
+		window.addEventListener('beforeinstallprompt', (e) => {
+			e.preventDefault();
+			deferredPrompt = e;
+			showInstallButton = true;
+			console.log('[PWA] Install prompt captured');
+		});
+
+		// Listen for successful installation
+		window.addEventListener('appinstalled', () => {
+			showInstallButton = false;
+			deferredPrompt = null;
+			console.log('[PWA] App installed successfully');
+		});
 	});
+
+	async function handleInstallClick() {
+		if (!deferredPrompt) {
+			console.log('[PWA] No install prompt available');
+			return;
+		}
+
+		deferredPrompt.prompt();
+		const { outcome } = await deferredPrompt.userChoice;
+		console.log('[PWA] User choice:', outcome);
+		
+		if (outcome === 'accepted') {
+			showInstallButton = false;
+		}
+		deferredPrompt = null;
+}
 </script>
+
+<style>
+	.install-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		height: 32px;
+		background: #ffb3ba;
+		border: 2px solid #000;
+		border-radius: 4px;
+		cursor: pointer;
+		transition: all 0.2s;
+		color: #000;
+		padding: 0;
+	}
+
+	.install-btn:hover {
+		background: #d06065;
+		color: #fff;
+		transform: translateY(-2px);
+	}
+
+	.install-btn:active {
+		transform: translateY(0);
+	}
+</style>
 
 <div class="h-screen flex flex-col overflow-hidden container">
 	<header
@@ -50,7 +112,18 @@
 		style="border-color: #d06065; height: 40px;"
 	>
 		<Logo />
-		<BurgerMenu />
+		<div class="flex items-center gap-2">
+			{#if showInstallButton}
+				<button onclick={handleInstallClick} class="install-btn" aria-label="Install App">
+					<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+						<polyline points="7 10 12 15 17 10"></polyline>
+						<line x1="12" y1="15" x2="12" y2="3"></line>
+					</svg>
+				</button>
+			{/if}
+			<BurgerMenu />
+		</div>
 	</header>
 
 	<main class="flex-1 overflow-auto">

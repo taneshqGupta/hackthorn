@@ -17,6 +17,7 @@
 	async function handleLogout() {
 		try {
 			await logout();
+			user.set(null); // Clear the user store
 			closeMenu();
 			goto('/login');
 		} catch (err) {
