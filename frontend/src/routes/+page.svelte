@@ -5,9 +5,10 @@
 <style>
 	.hero-section {
 		min-height: 100vh;
-		background: #ffb3ba;
+		background: transparent;
 		position: relative;
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		overflow: hidden;
@@ -39,16 +40,16 @@
 		z-index: 1;
 		max-width: 600px;
 		padding: 2rem;
-		margin-top: 60vh;
+		text-align: center;
 	}
 
 	.protocol-title {
 		font-size: 3rem;
 		font-weight: 900;
-		color: #000;
+		color: #fff;
 		text-align: center;
 		margin-bottom: 2rem;
-		text-shadow: 3px 3px 0 #fff;
+		text-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 3px 3px 0 #000;
 	}
 
 	.protocol-text {
@@ -57,7 +58,7 @@
 		color: #000;
 		text-align: center;
 		margin-bottom: 2rem;
-		background: rgba(255, 255, 255, 0.8);
+		background: rgba(255, 255, 255, 0.9);
 		padding: 1.5rem;
 		border: 3px solid #000;
 		box-shadow: 6px 6px 0 #000;
@@ -72,7 +73,7 @@
 
 		position: relative;
 		font-family: Arial, sans-serif;
-		font-size: 1.2em;
+		font-size: 1.6em;
 		font-weight: bold;
 		letter-spacing: 0.1em;
 		text-transform: uppercase;
@@ -200,9 +201,9 @@
 			research opportunities reach only the chosen few, and lost
 			belongings drift unclaimed in the shadows of campus corners.
 		</p>
-		<button class="cosmic-portal-btn">
-			<span class="btn-text">The chaos must end.</span>
-			<div class="portal-effect"></div>
-		</button>
 	</div>
+	<button class="cosmic-portal-btn">
+		<span class="btn-text">The chaos must end.</span>
+		<div class="portal-effect"></div>
+	</button>
 </div>
