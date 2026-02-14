@@ -1,17 +1,44 @@
 <script lang="ts">
-    import { user } from '$lib/auth';
-    import { goto } from '$app/navigation';
-    import { onMount } from 'svelte';
-    import api from '$lib/api';
-    import type { Grievance, ApiResponse } from '$lib/types';
-    import PostCard from '$lib/components/PostCard.svelte';
+    import { user } from "$lib/auth";
+    import { goto } from "$app/navigation";
+    import { onMount } from "svelte";
+    import api from "$lib/api";
+    import type { Grievance, ApiResponse } from "$lib/types";
+    import PostCard from "$lib/components/PostCard.svelte";
 
     let grievances = $state<Grievance[]>([]);
     let loading = $state(true);
 
+    // --- Filter State ---
+    let searchQuery = $state("");
+    let filterStatus = $state("");
+    let filterCategory = $state("");
+    let filterPriority = $state("");
+
+    // Derived filtered list
+    let filteredGrievances = $derived(
+        grievances.filter((g) => {
+            const matchesSearch =
+                !searchQuery ||
+                g.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                g.description.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesStatus = !filterStatus || g.status === filterStatus;
+            const matchesCategory =
+                !filterCategory || g.category === filterCategory;
+            const matchesPriority =
+                !filterPriority || g.priority === filterPriority;
+            return (
+                matchesSearch &&
+                matchesStatus &&
+                matchesCategory &&
+                matchesPriority
+            );
+        }),
+    );
+
     onMount(async () => {
         if (!$user) {
-            goto('/login');
+            goto("/login");
             return;
         }
         await loadGrievances();
@@ -20,10 +47,11 @@
     async function loadGrievances() {
         loading = true;
         try {
-            const response = await api.get<ApiResponse<Grievance[]>>('/api/grievances?');
+            const response =
+                await api.get<ApiResponse<Grievance[]>>("/api/grievances?");
             grievances = response.data || [];
         } catch (err: any) {
-            console.error('[GRIEVANCES] Error loading:', err);
+            console.error("[GRIEVANCES] Error loading:", err);
             grievances = [];
         } finally {
             loading = false;
@@ -32,13 +60,13 @@
 
     async function handleUpvote(grievanceId: string) {
         // Optimistic Update
-        grievances = grievances.map(g => {
+        grievances = grievances.map((g) => {
             if (g.id === grievanceId) {
                 const newLikedState = !g.user_has_upvoted;
-                return { 
-                    ...g, 
+                return {
+                    ...g,
                     user_has_upvoted: newLikedState,
-                    upvote_count: g.upvote_count + (newLikedState ? 1 : -1)
+                    upvote_count: g.upvote_count + (newLikedState ? 1 : -1),
                 };
             }
             return g;
@@ -47,19 +75,24 @@
         try {
             await api.post(`/api/grievances/${grievanceId}/upvote`);
         } catch (err) {
-            console.error('[GRIEVANCES] Upvote failed, reverting:', err);
+            console.error("[GRIEVANCES] Upvote failed, reverting:", err);
             await loadGrievances();
         }
     }
 
     // Helper to safely get name
     function getSubmitterName(g: Grievance): string {
-        if (g.is_anonymous) return 'Anonymous';
-        return g.submitter ? `${g.submitter.first_name} ${g.submitter.last_name}` : 'Unknown';
+        if (g.is_anonymous) return "Anonymous";
+        return g.submitter
+            ? `${g.submitter.first_name} ${g.submitter.last_name}`
+            : "Unknown";
     }
 
     function formatStatus(status: string): string {
-        return status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        return status
+            .split("_")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
     }
 
     function formatCategory(category: string): string {
@@ -68,9 +101,73 @@
 </script>
 
 <div class="container">
-    <button class="submit-btn" onclick={() => goto('/grievances/submit')} aria-label="Submit new grievance">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    <div class="w-full max-w-[400px] flex flex-col gap-4 mb-4 px-2">
+        <h1
+            class="text-4xl font-bold text-[#2b0b0b] self-start tracking-tighter uppercase"
+        >
+            Issues
+        </h1>
+
+        <div class="grid grid-cols-2 gap-2 w-full">
+            <input
+                type="text"
+                bind:value={searchQuery}
+                placeholder="SEARCH..."
+                class="col-span-2 bg-transparent border-2 border-[rgba(198,225,237,0.6)] p-2 text-xs uppercase focus:outline-none focus:border-[#b31b34] placeholder:text-[#6e0f1c]/50"
+            />
+
+            <select
+                bind:value={filterCategory}
+                class="bg-transparent border-2 border-[rgba(198,225,237,0.6)] p-2 text-[10px] uppercase focus:outline-none appearance-none"
+            >
+                <option value="">ALL CATEGORIES</option>
+                <option value="infrastructure">INFRASTRUCTURE</option>
+                <option value="academics">ACADEMICS</option>
+                <option value="hostel">HOSTEL</option>
+                <option value="food">FOOD</option>
+                <option value="other">OTHER</option>
+            </select>
+
+            <select
+                bind:value={filterStatus}
+                class="bg-transparent border-2 border-[rgba(198,225,237,0.6)] p-2 text-[10px] uppercase focus:outline-none appearance-none"
+            >
+                <option value="">ALL STATUSES</option>
+                <option value="submitted">SUBMITTED</option>
+                <option value="under_review">UNDER REVIEW</option>
+                <option value="in_progress">IN PROGRESS</option>
+                <option value="resolved">RESOLVED</option>
+                <option value="closed">CLOSED</option>
+            </select>
+
+            <select
+                bind:value={filterPriority}
+                class="bg-transparent border-2 border-[rgba(198,225,237,0.6)] p-2 text-[10px] uppercase focus:outline-none appearance-none col-span-2"
+            >
+                <option value="">ALL PRIORITIES</option>
+                <option value="low">LOW</option>
+                <option value="medium">MEDIUM</option>
+                <option value="high">HIGH</option>
+                <option value="urgent">URGENT</option>
+            </select>
+        </div>
+    </div>
+    <button
+        class="submit-btn"
+        onclick={() => goto("/grievances/submit")}
+        aria-label="Submit new grievance"
+    >
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 4.5v15m7.5-7.5h-15"
+            />
         </svg>
     </button>
 
@@ -84,8 +181,8 @@
                 title={grievance.title}
                 content={grievance.description}
                 images={grievance.photo_urls || []}
-                upvotes={grievance.upvote_count} 
-                isLiked={grievance.user_has_upvoted} 
+                upvotes={grievance.upvote_count}
+                isLiked={grievance.user_has_upvoted}
                 commentsCount={0}
                 date={grievance.created_at}
                 status={formatStatus(grievance.status)}
