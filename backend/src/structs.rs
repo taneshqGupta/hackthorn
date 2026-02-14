@@ -88,3 +88,209 @@ pub struct GoogleUserInfo {
     pub family_name: Option<String>,
     pub picture: Option<String>,
 }
+
+// ============================================================================
+// GRIEVANCE SYSTEM STRUCTS
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type, PartialEq)]
+#[sqlx(type_name = "grievance_category", rename_all = "lowercase")]
+pub enum GrievanceCategory {
+    #[serde(rename = "infrastructure")]
+    Infrastructure,
+    #[serde(rename = "academics")]
+    Academics,
+    #[serde(rename = "hostel")]
+    Hostel,
+    #[serde(rename = "food")]
+    Food,
+    #[serde(rename = "other")]
+    Other,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type, PartialEq)]
+#[sqlx(type_name = "grievance_priority", rename_all = "lowercase")]
+pub enum GrievancePriority {
+    #[serde(rename = "low")]
+    Low,
+    #[serde(rename = "medium")]
+    Medium,
+    #[serde(rename = "high")]
+    High,
+    #[serde(rename = "urgent")]
+    Urgent,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type, PartialEq)]
+#[sqlx(type_name = "grievance_status", rename_all = "lowercase")]
+pub enum GrievanceStatus {
+    #[serde(rename = "submitted")]
+    Submitted,
+    #[serde(rename = "under_review")]
+    UnderReview,
+    #[serde(rename = "in_progress")]
+    InProgress,
+    #[serde(rename = "resolved")]
+    Resolved,
+    #[serde(rename = "closed")]
+    Closed,
+}
+
+#[derive(Debug, Clone, Serialize, FromRow)]
+pub struct Grievance {
+    pub id: Uuid,
+    pub submitted_by: Option<Uuid>,
+    pub is_anonymous: bool,
+    pub anonymous_identifier: Option<String>,
+    pub title: String,
+    pub description: String,
+    pub category: GrievanceCategory,
+    pub priority: GrievancePriority,
+    pub status: GrievanceStatus,
+    pub location_type: Option<String>,
+    pub location_details: Option<String>,
+    pub photo_urls: Option<Vec<String>>,
+    pub assigned_to: Option<Uuid>,
+    pub assigned_department: Option<String>,
+    pub resolution_notes: Option<String>,
+    pub resolved_at: Option<DateTime<Utc>>,
+    pub resolved_by: Option<Uuid>,
+    pub view_count: i32,
+    pub upvote_count: i32,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct GrievanceResponse {
+    pub id: Uuid,
+    pub submitter: Option<UserResponse>, // Only included if not anonymous
+    pub is_anonymous: bool,
+    pub title: String,
+    pub description: String,
+    pub category: GrievanceCategory,
+    pub priority: GrievancePriority,
+    pub status: GrievanceStatus,
+    pub location_type: Option<String>,
+    pub location_details: Option<String>,
+    pub photo_urls: Vec<String>,
+    pub assigned_to: Option<UserResponse>,
+    pub assigned_department: Option<String>,
+    pub resolution_notes: Option<String>,
+    pub resolved_at: Option<DateTime<Utc>>,
+    pub view_count: i32,
+    pub upvote_count: i32,
+    pub user_has_upvoted: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateGrievanceRequest {
+    pub title: String,
+    pub description: String,
+    pub category: GrievanceCategory,
+    pub priority: GrievancePriority,
+    pub location_type: Option<String>,
+    pub location_details: Option<String>,
+    pub is_anonymous: bool,
+    // Photo uploads will be handled separately via multipart form
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateGrievanceRequest {
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub category: Option<GrievanceCategory>,
+    pub priority: Option<GrievancePriority>,
+    pub location_type: Option<String>,
+    pub location_details: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateGrievanceStatusRequest {
+    pub status: GrievanceStatus,
+    pub remarks: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct AssignGrievanceRequest {
+    pub assigned_to: Option<Uuid>,
+    pub assigned_department: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ResolveGrievanceRequest {
+    pub resolution_notes: String,
+}
+
+#[derive(Debug, Serialize, FromRow)]
+pub struct GrievanceStatusHistory {
+    pub id: Uuid,
+    pub grievance_id: Uuid,
+    pub old_status: Option<GrievanceStatus>,
+    pub new_status: GrievanceStatus,
+    pub remarks: Option<String>,
+    pub updated_by: Option<Uuid>,
+    pub updated_by_role: Option<UserRole>,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct GrievanceStatusHistoryResponse {
+    pub id: Uuid,
+    pub old_status: Option<GrievanceStatus>,
+    pub new_status: GrievanceStatus,
+    pub remarks: Option<String>,
+    pub updated_by: Option<UserResponse>,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, FromRow)]
+pub struct GrievanceComment {
+    pub id: Uuid,
+    pub grievance_id: Uuid,
+    pub user_id: Uuid,
+    pub comment: String,
+    pub is_internal: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct GrievanceCommentResponse {
+    pub id: Uuid,
+    pub user: UserResponse,
+    pub comment: String,
+    pub is_internal: bool,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateCommentRequest {
+    pub comment: String,
+    pub is_internal: bool,
+}
+
+#[derive(Debug, Serialize, FromRow)]
+pub struct Department {
+    pub id: Uuid,
+    pub name: String,
+    pub description: Option<String>,
+    pub head_user_id: Option<Uuid>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GrievanceFilters {
+    pub status: Option<GrievanceStatus>,
+    pub category: Option<GrievanceCategory>,
+    pub priority: Option<GrievancePriority>,
+    pub assigned_to: Option<Uuid>,
+    pub assigned_department: Option<String>,
+    pub submitted_by: Option<Uuid>,
+    pub search: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+}

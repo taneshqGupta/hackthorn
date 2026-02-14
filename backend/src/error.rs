@@ -7,6 +7,11 @@ use axum::{
 pub enum AppError {
     HttpError(StatusCode, anyhow::Error),
     Internal(anyhow::Error),
+    Unauthorized,
+    Forbidden,
+    NotFound,
+    BadRequest(String),
+    InternalServerError(String),
 }
 
 impl IntoResponse for AppError {
@@ -21,6 +26,21 @@ impl IntoResponse for AppError {
                     format!("Internal Server Error: {}", err),
                 )
                     .into_response()
+            }
+            AppError::Unauthorized => {
+                (StatusCode::UNAUTHORIZED, "Unauthorized").into_response()
+            }
+            AppError::Forbidden => {
+                (StatusCode::FORBIDDEN, "Forbidden").into_response()
+            }
+            AppError::NotFound => {
+                (StatusCode::NOT_FOUND, "Not Found").into_response()
+            }
+            AppError::BadRequest(msg) => {
+                (StatusCode::BAD_REQUEST, msg).into_response()
+            }
+            AppError::InternalServerError(msg) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, msg).into_response()
             }
         }
     }

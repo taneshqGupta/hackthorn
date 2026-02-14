@@ -1,13 +1,19 @@
 mod auth;
 mod cloudinary;
 mod error;
+mod grievances;
 mod partitioned_cookies;
 mod structs;
 mod telemetry;
 
 use auth::{get_current_user, google_callback, google_login_initiate, logout};
+use grievances::{
+    add_comment, assign_grievance, create_grievance, delete_grievance, get_comments,
+    get_departments, get_grievance_by_id, get_grievance_history, get_grievances,
+    resolve_grievance, toggle_upvote, update_grievance_status, upload_grievance_photos,
+};
 use axum::{
-    middleware, routing::get, Json, Router,
+    middleware, routing::{delete, get, post, put}, Json, Router,
 };
 use error::AppError;
 use serde_json::json;
@@ -37,7 +43,7 @@ async fn main() -> Result<(), AppError> {
             "http://localhost:4173".parse().unwrap(),
             std::env::var("FRONTEND_URL").unwrap().parse().unwrap(),
         ])
-        .allow_methods([Method::GET, Method::POST, Method::DELETE])
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
         .allow_headers([
             HeaderName::from_static("content-type"),
             HeaderName::from_static("authorization"),
@@ -55,10 +61,25 @@ async fn main() -> Result<(), AppError> {
 
     let app = Router::new()
         .route("/", get(|| async { Json(json!({"status": "ok", "message": "Backend is running"})) }))
+        // Auth routes
         .route("/auth/google", get(google_login_initiate))
         .route("/auth/google/callback", get(google_callback))
         .route("/auth/logout", get(logout))
         .route("/auth/me", get(get_current_user))
+        // Grievance routes
+        .route("/api/grievances", post(create_grievance))
+        .route("/api/grievances", get(get_grievances))
+        .route("/api/grievances/:id", get(get_grievance_by_id))
+        .route("/api/grievances/:id", delete(delete_grievance))
+        .route("/api/grievances/:id/status", put(update_grievance_status))
+        .route("/api/grievances/:id/assign", put(assign_grievance))
+        .route("/api/grievances/:id/resolve", put(resolve_grievance))
+        .route("/api/grievances/:id/upvote", post(toggle_upvote))
+        .route("/api/grievances/:id/photos", post(upload_grievance_photos))
+        .route("/api/grievances/:id/history", get(get_grievance_history))
+        .route("/api/grievances/:id/comments", post(add_comment))
+        .route("/api/grievances/:id/comments", get(get_comments))
+        .route("/api/departments", get(get_departments))
         .with_state(pool)
         .layer(session_layer)
         .layer(middleware::from_fn(add_partitioned_attribute))
