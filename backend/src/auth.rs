@@ -93,7 +93,7 @@ pub async fn google_callback(
     tracing::info!("TOKEN_EXCHANGE: Success");
     tracing::info!("USER_INFO: Fetching user info from Google");
     
-    let user_info = client
+    let user_info_response = client
         .get("https://www.googleapis.com/oauth2/v3/userinfo")
         .bearer_auth(&token_response.access_token)
         .send()
@@ -101,11 +101,23 @@ pub async fn google_callback(
         .map_err(|e| {
             tracing::error!("USER_INFO_ERROR: Failed to fetch user info: {}", e);
             AppError::HttpError(StatusCode::INTERNAL_SERVER_ERROR, e.into())
-        })?
-        .json::<GoogleUserInfo>()
-        .await
+        })?;
+    
+    let status = user_info_response.status();
+    tracing::info!("USER_INFO: Response status: {}", status);
+    
+    let response_text = user_info_response.text().await
         .map_err(|e| {
-            tracing::error!("USER_INFO_PARSE_ERROR: Failed to parse user info: {}", e);
+            tracing::error!("USER_INFO_TEXT_ERROR: Failed to read response text: {}", e);
+            AppError::HttpError(StatusCode::INTERNAL_SERVER_ERROR, e.into())
+        })?;
+    
+    tracing::info!("USER_INFO: Raw response body: {}", response_text);
+    
+    let user_info: GoogleUserInfo = serde_json::from_str(&response_text)
+        .map_err(|e| {
+            tracing::error!("USER_INFO_PARSE_ERROR: Failed to parse user info JSON: {}", e);
+            tracing::error!("USER_INFO_PARSE_ERROR: Response was: {}", response_text);
             AppError::HttpError(StatusCode::INTERNAL_SERVER_ERROR, e.into())
         })?;
 
