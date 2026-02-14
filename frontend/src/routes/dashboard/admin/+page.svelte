@@ -35,9 +35,31 @@
 			loading = false;
 		}
 	});
+
+	let isSystemHealthy = $state(false);
+
+	async function checkHealth() {
+		try {
+			const res = await api.get<{ status: string }>("/");
+			isSystemHealthy = res.status === "ok";
+		} catch {
+			isSystemHealthy = false;
+		}
+	}
+
+	onMount(() => {
+		checkHealth();
+	});
 </script>
 
 <div class="dashboard-container">
+	<div
+		class="health-indicator {isSystemHealthy
+			? 'bg-green-100 text-green-700'
+			: 'bg-red-100 text-red-700'} text-[10px] font-bold px-2 py-1 mb-4 uppercase tracking-tighter border border-current"
+	>
+		Citadel Status: {isSystemHealthy ? "Operational" : "Critical Failure"}
+	</div>
 	<nav
 		class="flex gap-4 mb-4 border-b-2 border-black/10 pb-2 w-full justify-center"
 	>
