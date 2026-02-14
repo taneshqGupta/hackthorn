@@ -365,9 +365,9 @@
 	</div>
 {/snippet}
 
-<div class="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-auto">
-	<div class="fixed left-1/2 top-[52%] md:top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 md:gap-6 scale-[0.7] sm:scale-[0.85] md:scale-100">
-		<h1 class="text-xl sm:text-2xl font-bold text-gray-200 tracking-wide uppercase" style="font-family: ui-monospace, monospace;">Share Your Grievance</h1>
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center justify-center py-8 px-4">
+	<h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-200 tracking-wide uppercase mb-4 sm:mb-6 md:mb-8" style="font-family: ui-monospace, monospace;">Share Your Grievance</h1>
+	<div class="w-full max-w-[95vw] sm:max-w-md md:max-w-lg lg:max-w-xl flex justify-center">
 		<PDA 
 			pages={[
 				{ id: 'details', title: 'DETAILS', icon: '<svg class="pda2__ico" viewBox="0 0 24 24"><path class="pda2__st" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke="var(--lcd-ink)" stroke-width="1.7" fill="none"/></svg>', content: detailsPage },
@@ -375,8 +375,8 @@
 				{ id: 'upload', title: 'UPLOAD', icon: '<svg class="pda2__ico" viewBox="0 0 24 24"><path class="pda2__st" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="var(--lcd-ink)" stroke-width="1.7" fill="none"/></svg>', content: uploadPage },
 				{ id: 'review', title: 'REVIEW', icon: '<svg class="pda2__ico" viewBox="0 0 24 24"><path class="pda2__st" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="var(--lcd-ink)" stroke-width="1.7" fill="none"/></svg>', content: reviewPage }
 			]}
-			width="420px" 
-			height="520px" 
+			width="min(90vw, 380px)" 
+			height="min(85vh, 620px)" 
 			bind:currentPage 
 			showBootSequence={false}
 		/>
