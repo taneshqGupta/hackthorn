@@ -134,11 +134,12 @@
 			console.log('[SUBMIT] Posting to /api/grievances endpoint');
 
 			const response = await api.post('/api/grievances', grievanceData);
-			const grievanceId = response.id;
+			console.log('[SUBMIT] Full API response:', response);
+			const grievanceId = response.data?.id;
 			
 			console.log('[SUBMIT] Grievance created successfully, ID:', grievanceId);
 
-			if (selectedFiles.length > 0) {
+			if (selectedFiles.length > 0 && grievanceId) {
 				console.log('[SUBMIT] Uploading', selectedFiles.length, 'photos');
 				const formData = new FormData();
 				selectedFiles.forEach(file => {
@@ -153,10 +154,10 @@
 				console.log('[SUBMIT] No photos to upload');
 			}
 
-			console.log('[SUBMIT] Submission complete, redirecting to grievance page');
+			console.log('[SUBMIT] Submission complete, redirecting to grievances list');
 			success = true;
 			setTimeout(() => {
-				goto(`/grievances/${grievanceId}`);
+				goto('/grievances');
 			}, 1500);
 		} catch (err: any) {
 			console.error('[SUBMIT] ===== SUBMISSION FAILED ===== ');
