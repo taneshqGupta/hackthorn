@@ -12,7 +12,6 @@ pub async fn add_partitioned_attribute(request: Request<Body>, next: Next) -> Re
         if name.as_str().to_lowercase() == "set-cookie" {
             if let Ok(cookie_str) = value.to_str() {
                 if cookie_str.contains("aegis_session") {
-                    // Remove Secure flag, use SameSite=None for cross-origin support
                     let mut cookie = cookie_str
                         .replace("; Secure", "")
                         .replace(";Secure", "")
@@ -21,8 +20,8 @@ pub async fn add_partitioned_attribute(request: Request<Body>, next: Next) -> Re
                         .replace("; SameSite=None", "")
                         .replace(";SameSite=None", "");
                     
-                    // SameSite=None without Secure - works for both HTTP and HTTPS
-                    cookie = format!("{}; SameSite=None", cookie);
+                    // Browsers require Secure with SameSite=None
+                    cookie = format!("{}; SameSite=None; Secure", cookie);
                     tracing::info!("Cookie set: {}", cookie);
                     
                     modified_cookies.push(cookie);
