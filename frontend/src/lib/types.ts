@@ -5,7 +5,7 @@ export type UserRole = 'student' | 'faculty' | 'authority' | 'admin';
 export type UserStatus = 'active' | 'suspended';
 export type GrievanceCategory = 'infrastructure' | 'academics' | 'hostel' | 'food' | 'other';
 export type GrievancePriority = 'low' | 'medium' | 'high' | 'urgent';
-export type GrievanceStatus = 'submitted' | 'under_review' | 'in_progress' | 'resolved' | 'rejected';
+export type GrievanceStatus = 'submitted' | 'under_review' | 'in_progress' | 'resolved' | 'closed';
 
 // --- Responses ---
 
@@ -28,6 +28,23 @@ export interface GrievanceComment {
     created_at: string;
 }
 
+export interface SystemStats {
+    total_users: number;
+    active_users: number;
+    total_grievances: number;
+    pending_grievances: number;
+    resolved_grievances: number;
+    users_by_role: Record<string, number>;
+}
+
+export interface AuditLogResponse {
+    id: string;
+    user: UserResponse | null;
+    action: string;
+    metadata: any | null;
+    created_at: string;
+}
+
 // Matches Rust 'GrievanceStatusHistoryResponse'
 export interface GrievanceStatusHistory {
     id: string;
@@ -41,38 +58,38 @@ export interface GrievanceStatusHistory {
 // Matches Rust 'GrievanceResponse'
 export interface Grievance {
     id: string;
-    
+
     // Submitter Info
     submitter: UserResponse | null;
     is_anonymous: boolean;
-    
+
     // Core Details
     title: string;
     description: string;
     category: GrievanceCategory;
     priority: GrievancePriority;
     status: GrievanceStatus;
-    
+
     // Location
     location_type: string | null;
     location_details: string | null;
-    
+
     // Media
     photo_urls: string[]; // Rust sends empty array, not null, but good to be safe
-    
+
     // Assignment
     assigned_to: UserResponse | null;
     assigned_department: string | null;
-    
+
     // Resolution
     resolution_notes: string | null;
     resolved_at: string | null;
-    
+
     // Stats
     view_count: number;
     upvote_count: number;
     user_has_upvoted: boolean; // Critical for the UI toggle
-    
+
     // Timestamps
     created_at: string;
     updated_at: string;

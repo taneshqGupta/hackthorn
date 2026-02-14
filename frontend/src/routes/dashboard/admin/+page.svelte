@@ -38,6 +38,19 @@
 </script>
 
 <div class="dashboard-container">
+	<nav
+		class="flex gap-4 mb-4 border-b-2 border-black/10 pb-2 w-full justify-center"
+	>
+		<button onclick={() => goto("/dashboard/admin")} class="nav-link"
+			>PANEL</button
+		>
+		<button onclick={() => goto("/admin/users")} class="nav-link"
+			>ROSTER</button
+		>
+		<button onclick={() => goto("/admin/logs")} class="nav-link"
+			>TRAIL</button
+		>
+	</nav>
 	<h1
 		class="text-8xl font-bold mb-6 text-[#2b0b0b] tracking-tighter uppercase text-center w-full"
 	>
