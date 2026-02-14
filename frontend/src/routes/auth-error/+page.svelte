@@ -2,19 +2,30 @@
 	import Card from '$lib/components/Card.svelte';
 	import { browser } from '$app/environment';
 
+	console.log('[AUTH-ERROR] Page loaded');
+	
 	let errorMessage = 'An authentication error occurred';
 	let errorDetails = '';
 
 	if (browser) {
+		console.log('[AUTH-ERROR] Browser environment detected');
+		console.log('[AUTH-ERROR] Current URL:', window.location.href);
+		console.log('[AUTH-ERROR] Search params:', window.location.search);
+		
 		const urlParams = new URLSearchParams(window.location.search);
 		const error = urlParams.get('error');
 		const details = urlParams.get('details');
 		
+		console.log('[AUTH-ERROR] error param:', error);
+		console.log('[AUTH-ERROR] details param:', details);
+		
 		if (error) {
 			errorMessage = decodeURIComponent(error);
+			console.log('[AUTH-ERROR] Decoded error message:', errorMessage);
 		}
 		if (details) {
 			errorDetails = decodeURIComponent(details);
+			console.log('[AUTH-ERROR] Decoded error details:', errorDetails);
 		}
 	}
 </script>

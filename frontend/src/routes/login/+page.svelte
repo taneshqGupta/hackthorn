@@ -4,17 +4,30 @@
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
 
+	console.log('[LOGIN] Page loaded');
+	console.log('[LOGIN] Backend URL:', PUBLIC_BACKEND_URL);
+	
 	let loginUrl = '';
 	let error = '';
 	
 	if (browser) {
 		const origin = window.location.origin;
+		console.log('[LOGIN] Current origin:', origin);
+		console.log('[LOGIN] Current URL:', window.location.href);
+		console.log('[LOGIN] Search params:', window.location.search);
+		
 		loginUrl = `${PUBLIC_BACKEND_URL}auth/google?origin=${encodeURIComponent(origin)}`;
+		console.log('[LOGIN] Generated login URL:', loginUrl);
 		
 		// Get error from URL query parameter
 		const urlParams = new URLSearchParams(window.location.search);
 		error = urlParams.get('error') || '';
+		
+		if (error) {
+			console.log('[LOGIN] Error parameter found:', error);
+		}
 	} else {
+		console.log('[LOGIN] Server-side render, using simple login URL');
 		loginUrl = `${PUBLIC_BACKEND_URL}auth/google`;
 	}
 </script>

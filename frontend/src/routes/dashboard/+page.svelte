@@ -1,19 +1,21 @@
 <script lang="ts">
 	import { user } from '$lib/auth';
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
 	import type { User } from '$lib/types';
 
+	console.log('[DASHBOARD] Page loaded');
+	
 	let currentUser: User | null = null;
 	
 	user.subscribe((value) => {
+		console.log('[DASHBOARD] User subscription triggered, user:', value);
 		currentUser = value;
-	});
-
-	onMount(() => {
-		// Redirect to login if not authenticated
-		if (!currentUser) {
+		
+		if (!value) {
+			console.log('[DASHBOARD] No user found, redirecting to /login');
 			goto('/login');
+		} else {
+			console.log('[DASHBOARD] User authenticated:', value.email);
 		}
 	});
 </script>
