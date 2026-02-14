@@ -23,19 +23,7 @@
 		style="border-color: #d06065; height: 40px;"
 	>
 		<Logo />
-		<div class="flex items-center gap-2">
-			{#if currentUser}
-				<button onclick={() => goto('/profile')} class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-					<img
-						src={currentUser.avatar ||
-							`https://ui-avatars.com/api/?name=${currentUser.name}&background=random&size=32`}
-						alt="user avatar"
-						class="w-8 h-8 rounded-full object-cover"
-					/>
-				</button>
-			{/if}
-			<BurgerMenu isOpen={false} ontoggle={() => {}} />
-		</div>
+		<BurgerMenu />
 	</header>
 
 	<main class="flex-1 overflow-auto">
