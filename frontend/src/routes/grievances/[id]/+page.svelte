@@ -82,7 +82,7 @@
 
 	async function loadDepartments() {
 		try {
-			departments = await api.get('/grievances/departments');
+			departments = await api.get('/api/departments');
 		} catch (err) {
 			console.error('Failed to load departments:', err);
 		}
