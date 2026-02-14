@@ -28,7 +28,7 @@
             </div>
         </button>
 
-        <button onclick={() => goto('/dashboard/student/academic/courses')} class="gateway-card yellow">
+        <button onclick={() => goto('/dashboard/student/courses')} class="gateway-card yellow">
             <div class="card-inner">
                 <span class="pillar-no">PILLAR_III</span>
                 <h2>THE_DESTINY_MANAGER</h2>
@@ -36,7 +36,7 @@
             </div>
         </button>
 
-        <button onclick={() => goto('/dashboard/student/academic/vault')} class="gateway-card pink">
+        <button onclick={() => goto('/dashboard/student/vault')} class="gateway-card pink">
             <div class="card-inner">
                 <span class="pillar-no">PILLAR_III_EXTRA</span>
                 <h2>THE_VAULT</h2>
