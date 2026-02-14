@@ -198,6 +198,7 @@ pub struct CreateGrievanceRequest {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 pub struct UpdateGrievanceRequest {
     pub title: Option<String>,
     pub description: Option<String>,
@@ -289,6 +290,7 @@ pub struct GrievanceFilters {
     pub priority: Option<GrievancePriority>,
     pub assigned_to: Option<Uuid>,
     pub assigned_department: Option<String>,
+    #[allow(dead_code)]
     pub submitted_by: Option<Uuid>,
     pub search: Option<String>,
     pub page: Option<i64>,
