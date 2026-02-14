@@ -65,7 +65,7 @@
 
 	.ui-btn {
 		--btn-default-bg: rgb(41, 41, 41);
-		--btn-padding: 15px 20px;
+		--btn-padding: 20px 30px;
 		--btn-hover-bg: rgb(51, 51, 51);
 		--btn-transition: .3s;
 		--btn-letter-spacing: .1rem;
@@ -74,7 +74,7 @@
 		--btn-shadow: 0 2px 10px 0 var(--btn-shadow-color);
 		--hover-btn-color: #FAC921;
 		--default-btn-color: #fff;
-		--font-size: 16px;
+		--font-size: 20px;
 		--font-weight: 600;
 		--font-family: Menlo,Roboto Mono,monospace;
 	}
@@ -522,6 +522,25 @@
 
 <div class="h-screen flex items-center justify-center">
 	<div class="login-layout">
+		<div class="wheel-and-hamster" role="img" aria-label="Loading hamster">
+			<div class="wheel"></div>
+			<div class="hamster">
+				<div class="hamster__body">
+					<div class="hamster__head">
+						<div class="hamster__ear"></div>
+						<div class="hamster__eye"></div>
+						<div class="hamster__nose"></div>
+					</div>
+					<div class="hamster__limb hamster__limb--fr"></div>
+					<div class="hamster__limb hamster__limb--fl"></div>
+					<div class="hamster__limb hamster__limb--br"></div>
+					<div class="hamster__limb hamster__limb--bl"></div>
+					<div class="hamster__tail"></div>
+				</div>
+			</div>
+			<div class="spoke"></div>
+		</div>
+
 		<div class="login-card-wrapper">
 			<Card title="">
 				<div class="login-container">
