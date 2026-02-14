@@ -6,11 +6,10 @@
 	import type { User } from '$lib/types';
 	import { goto } from '$app/navigation';
 
-	let currentUser: User | null = null;
-	user.subscribe((value) => {
-		currentUser = value;
-	});
 	let { children } = $props();
+	
+	// Use $derived for reactive values from stores in Svelte 5
+	let currentUser = $derived($user);
 </script>
 
 <div class="h-screen flex flex-col overflow-hidden container">

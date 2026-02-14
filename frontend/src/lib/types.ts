@@ -12,6 +12,12 @@ export interface UserResponse {
     department: string | null;
 }
 
+// Alias for convenience
+export type User = UserResponse & {
+    name?: string;
+    avatar?: string;
+};
+
 export interface ApiResponse<T> {
     success: boolean;
     data: T | null;
