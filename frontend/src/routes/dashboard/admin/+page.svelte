@@ -59,13 +59,7 @@
             CITADEL STATUS: {isSystemHealthy ? "OPERATIONAL" : "CRITICAL FAILURE"}
         </div>
 
-        <nav class="main-nav">
-            <button onclick={() => goto("/dashboard/admin")} class:active={$page.url.pathname === "/dashboard/admin"}>PANEL</button>
-            <button onclick={() => goto("/admin/users")}>ROSTER</button>
-            <button onclick={() => goto("/admin/logs")}>TRAIL</button>
-        </nav>
-
-        <h1 class="title">Admin Panel</h1>
+		<h1 class="title">Admin Panel</h1>
 
         {#if loading}
             <div class="loading">Syncing Citadel...</div>
