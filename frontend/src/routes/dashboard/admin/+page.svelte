@@ -229,4 +229,16 @@
 		color: #2b0b0b;
 		margin-top: 3rem;
 	}
+	.nav-link {
+		font-family: "Jersey 25", sans-serif;
+		font-size: 14px;
+		color: #666;
+		text-transform: uppercase;
+		letter-spacing: 1px;
+		cursor: pointer;
+	}
+	.nav-link:hover {
+		color: #b31b34;
+		text-decoration: underline;
+	}
 </style>
