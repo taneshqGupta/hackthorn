@@ -46,9 +46,14 @@ async fn main() -> Result<(), AppError> {
         .allow_credentials(true);
 
     let session_store = MemoryStore::default();
+    
+    // Only use Secure flag in production (HTTPS). For local development with HTTP, set to false.
+    let is_production = std::env::var("RAILWAY_ENVIRONMENT").is_ok();
+    tracing::info!("Session configuration: is_production={}, secure_cookies={}", is_production, is_production);
+    
     let session_layer = SessionManagerLayer::new(session_store)
         .with_name("aegis_session")
-        .with_secure(true)
+        .with_secure(is_production)
         .with_http_only(true)
         .with_same_site(tower_sessions::cookie::SameSite::None)
         .with_path("/");
