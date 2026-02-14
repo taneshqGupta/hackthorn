@@ -295,7 +295,9 @@
 
                     {#if isAdmin}
                         <div class="admin-controls">
-                            <button class="btn-admin" onclick={openAdminModal}>Manage Status</button>
+                            <button class="btn-admin" onclick={openAdminModal}
+                                >Manage Status</button
+                            >
                         </div>
                     {/if}
                 </div>
@@ -407,7 +409,7 @@
                         <option value="under_review">UNDER REVIEW</option>
                         <option value="in_progress">IN PROGRESS</option>
                         <option value="resolved">RESOLVED</option>
-                        <option value="rejected">REJECTED</option>
+                        <option value="closed">CLOSED</option>
                     </select>
                 </div>
 
@@ -784,24 +786,46 @@
 
     /* Modal Styles */
     .modal-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.6);
-        display: flex; justify-content: center; align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
         z-index: 1000;
         backdrop-filter: blur(2px);
     }
     .modal-box {
         background: #f0f2f5; /* Opaque background for readability */
-        width: 90%; max-width: 500px;
+        width: 90%;
+        max-width: 500px;
         color: #2b0b0b;
     }
-    .field { margin-bottom: 16px; }
-    .field label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.9rem; }
-    .field select, .field textarea {
-        width: 100%; padding: 8px;
-        background: transparent; border: 2px solid #2b0b0b;
+    .field {
+        margin-bottom: 16px;
+    }
+    .field label {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 6px;
+        font-size: 0.9rem;
+    }
+    .field select,
+    .field textarea {
+        width: 100%;
+        padding: 8px;
+        background: transparent;
+        border: 2px solid #2b0b0b;
         font-family: inherit;
         font-size: 1rem;
     }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+    }
 </style>
