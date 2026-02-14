@@ -159,7 +159,7 @@
 				</div>
 				<button
 					onclick={() => goto("/admin/logs")}
-					class="mt-4 text-[10px] underline uppercase font-bold tracking-tighter hover:text-[#b31b34]"
+					class="mt-4 text-[14px] underline uppercase font-bold tracking-tighter hover:text-[#b31b34]"
 				>
 					Open Full Logs →
 				</button>
