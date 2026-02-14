@@ -106,11 +106,11 @@
 				<span class="label">TOTAL</span>
 				<span class="value">{stats?.total_grievances ?? 0}</span>
 			</div>
-			<div class="stat-box alert">
+			<div class="stat-box">
 				<span class="label">PENDING</span>
 				<span class="value">{stats?.pending_grievances ?? 0}</span>
 			</div>
-			<div class="stat-box success">
+			<div class="stat-box">
 				<span class="label">RESOLVED</span>
 				<span class="value">{stats?.resolved_grievances ?? 0}</span>
 			</div>
