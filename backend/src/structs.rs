@@ -124,7 +124,7 @@ pub enum GrievancePriority {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type, PartialEq)]
-#[sqlx(type_name = "grievance_status", rename_all = "lowercase")]
+#[sqlx(type_name = "grievance_status", rename_all = "snake_case")]
 pub enum GrievanceStatus {
     #[serde(rename = "submitted")]
     Submitted,
