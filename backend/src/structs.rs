@@ -585,3 +585,203 @@ pub struct CourseFilter {
     pub department: Option<String>,
     pub search: Option<String>,
 }
+
+// ============================================================================
+// OPPORTUNITY & TASKS (PILLAR IV)
+// ============================================================================
+
+// --- Enums ---
+
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type, PartialEq)]
+#[sqlx(type_name = "opportunity_type", rename_all = "lowercase")]
+pub enum OpportunityType {
+    #[serde(rename = "internship")]
+    Internship,
+    #[serde(rename = "research")]
+    Research,
+    #[serde(rename = "project")]
+    Project,
+    #[serde(rename = "job")]
+    Job,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type, PartialEq)]
+#[sqlx(type_name = "application_status", rename_all = "snake_case")]
+pub enum ApplicationStatus {
+    #[serde(rename = "submitted")]
+    Submitted,
+    #[serde(rename = "under_review")]
+    UnderReview,
+    #[serde(rename = "shortlisted")]
+    Shortlisted,
+    #[serde(rename = "accepted")]
+    Accepted,
+    #[serde(rename = "rejected")]
+    Rejected,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type, PartialEq)]
+#[sqlx(type_name = "task_priority", rename_all = "lowercase")]
+pub enum TaskPriority {
+    #[serde(rename = "low")]
+    Low,
+    #[serde(rename = "medium")]
+    Medium,
+    #[serde(rename = "high")]
+    High,
+    #[serde(rename = "urgent")]
+    Urgent,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type, PartialEq)]
+#[sqlx(type_name = "task_status", rename_all = "snake_case")]
+pub enum TaskStatus {
+    #[serde(rename = "pending")]
+    Pending,
+    #[serde(rename = "in_progress")]
+    InProgress,
+    #[serde(rename = "completed")]
+    Completed,
+    #[serde(rename = "archived")]
+    Archived,
+}
+
+// --- Database Entities ---
+
+#[derive(Debug, Clone, Serialize, FromRow)]
+pub struct Opportunity {
+    pub id: Uuid,
+    pub posted_by: Uuid,
+    pub title: String,
+    pub description: String,
+    pub opportunity_type: OpportunityType,
+    pub department: String,
+    pub required_skills: Option<Vec<String>>,
+    pub duration: Option<String>,
+    pub stipend: Option<String>,
+    pub location: Option<String>,
+    pub application_deadline: Option<DateTime<Utc>>,
+    pub is_active: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, FromRow)]
+pub struct Application {
+    pub id: Uuid,
+    pub opportunity_id: Uuid,
+    pub student_id: Uuid,
+    pub resume_url: Option<String>,
+    pub cover_letter: Option<String>,
+    pub portfolio_url: Option<String>,
+    pub status: ApplicationStatus,
+    pub faculty_remarks: Option<String>, // Private
+    pub applied_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, FromRow)]
+pub struct ApplicationMessage {
+    pub id: Uuid,
+    pub application_id: Uuid,
+    pub sender_id: Uuid,
+    pub message: String,
+    pub is_read: bool,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, FromRow)]
+pub struct PersonalTask {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub title: String,
+    pub description: Option<String>,
+    pub status: TaskStatus,
+    pub priority: TaskPriority,
+    pub progress_percentage: Option<i32>,
+    pub due_date: Option<DateTime<Utc>>,
+    pub tags: Option<Vec<String>>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+// --- API Response DTOs ---
+
+#[derive(Debug, Serialize)]
+pub struct OpportunityResponse {
+    pub id: Uuid,
+    pub posted_by: UserResponse, // Expanded user details
+    pub title: String,
+    pub description: String,
+    pub opportunity_type: OpportunityType,
+    pub department: String,
+    pub required_skills: Vec<String>,
+    pub duration: Option<String>,
+    pub stipend: Option<String>,
+    pub location: Option<String>,
+    pub application_deadline: Option<DateTime<Utc>>,
+    pub is_active: bool,
+    pub created_at: DateTime<Utc>,
+    pub has_applied: bool, // Helper for frontend (did I apply?)
+}
+
+#[derive(Debug, Serialize)]
+pub struct ApplicationResponse {
+    pub id: Uuid,
+    pub opportunity: Option<OpportunityResponse>, // Expand op details for student view
+    pub student: Option<UserResponse>, // Expand student details for faculty view
+    pub resume_url: Option<String>,
+    pub cover_letter: Option<String>,
+    pub portfolio_url: Option<String>,
+    pub status: ApplicationStatus,
+    pub applied_at: DateTime<Utc>,
+    // Note: faculty_remarks excluded for student privacy unless viewed by faculty
+}
+
+// --- API Request DTOs ---
+
+#[derive(Debug, Deserialize)]
+pub struct CreateOpportunityRequest {
+    pub title: String,
+    pub description: String,
+    pub opportunity_type: OpportunityType,
+    pub department: String, // e.g. "CSE"
+    pub required_skills: Vec<String>,
+    pub duration: String,
+    pub stipend: Option<String>,
+    pub location: String,
+    pub application_deadline: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ApplyRequest {
+    pub resume_url: String,
+    pub cover_letter: Option<String>,
+    pub portfolio_url: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateApplicationStatusRequest {
+    pub status: ApplicationStatus,
+    pub faculty_remarks: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateTaskRequest {
+    pub title: String,
+    pub description: Option<String>,
+    pub priority: TaskPriority,
+    pub due_date: Option<DateTime<Utc>>,
+    pub tags: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UpdateTaskRequest {
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub status: Option<TaskStatus>,
+    pub priority: Option<TaskPriority>,
+    pub progress_percentage: Option<i32>,
+    pub due_date: Option<DateTime<Utc>>,
+    pub tags: Option<Vec<String>>,
+}
