@@ -58,16 +58,20 @@ pub async fn google_callback(
     State(pool): State<PgPool>,
     session: TowerSession,
 ) -> Result<impl IntoResponse, AppError> {
+    tracing::info!("CALLBACK_START: Received callback from Google");
+    tracing::info!("CALLBACK_STATE: state={:?}", query.state);
+    
     let client_id = env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID must be set");
     let client_secret = env::var("GOOGLE_CLIENT_SECRET").expect("GOOGLE_CLIENT_SECRET must be set");
     let redirect_uri = env::var("GOOGLE_REDIRECT_URL").expect("GOOGLE_REDIRECT_URL must be set");
 
+    tracing::info!("TOKEN_EXCHANGE: Starting token exchange with Google");
     let client = reqwest::Client::new();
     
     let token_response = client
         .post("https://oauth2.googleapis.com/token")
         .json(&GoogleTokenRequest {
-            code: query.code,
+            code: query.code.clone(),
             client_id,
             client_secret,
             redirect_uri,
@@ -75,31 +79,67 @@ pub async fn google_callback(
         })
         .send()
         .await
-        .map_err(|e| AppError::HttpError(StatusCode::INTERNAL_SERVER_ERROR, e.into()))?
+        .map_err(|e| {
+            tracing::error!("TOKEN_EXCHANGE_ERROR: Failed to send token request: {}", e);
+            AppError::HttpError(StatusCode::INTERNAL_SERVER_ERROR, e.into())
+        })?
         .json::<GoogleTokenResponse>()
         .await
-        .map_err(|e| AppError::HttpError(StatusCode::INTERNAL_SERVER_ERROR, e.into()))?;
+        .map_err(|e| {
+            tracing::error!("TOKEN_PARSE_ERROR: Failed to parse token response: {}", e);
+            AppError::HttpError(StatusCode::INTERNAL_SERVER_ERROR, e.into())
+        })?;
 
+    tracing::info!("TOKEN_EXCHANGE: Success");
+    tracing::info!("USER_INFO: Fetching user info from Google");
+    
     let user_info = client
         .get("https://www.googleapis.com/oauth2/v3/userinfo")
         .bearer_auth(&token_response.access_token)
         .send()
         .await
-        .map_err(|e| AppError::HttpError(StatusCode::INTERNAL_SERVER_ERROR, e.into()))?
+        .map_err(|e| {
+            tracing::error!("USER_INFO_ERROR: Failed to fetch user info: {}", e);
+            AppError::HttpError(StatusCode::INTERNAL_SERVER_ERROR, e.into())
+        })?
         .json::<GoogleUserInfo>()
         .await
-        .map_err(|e| AppError::HttpError(StatusCode::INTERNAL_SERVER_ERROR, e.into()))?;
+        .map_err(|e| {
+            tracing::error!("USER_INFO_PARSE_ERROR: Failed to parse user info: {}", e);
+            AppError::HttpError(StatusCode::INTERNAL_SERVER_ERROR, e.into())
+        })?;
+
+    tracing::info!("USER_INFO: Received email={}", user_info.email);
+    tracing::info!("EMAIL_CHECK: Checking if email domain is allowed");
 
     if !user_info.email.ends_with("@iitmandi.ac.in") && !user_info.email.ends_with("@students.iitmandi.ac.in") {
-        // Redirect to dedicated error page for non-institute emails
+        tracing::warn!("EMAIL_REJECTED: Non-institute email detected: {}", user_info.email);
+        
         let frontend_url = query.state.as_ref()
-            .and_then(|s| urlencoding::decode(s).ok())
+            .and_then(|s| {
+                tracing::info!("STATE_DECODE: Decoding state parameter: {}", s);
+                let result = urlencoding::decode(s).ok();
+                tracing::info!("STATE_DECODE: Result={:?}", result);
+                result
+            })
             .map(|s| s.to_string())
-            .unwrap_or_else(|| env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:4173".to_string()));
+            .unwrap_or_else(|| {
+                let fallback = env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:4173".to_string());
+                tracing::info!("STATE_DECODE: Using fallback frontend URL: {}", fallback);
+                fallback
+            });
+        
         let error_msg = urlencoding::encode("Only IIT Mandi email addresses are allowed");
         let error_details = urlencoding::encode("Please use your @iitmandi.ac.in or @students.iitmandi.ac.in email address");
-        return Ok(Redirect::to(&format!("{}/auth-error?error={}&details={}", frontend_url, error_msg, error_details)));
+        let redirect_url = format!("{}/auth-error?error={}&details={}", frontend_url, error_msg, error_details);
+        
+        tracing::warn!("EMAIL_REJECTED: Redirecting to {}", redirect_url);
+        tracing::info!("CALLBACK_END: Rejected non-institute email");
+        return Ok(Redirect::to(&redirect_url));
     }
+    
+    tracing::info!("EMAIL_CHECK: Email domain approved");
+    tracing::info!("DB_QUERY: Looking up user by google_id");
 
     let user = match sqlx::query_as::<_, User>(
         "SELECT * FROM users WHERE google_id = $1"
@@ -109,19 +149,23 @@ pub async fn google_callback(
     .await?
     {
         Some(mut existing_user) => {
+            tracing::info!("DB_QUERY: Found existing user id={}", existing_user.id);
             sqlx::query("UPDATE users SET last_login_at = NOW() WHERE id = $1")
                 .bind(existing_user.id)
                 .execute(&pool)
                 .await?;
             existing_user.last_login_at = Some(Utc::now());
+            tracing::info!("DB_UPDATE: Updated last_login_at for user id={}", existing_user.id);
             existing_user
         }
         None => {
+            tracing::info!("DB_QUERY: No existing user found, creating new user");
             let default_role = if user_info.email.ends_with("@students.iitmandi.ac.in") {
                 UserRole::Student
             } else {
                 UserRole::Faculty
             };
+            tracing::info!("USER_CREATE: Role assigned={:?}", default_role);
 
             sqlx::query_as::<_, User>(
                 r#"
@@ -142,9 +186,15 @@ pub async fn google_callback(
         }
     };
 
+    tracing::info!("SESSION: Inserting user_id={} into session", user.id);
     session.insert(SESSION_USER_ID_KEY, user.id).await
-        .map_err(|e| AppError::Internal(e.into()))?;
+        .map_err(|e| {
+            tracing::error!("SESSION_ERROR: Failed to insert into session: {}", e);
+            AppError::Internal(e.into())
+        })?;
+    tracing::info!("SESSION: Successfully stored user_id in session");
 
+    tracing::info!("AUDIT_LOG: Recording login event");
     sqlx::query(
         "INSERT INTO audit_logs (user_id, action, metadata) VALUES ($1, $2, $3)"
     )
@@ -153,13 +203,26 @@ pub async fn google_callback(
     .bind(serde_json::json!({"method": "google"}))
     .execute(&pool)
     .await?;
+    tracing::info!("AUDIT_LOG: Login event recorded");
 
+    tracing::info!("REDIRECT: Preparing redirect to frontend");
     // Use state parameter to redirect to the correct frontend origin
     let frontend_url = query.state.as_ref()
-        .and_then(|s| urlencoding::decode(s).ok())
+        .and_then(|s| {
+            tracing::info!("REDIRECT: Decoding state for redirect: {}", s);
+            urlencoding::decode(s).ok()
+        })
         .map(|s| s.to_string())
-        .unwrap_or_else(|| env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:4173".to_string()));
-    Ok(Redirect::to(&format!("{}/dashboard", frontend_url)))
+        .unwrap_or_else(|| {
+            let fallback = env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:4173".to_string());
+            tracing::info!("REDIRECT: Using fallback URL: {}", fallback);
+            fallback
+        });
+    
+    let redirect_url = format!("{}/dashboard", frontend_url);
+    tracing::info!("REDIRECT: Redirecting to {}", redirect_url);
+    tracing::info!("CALLBACK_END: Success");
+    Ok(Redirect::to(&redirect_url))
 }
 
 pub async fn logout(
