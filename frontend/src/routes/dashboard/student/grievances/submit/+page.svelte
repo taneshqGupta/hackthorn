@@ -524,7 +524,7 @@
 	</div>
 	<button
 		class="back-to-feed-btn"
-		onclick={() => goto("/grievances")}
+		onclick={() => goto("/dashboard/student/grievances")}
 		aria-label="Back to issues feed"
 	>
 		<svg
