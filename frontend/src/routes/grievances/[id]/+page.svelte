@@ -315,7 +315,7 @@
 
     /* Main Card */
     .main-card {
-        background: white;
+        background: transparent;
         border: 2px solid rgba(198, 225, 237, 0.6);
         box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
         padding: 24px;
