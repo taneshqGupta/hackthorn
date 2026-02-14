@@ -73,15 +73,6 @@ impl From<User> for UserResponse {
     }
 }
 
-#[derive(Debug, FromRow)]
-pub struct Session {
-    pub id: Uuid,
-    pub user_id: Uuid,
-    pub session_token: String,
-    pub expires_at: DateTime<Utc>,
-    pub created_at: DateTime<Utc>,
-}
-
 #[derive(Debug, Serialize)]
 pub struct ApiResponse<T> {
     pub success: bool,

@@ -47,8 +47,11 @@ async fn main() -> Result<(), AppError> {
 
     let session_store = MemoryStore::default();
     let session_layer = SessionManagerLayer::new(session_store)
+        .with_name("aegis_session")
         .with_secure(true)
-        .with_same_site(tower_sessions::cookie::SameSite::None);
+        .with_http_only(true)
+        .with_same_site(tower_sessions::cookie::SameSite::None)
+        .with_path("/");
 
     let app = Router::new()
         .route("/", get(|| async { Json(json!({"status": "ok", "message": "Backend is running"})) }))
