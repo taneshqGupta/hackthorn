@@ -62,8 +62,6 @@
     });
 </script>
 
-<AcademicSubNav />
-
 <div class="destiny-container">
     <header class="page-header">
         <h1 class="title">Destiny_Manager</h1>

@@ -27,8 +27,6 @@
     });
 </script>
 
-<AcademicSubNav />
-
 <div class="attendance-page">
     <div class="page-header">
         <h2 class="title">Attendance_Log</h2>
