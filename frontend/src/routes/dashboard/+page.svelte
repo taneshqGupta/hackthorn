@@ -11,7 +11,6 @@
 	user.subscribe((value) => {
 		console.log('[DASHBOARD] User subscription triggered');
 		console.log('[DASHBOARD] User value:', value);
-		console.log('[DASHBOARD] Previous currentUser:', currentUser);
 		
 		currentUser = value;
 		authCheckComplete = true;
@@ -19,73 +18,23 @@
 		if (!value) {
 			console.log('[DASHBOARD] No user found after auth check, redirecting to /login');
 			setTimeout(() => {
-				console.log('[DASHBOARD] Executing redirect to /login');
 				goto('/login');
 			}, 100);
 		} else {
-			console.log('[DASHBOARD] User authenticated:', value.email);
-			console.log('[DASHBOARD] User name:', value.name);
-			console.log('[DASHBOARD] User role:', value.role);
+			console.log('[DASHBOARD] User authenticated, redirecting to role-based dashboard');
+			// Redirect to role-based dashboard
+			setTimeout(() => {
+				goto(`/dashboard/${value.role}`);
+			}, 100);
 		}
 	});
 </script>
 
 <div class="container mx-auto p-8">
-	{#if currentUser}
-		<div class="mb-8">
-			<h1 class="text-3xl font-bold mb-2">Welcome to AEGIS Dashboard</h1>
-			<p class="text-gray-600">Hello, {currentUser.name}!</p>
-		</div>
-
-		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-			<!-- Profile Card -->
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<div class="flex items-center space-x-4 mb-4">
-						<div class="avatar">
-							<div class="w-16 rounded-full">
-								<img
-									src={currentUser.avatar ||
-										`https://ui-avatars.com/api/?name=${currentUser.name}&background=random`}
-									alt="user avatar"
-								/>
-							</div>
-						</div>
-						<div>
-							<h2 class="card-title text-lg">{currentUser.name}</h2>
-							<p class="text-sm text-gray-600">{currentUser.email}</p>
-						</div>
-					</div>
-					<div class="card-actions justify-end">
-						<a href="/profile" class="btn btn-primary btn-sm">View Profile</a>
-					</div>
-				</div>
-			</div>
-
-			<!-- Quick Actions Card -->
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="card-title">Quick Actions</h2>
-					<p class="text-sm text-gray-600">Access common features</p>
-					<div class="card-actions justify-end mt-4">
-						<button class="btn btn-outline btn-sm">Create</button>
-						<button class="btn btn-outline btn-sm">Browse</button>
-					</div>
-				</div>
-			</div>
-
-			<!-- Status Card -->
-			<div class="card bg-base-100 shadow-xl">
-				<div class="card-body">
-					<h2 class="card-title">Status</h2>
-					<div class="badge badge-success">Active</div>
-					<p class="text-sm text-gray-600 mt-2">All systems operational</p>
-				</div>
-			</div>
-		</div>
-	{:else}
-		<div class="flex items-center justify-center h-64">
+	<div class="flex items-center justify-center h-64">
+		<div class="text-center">
 			<span class="loading loading-spinner loading-lg"></span>
+			<p class="mt-4 text-gray-600">Redirecting to your dashboard...</p>
 		</div>
-	{/if}
+	</div>
 </div>

@@ -57,3 +57,43 @@ export async function getMyProfile(): Promise<ApiResponse<UserResponse>> {
 export function getGoogleLoginUrl(): string {
     return `${PUBLIC_BACKEND_URL}auth/google`;
 }
+
+// Generic API helper
+export const api = {
+    async get<T = any>(path: string): Promise<ApiResponse<T>> {
+        const response = await fetch(`${PUBLIC_BACKEND_URL}${path.startsWith('/') ? path.slice(1) : path}`, {
+            method: 'GET',
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error(`GET ${path} failed`);
+        return response.json();
+    },
+    async post<T = any>(path: string, data?: any): Promise<ApiResponse<T>> {
+        const response = await fetch(`${PUBLIC_BACKEND_URL}${path.startsWith('/') ? path.slice(1) : path}`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) throw new Error(`POST ${path} failed`);
+        return response.json();
+    },
+    async put<T = any>(path: string, data?: any): Promise<ApiResponse<T>> {
+        const response = await fetch(`${PUBLIC_BACKEND_URL}${path.startsWith('/') ? path.slice(1) : path}`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) throw new Error(`PUT ${path} failed`);
+        return response.json();
+    },
+    async delete<T = any>(path: string): Promise<ApiResponse<T>> {
+        const response = await fetch(`${PUBLIC_BACKEND_URL}${path.startsWith('/') ? path.slice(1) : path}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error(`DELETE ${path} failed`);
+        return response.json();
+    },
+};

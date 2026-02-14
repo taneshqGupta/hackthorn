@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
@@ -292,6 +294,84 @@ pub struct GrievanceFilters {
     pub assigned_department: Option<String>,
     #[allow(dead_code)]
     pub submitted_by: Option<Uuid>,
+    pub search: Option<String>,
+    pub page: Option<i64>,
+    pub limit: Option<i64>,
+}
+
+// ============================================================================
+// ADMIN USER MANAGEMENT STRUCTS
+// ============================================================================
+
+#[allow(dead_code)]
+#[derive(Debug, Deserialize)]
+pub struct UpdateUserRoleRequest {
+    pub role: UserRole,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Deserialize)]
+pub struct UpdateUserStatusRequest {
+    pub status: UserStatus,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Serialize)]
+pub struct UserListResponse {
+    pub id: Uuid,
+    pub email: String,
+    pub role: UserRole,
+    pub status: UserStatus,
+    pub first_name: String,
+    pub last_name: String,
+    pub profile_picture: Option<String>,
+    pub department: Option<String>,
+    pub last_login_at: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+}
+
+impl From<User> for UserListResponse {
+    fn from(user: User) -> Self {
+        Self {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            status: user.status,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            profile_picture: user.profile_picture,
+            department: user.department,
+            last_login_at: user.last_login_at,
+            created_at: user.created_at,
+        }
+    }
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Serialize, FromRow)]
+pub struct AuditLog {
+    pub id: Uuid,
+    pub user_id: Option<Uuid>,
+    pub action: String,
+    pub metadata: Option<serde_json::Value>,
+    pub created_at: DateTime<Utc>,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Serialize)]
+pub struct AuditLogResponse {
+    pub id: Uuid,
+    pub user: Option<UserResponse>,
+    pub action: String,
+    pub metadata: Option<serde_json::Value>,
+    pub created_at: DateTime<Utc>,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, Deserialize)]
+pub struct UserFilters {
+    pub role: Option<UserRole>,
+    pub status: Option<UserStatus>,
     pub search: Option<String>,
     pub page: Option<i64>,
     pub limit: Option<i64>,

@@ -1,3 +1,4 @@
+mod admin;
 mod auth;
 mod cloudinary;
 mod error;
@@ -6,6 +7,10 @@ mod partitioned_cookies;
 mod structs;
 mod telemetry;
 
+use admin::{
+    get_all_users, get_audit_logs, get_system_stats, get_user_by_id, update_own_role,
+    update_user_role, update_user_status,
+};
 use auth::{get_current_user, google_callback, google_login_initiate, logout};
 use grievances::{
     add_comment, assign_grievance, create_grievance, delete_grievance, get_comments,
@@ -80,6 +85,15 @@ async fn main() -> Result<(), AppError> {
         .route("/api/grievances/{id}/comments", post(add_comment))
         .route("/api/grievances/{id}/comments", get(get_comments))
         .route("/api/departments", get(get_departments))
+        // Admin routes
+        .route("/api/admin/users", get(get_all_users))
+        .route("/api/admin/users/{id}", get(get_user_by_id))
+        .route("/api/admin/users/{id}/role", put(update_user_role))
+        .route("/api/admin/users/{id}/status", put(update_user_status))
+        .route("/api/admin/audit-logs", get(get_audit_logs))
+        .route("/api/admin/stats", get(get_system_stats))
+        // Dev/Testing route - allows users to change their own role
+        .route("/api/user/role", put(update_own_role))
         .with_state(pool)
         .layer(session_layer)
         .layer(middleware::from_fn(add_partitioned_attribute))

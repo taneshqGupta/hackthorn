@@ -2,14 +2,19 @@
 	import '../app.css';
 	import Logo from '$lib/components/Logo.svelte';
 	import BurgerMenu from '$lib/components/BurgerMenu.svelte';
+	import DevRoleSwitcher from '$lib/components/DevRoleSwitcher.svelte';
 	import { user } from '$lib/auth';
 	import type { User } from '$lib/types';
 	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
 
 	let { children } = $props();
 	
 	// Use $derived for reactive values from stores in Svelte 5
 	let currentUser = $derived($user);
+	
+	// Show dev role switcher in development mode
+	const isDev = browser && (import.meta.env.DEV || import.meta.env.MODE === 'development');
 </script>
 
 <div class="h-screen flex flex-col overflow-hidden container">
@@ -21,7 +26,7 @@
 		<div class="flex items-center">
 			{#if currentUser}
 				<div class="mr-4">
-					<button on:click={() => goto('/profile')} class="btn btn-ghost btn-circle">
+					<button onclick={() => goto('/profile')} class="btn btn-ghost btn-circle">
 						<div class="avatar">
 							<div class="w-10 rounded-full">
 								<img
@@ -47,4 +52,9 @@
 		style="border-color: #d06065; background-color: rgba(255, 179, 186, 0.2); height: 40px;"
 	>
 	</footer>
+	
+	<!-- Dev Mode Role Switcher -->
+	{#if isDev && currentUser}
+		<DevRoleSwitcher />
+	{/if}
 </div>
