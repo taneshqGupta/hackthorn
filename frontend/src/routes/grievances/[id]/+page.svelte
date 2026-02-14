@@ -38,18 +38,22 @@
     async function loadAllData() {
         loading = true;
         try {
+            // Fetch everything in parallel
             const [gRes, cRes, hRes] = await Promise.all([
                 api.get<ApiResponse<Grievance>>(`/api/grievances/${grievanceId}`),
                 api.get<ApiResponse<GrievanceComment[]>>(`/api/grievances/${grievanceId}/comments`),
                 api.get<ApiResponse<GrievanceStatusHistory[]>>(`/api/grievances/${grievanceId}/history`)
             ]);
 
+            // Set Grievance Data
             if (gRes.data) {
                 grievance = gRes.data;
+                // Sync local state for optimistic UI
                 isUpvoted = grievance.user_has_upvoted;
                 localUpvoteCount = grievance.upvote_count;
             }
 
+            // Set Comments & History
             if (cRes.data) comments = cRes.data;
             if (hRes.data) history = hRes.data;
 
@@ -64,13 +68,16 @@
     async function handleUpvote() {
         if (!grievance) return;
         
+        // 1. Optimistic Update (Update UI immediately)
         const previousState = isUpvoted;
         isUpvoted = !isUpvoted;
         localUpvoteCount += isUpvoted ? 1 : -1;
 
         try {
+            // 2. Send request in background
             await api.post(`/api/grievances/${grievanceId}/upvote`);
         } catch (e) {
+            // 3. Revert on failure
             console.error("Upvote failed", e);
             isUpvoted = previousState;
             localUpvoteCount += isUpvoted ? 1 : -1;
@@ -88,7 +95,7 @@
             });
             
             if (res.data) {
-                comments = [...comments, res.data];
+                comments = [...comments, res.data]; // Append new comment
                 newComment = '';
             }
         } catch (e: any) {
@@ -113,27 +120,27 @@
 
 <div class="page-container">
     {#if loading}
-        <div class="loading-state">LOADING DATA...</div>
+        <div class="loading-state">Loading details...</div>
     {:else if error}
         <div class="error-state">{error}</div>
     {:else if grievance}
         
         <div class="header">
-            <button onclick={() => goto('/grievances')} class="back-btn">← BACK TO FEED</button>
+            <button onclick={() => goto('/grievances')} class="back-btn">← Back to Feed</button>
             <div class="status-badge {grievance.status}">
                 {grievance.status.replace('_', ' ')}
             </div>
         </div>
 
         <div class="grid-layout">
-            <div class="brutalist-card main-card">
+            <div class="main-card">
                 <div class="content-header">
                     <h1 class="title">{grievance.title}</h1>
                     <div class="meta-row">
                         <span class="category-tag">[{grievance.category.toUpperCase()}]</span>
                         <span class="dot">•</span>
                         <span class="user-name">
-                            {grievance.is_anonymous ? 'ANONYMOUS' : formatName(grievance.submitter).toUpperCase()}
+                            {grievance.is_anonymous ? 'Anonymous Student' : formatName(grievance.submitter)}
                         </span>
                         <span class="dot">•</span>
                         <span class="date">{formatDate(grievance.created_at)}</span>
@@ -151,7 +158,7 @@
                         {/if}
                         {#if grievance.assigned_department}
                             <div class="info-item">
-                                <span class="label">DEPT:</span> {grievance.assigned_department}
+                                <span class="label">ASSIGNED DEPT:</span> {grievance.assigned_department}
                             </div>
                         {/if}
                     </div>
@@ -160,7 +167,7 @@
                 {#if grievance.photo_urls && grievance.photo_urls.length > 0}
                     <div class="photos-grid">
                         {#each grievance.photo_urls as photo}
-                            <a href={photo} target="_blank" rel="noreferrer" class="photo-frame">
+                            <a href={photo} target="_blank" rel="noreferrer">
                                 <img src={photo} alt="Evidence" />
                             </a>
                         {/each}
@@ -175,7 +182,7 @@
                         class:active={isUpvoted}
                         onclick={handleUpvote}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill={isUpvoted ? "currentColor" : "none"} viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill={isUpvoted ? "currentColor" : "none"} viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                         </svg>
                         <span>{localUpvoteCount}</span>
@@ -183,7 +190,7 @@
                     
                     {#if isAdmin}
                         <div class="admin-controls">
-                            <button class="retro-btn admin">MANAGE STATUS</button>
+                            <button class="btn-admin">Manage Status</button>
                         </div>
                     {/if}
                 </div>
@@ -192,28 +199,27 @@
             <div class="sidebar">
                 
                 {#if grievance.status === 'resolved'}
-                    <div class="brutalist-card resolution-banner">
-                        <h3>✓ RESOLVED</h3>
+                    <div class="resolution-banner">
+                        <h3>✓ Resolved</h3>
                         <p>{grievance.resolution_notes || 'No resolution notes provided.'}</p>
-                        <small>BY {formatName(grievance.assigned_to).toUpperCase()}</small>
+                        <small>Resolved by {formatName(grievance.assigned_to)}</small>
                     </div>
                 {/if}
 
-                <div class="brutalist-card">
-                    <h3>DISCUSSION ({comments.length})</h3>
+                <div class="section-card">
+                    <h3>Discussion ({comments.length})</h3>
                     
                     <div class="comment-input-area">
                         <textarea 
                             bind:value={newComment}
-                            placeholder="WRITE A COMMENT..." 
+                            placeholder="Add a comment..." 
                             rows="2"
                         ></textarea>
                         <button 
-                            class="retro-btn"
                             disabled={submittingComment || !newComment.trim()} 
                             onclick={handlePostComment}
                         >
-                            {submittingComment ? 'POSTING...' : 'POST'}
+                            {submittingComment ? 'Posting...' : 'Post'}
                         </button>
                     </div>
 
@@ -221,7 +227,7 @@
                         {#each comments as comment}
                             <div class="comment-item {comment.is_internal ? 'internal' : ''}">
                                 <div class="comment-header">
-                                    <span class="c-name">{formatName(comment.user).toUpperCase()}</span>
+                                    <span class="c-name">{formatName(comment.user)}</span>
                                     {#if comment.is_internal}<span class="badge-internal">INTERNAL</span>{/if}
                                     <span class="c-time">{formatDate(comment.created_at)}</span>
                                 </div>
@@ -231,16 +237,16 @@
                     </div>
                 </div>
 
-                <div class="brutalist-card">
-                    <h3>TIMELINE</h3>
+                <div class="section-card">
+                    <h3>Timeline</h3>
                     <div class="timeline">
                         {#each history as event}
                             <div class="timeline-item">
                                 <div class="t-dot"></div>
                                 <div class="t-content">
-                                    <div class="t-status">CHANGED TO <b>{event.new_status.replace('_', ' ').toUpperCase()}</b></div>
+                                    <div class="t-status">Changed to <b>{event.new_status.replace('_', ' ')}</b></div>
                                     <div class="t-meta">
-                                        BY {formatName(event.updated_by).toUpperCase()} • {formatDate(event.created_at)}
+                                        by {formatName(event.updated_by)} • {formatDate(event.created_at)}
                                     </div>
                                     {#if event.remarks}
                                         <div class="t-remarks">"{event.remarks}"</div>
@@ -257,51 +263,14 @@
 </div>
 
 <style>
-    /* Reset & Base */
-    :global(body) { background-color: #f0f2f5; font-family: inherit; }
+    /* 1. Remove font-family override so it uses Jersey 25 */
+    :global(body) { background-color: #f0f2f5; }
 
     .page-container {
-        max-width: 1100px;
+        /* 2. Constrain width to prevent it being too large */
+        max-width: 900px; 
         margin: 0 auto;
-        padding: 30px 20px;
-    }
-
-    /* --- Retro Components --- */
-    
-    /* The Core Card Style */
-    .brutalist-card {
-        background: transparent;
-        border: 2px solid rgba(198, 225, 237, 0.8);
-        box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5); /* Hard shadow */
-        padding: 24px;
-        margin-bottom: 24px;
-        border-radius: 0px; /* Sharp corners */
-    }
-
-    .retro-btn {
-        background: #b31b34;
-        color: #fff;
-        border: 2px solid #2b0b0b;
-        padding: 6px 16px;
-        font-family: inherit;
-        font-weight: 600;
-        font-size: 14px;
-        cursor: pointer;
-        box-shadow: 3px 3px 0px rgba(0,0,0,1);
-        border-radius: 0px;
-        transition: transform 0.1s, box-shadow 0.1s;
-    }
-    .retro-btn:active {
-        transform: translate(2px, 2px);
-        box-shadow: 1px 1px 0px rgba(0,0,0,1);
-    }
-    .retro-btn:disabled {
-        background: #888;
-        cursor: not-allowed;
-    }
-    .retro-btn.admin {
-        background: #2b0b0b;
-        color: #fff;
+        padding: 20px;
     }
 
     /* Header */
@@ -309,113 +278,101 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
     }
     .back-btn {
-        background: transparent;
-        border: 2px solid transparent;
-        color: #2b0b0b;
+        background: none;
+        border: none;
+        color: #666;
         cursor: pointer;
-        font-weight: 700;
-        font-size: 16px;
+        font-weight: 600;
+        font-size: 1.1em; /* Slight bump for readability */
         font-family: inherit;
-        padding: 4px 8px;
     }
-    .back-btn:hover { 
-        text-decoration: underline; 
-        color: #b31b34;
-    }
+    .back-btn:hover { text-decoration: underline; }
 
     .status-badge {
-        padding: 6px 14px;
-        border: 2px solid #2b0b0b;
-        background: #fff;
-        font-size: 14px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
         font-weight: 700;
         text-transform: uppercase;
-        box-shadow: 3px 3px 0px rgba(0,0,0,0.5);
+        letter-spacing: 0.5px;
+        font-family: sans-serif; /* Keep badge legible */
     }
+    /* Status Colors */
     .submitted { background: #e0f2fe; color: #0284c7; }
     .under_review { background: #ffedd5; color: #c2410c; }
     .in_progress { background: #dcfce7; color: #15803d; }
-    .resolved { background: #d1fae5; color: #047857; }
+    .resolved { background: #d1fae5; color: #047857; border: 1px solid #10b981; }
     .rejected { background: #fee2e2; color: #b91c1c; }
 
     /* Layout */
     .grid-layout {
         display: grid;
-        grid-template-columns: 1fr 380px;
-        gap: 30px;
+        grid-template-columns: 1fr 320px; /* Slightly narrower sidebar */
+        gap: 20px;
     }
     @media (max-width: 800px) {
         .grid-layout { grid-template-columns: 1fr; }
     }
 
-    /* Content Typography */
+    /* Main Card - Kept exactly as you liked it */
+    .main-card {
+        background: transparent;
+        border: 2px solid rgba(198, 225, 237, 0.6);
+        box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+        padding: 24px;
+    }
     .title {
-        margin: 0 0 12px 0;
+        margin: 0 0 10px 0;
         color: #2b0b0b;
         font-size: 2.5rem; /* Larger for Jersey 25 */
         line-height: 1;
-        font-weight: 400;
-        text-transform: uppercase;
     }
     .meta-row {
         font-size: 14px;
-        color: #555;
+        color: #666;
         display: flex;
         align-items: center;
         gap: 8px;
-        font-family: 'Oswald', sans-serif; /* Readable font for meta */
-        letter-spacing: 0.5px;
+        font-family: sans-serif; /* Keep meta readable */
     }
     .category-tag { color: #b31b34; font-weight: 700; }
     .description {
-        margin-top: 24px;
-        line-height: 1.5;
-        color: #2b0b0b;
+        margin-top: 20px;
+        line-height: 1.6;
+        color: #333;
         white-space: pre-wrap;
         font-size: 1.2rem;
     }
 
-    /* Info Box */
+    /* 3. Match Info Box to Main Card Style */
     .info-box {
-        margin-top: 24px;
-        background: rgba(255, 255, 255, 0.4); /* Slight tint for legibility */
-        border: 2px solid #2b0b0b;
+        margin-top: 20px;
+        background: transparent; /* Match main card */
+        border: 2px solid rgba(198, 225, 237, 0.6); /* Match main card border */
+        /* box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05); Optional subtle shadow */
         padding: 12px;
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-        box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+        font-size: 1rem;
     }
-    .info-item .label { font-weight: 700; color: #b31b34; margin-right: 5px; }
+    .info-item .label { font-weight: 700; color: #64748b; margin-right: 5px; font-family: sans-serif; font-size: 0.8em; }
 
-    /* Photos */
     .photos-grid {
-        margin-top: 24px;
+        margin-top: 20px;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: 12px;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 8px;
     }
-    .photo-frame {
-        border: 2px solid #2b0b0b;
-        box-shadow: 3px 3px 0px rgba(0,0,0,0.3);
-        transition: transform 0.2s;
-        display: block;
-        height: 120px;
-        background: #fff;
-    }
-    .photo-frame:hover { transform: scale(1.05); z-index: 2; }
-    .photo-frame img {
+    .photos-grid img {
         width: 100%;
-        height: 100%;
+        height: 100px;
         object-fit: cover;
+        border: 2px solid rgba(198, 225, 237, 0.6);
     }
 
-    .divider { height: 2px; background: rgba(198, 225, 237, 0.8); margin: 24px 0; }
+    .divider { height: 2px; background: rgba(198, 225, 237, 0.6); margin: 20px 0; }
 
-    /* Footer Actions */
     .card-footer {
         display: flex;
         justify-content: space-between;
@@ -425,93 +382,99 @@
     .upvote-btn {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         background: transparent;
-        border: 2px solid transparent;
+        border: none;
         cursor: pointer;
-        font-size: 1.5rem;
-        color: #555;
-        padding: 4px 8px;
-        transition: all 0.2s;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #666;
+        font-family: inherit;
     }
-    .upvote-btn:hover { color: #b31b34; transform: scale(1.1); }
+    .upvote-btn:hover { color: #b31b34; }
     .upvote-btn.active { color: #e11d48; }
-    .upvote-btn svg { width: 32px; height: 32px; }
+    .upvote-btn svg { width: 24px; height: 24px; }
 
-    /* Sidebar Components */
+    .btn-admin {
+        background: #1e293b;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        font-size: 12px;
+        cursor: pointer;
+        font-family: sans-serif;
+    }
+
+    /* Sidebar */
+    .sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+    /* 4. Match Sidebar Cards to Main Card Style */
+    .section-card {
+        background: transparent;
+        border: 2px solid rgba(198, 225, 237, 0.6); /* Match main card */
+        box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1); /* Match main card */
+        padding: 16px;
+    }
     h3 { 
         font-size: 1.5rem; 
-        color: #2b0b0b; 
-        margin: 0 0 16px 0; 
-        border-bottom: 2px solid #2b0b0b; 
-        padding-bottom: 4px;
-        display: inline-block;
+        color: #64748b; 
+        margin: 0 0 12px 0; 
+        line-height: 1;
     }
 
     .resolution-banner {
-        background: rgba(209, 250, 229, 0.8);
-        border-color: #059669;
+        background: rgba(236, 253, 245, 0.8);
+        border: 2px solid #10b981;
+        box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+        padding: 16px;
     }
-    .resolution-banner h3 { border-bottom: none; color: #047857; }
+    .resolution-banner h3 { color: #047857; margin-bottom: 5px; }
+    .resolution-banner p { margin: 0 0 8px 0; font-size: 1rem; color: #065f46; font-family: sans-serif; }
+    .resolution-banner small { font-size: 0.8rem; color: #059669; font-family: sans-serif; }
 
     /* Comments */
     .comment-input-area textarea {
         width: 100%;
-        background: rgba(255, 255, 255, 0.5);
-        border: 2px solid #2b0b0b;
-        padding: 10px;
+        background: transparent;
+        border: 2px solid rgba(198, 225, 237, 0.6);
+        padding: 8px;
         font-family: inherit;
-        font-size: 1rem;
+        font-size: 1.2rem;
         resize: vertical;
-        margin-bottom: 10px;
-        border-radius: 0;
+        margin-bottom: 5px;
+        box-sizing: border-box; /* Fix width issues */
     }
-    .comment-input-area { margin-bottom: 20px; display: flex; flex-direction: column; align-items: flex-end;}
+    .comment-input-area button {
+        background: #b31b34;
+        color: #fff; /* Fix transparent text */
+        border: none;
+        padding: 4px 12px;
+        font-size: 1rem;
+        cursor: pointer;
+        float: right;
+        font-family: inherit;
+    }
 
-    .comments-list { display: flex; flex-direction: column; gap: 16px; }
-    .comment-item { 
-        border-bottom: 1px dashed #2b0b0b; 
-        padding-bottom: 12px; 
-    }
+    .comments-list { margin-top: 40px; display: flex; flex-direction: column; gap: 12px; }
+    .comment-item { border-bottom: 1px solid rgba(198, 225, 237, 0.6); padding-bottom: 8px; }
     .comment-item:last-child { border-bottom: none; }
-    .comment-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;}
-    .c-name { font-weight: 700; color: #b31b34; }
-    .c-time { font-size: 0.9rem; color: #666; }
-    .badge-internal { background: #fef3c7; border: 1px solid #000; padding: 2px 4px; font-size: 10px; }
-    .comment-body { font-family: 'Oswald', sans-serif; font-size: 1rem; line-height: 1.4; }
+    .comment-header { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; font-family: sans-serif; font-size: 0.9em;}
+    .c-name { font-weight: 700; color: #334155; }
+    .c-time { font-size: 0.8em; color: #94a3b8; }
+    .badge-internal { background: #fef3c7; color: #b45309; font-size: 9px; padding: 1px 4px; }
+    .comment-body { font-size: 1.1rem; }
 
     /* Timeline */
-    .timeline { position: relative; padding-left: 10px; margin-top: 10px; }
-    .timeline-item { 
-        position: relative; 
-        padding-left: 25px; 
-        padding-bottom: 25px; 
-        border-left: 2px solid #2b0b0b; /* Hard timeline line */
-    }
-    .timeline-item:last-child { border-left: 2px solid transparent; padding-bottom: 0; }
-    
-    .t-dot { 
-        position: absolute; 
-        left: -6px; 
-        top: 2px; 
-        width: 10px; 
-        height: 10px; 
-        background: #b31b34; 
-        border: 2px solid #2b0b0b;
-        border-radius: 0; /* Square dots for brutalism */
-    }
-    .t-status { font-size: 1.1rem; color: #2b0b0b; }
-    .t-meta { font-size: 0.9rem; color: #666; margin-top: 2px; font-family: 'Oswald', sans-serif; }
-    .t-remarks { 
-        margin-top: 6px; 
-        font-style: italic; 
-        background: rgba(255, 255, 255, 0.5); 
-        padding: 6px; 
-        border: 1px dashed #2b0b0b;
-    }
+    .timeline { position: relative; padding-left: 8px; }
+    .timeline-item { position: relative; padding-left: 20px; padding-bottom: 20px; border-left: 2px solid rgba(198, 225, 237, 0.6); }
+    .timeline-item:last-child { border-left: none; padding-bottom: 0; }
+    .t-dot { position: absolute; left: -5px; top: 0; width: 8px; height: 8px; background: #cbd5e1; border-radius: 50%; }
+    .t-status { font-size: 1.1rem; color: #334155; }
+    .t-meta { font-size: 0.8em; color: #94a3b8; margin-top: 2px; font-family: sans-serif; }
+    .t-remarks { margin-top: 4px; font-style: italic; color: #64748b; font-size: 0.9em; background: rgba(255,255,255,0.5); padding: 4px; font-family: sans-serif; }
     
     .loading-state, .error-state {
-        text-align: center; margin-top: 100px; font-size: 2rem; color: #2b0b0b;
+        text-align: center; margin-top: 50px; font-size: 2rem; color: #666;
     }
-    .error-state { color: #b31b34; }
+    .error-state { color: #dc2626; }
 </style>
