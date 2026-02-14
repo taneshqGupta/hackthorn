@@ -57,12 +57,9 @@
 		loading = false;
 		console.log('[GRIEVANCES] Loading complete. Final state:', { loading, grievances: grievances.length, error });
 	}
-		} finally {
-			loading = false;
-		}
-	}
+}
 
-	async function loadDepartments() {
+async function loadDepartments() {
 		try {
 			const response = await api.get('/api/departments');
 			departments = response.data || [];
