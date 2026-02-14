@@ -8,6 +8,10 @@ body {
 	color: transparent;
 }
 
+:root {
+  background-color: transparent !important;
+}
+
 #app {
 	min-height: 100vh;
 }
