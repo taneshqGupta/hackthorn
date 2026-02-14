@@ -99,7 +99,7 @@
 </script>
 
 <div class="container">
-    <div class="capybaraloader -mb-8">
+    <div class="capybaraloader">
         <div class="capybara">
             <div class="capyhead">
                 <div class="capyear"><div class="capyear2"></div></div>
