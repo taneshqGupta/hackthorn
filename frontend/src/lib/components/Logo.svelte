@@ -2,9 +2,9 @@
 	import { goto } from '$app/navigation';
 </script>
 
-<div on:click={() => goto('/')} class="cursor-pointer">
+<button on:click={() => goto('/')} class="cursor-pointer bg-transparent border-none p-0">
 	<h1 class="logo">AEGIS</h1>
-</div>
+</button>
 
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
@@ -15,5 +15,6 @@
 		font-weight: normal;
 		letter-spacing: 2px;
 		color: #d06065;
+		margin: 0;
 	}
 </style>
