@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Card from '$lib/components/Card.svelte';
 	import { browser } from '$app/environment';
 
 	console.log('[AUTH-ERROR] Page loaded');
@@ -39,64 +38,31 @@
 		<div class="loader-wrapper">
 			<div class="loader"></div>
 		</div>
-		<Card>
-			<div class="text-center content-wrapper">
-				<h1 class="text-3xl font-bold text-error mb-4">Authentication Failed</h1>
-				
-				<div class="alert alert-error shadow-lg mb-6">
-					<div>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="stroke-current flex-shrink-0 h-6 w-6"
-							fill="none"
-							viewBox="0 0 24 24"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-							/>
-						</svg>
-						<div class="text-left">
-							<h3 class="font-bold">{errorMessage}</h3>
-							{#if errorDetails}
-								<div class="text-sm mt-1">{errorDetails}</div>
-							{/if}
-						</div>
-					</div>
-				</div>
-
-				<div class="bg-base-300 p-4 rounded-lg mb-6 text-left">
-					<h3 class="font-semibold mb-2">Allowed Email Domains:</h3>
-					<ul class="list-disc list-inside space-y-1 text-sm">
-						<li>@iitmandi.ac.in (Faculty/Staff)</li>
-						<li>@students.iitmandi.ac.in (Students)</li>
-					</ul>
-				</div>
-
-				<div class="flex gap-4 justify-center">
-					<a href="/login" class="btn btn-primary">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="h-5 w-5 mr-2"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-							/>
-						</svg>
-						Try Again with Different Account
-					</a>
-					<a href="/" class="btn btn-outline">Return Home</a>
-				</div>
+		<div class="content-wrapper">
+			<h1 class="text-4xl font-bold text-white mb-6 text-center">Authentication Failed</h1>
+			
+			<div class="error-box">
+				<h3 class="font-bold text-xl mb-2">{errorMessage}</h3>
+				{#if errorDetails}
+					<div class="text-base">{errorDetails}</div>
+				{/if}
 			</div>
-		</Card>
+
+			<div class="domains-box">
+				<h3 class="font-semibold text-lg mb-3">Allowed Email Domains:</h3>
+				<ul class="space-y-2 text-base">
+					<li>• @iitmandi.ac.in (Faculty/Staff)</li>
+					<li>• @students.iitmandi.ac.in (Students)</li>
+				</ul>
+			</div>
+
+			<div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+				<a href="/login" class="btn btn-primary">
+					Try Again with Different Account
+				</a>
+				<a href="/" class="btn btn-outline">Return Home</a>
+			</div>
+		</div>
 	</div>
 </div>
 
@@ -117,7 +83,7 @@
 		content: "";
 		position: absolute;
 		inset: 0;
-		opacity: 0.8;
+		opacity: 1;
 		background: radial-gradient(circle, var(--color) 15%, transparent 15%),
 			radial-gradient(circle, var(--color) 15%, transparent 15%) 6px -6px,
 			radial-gradient(circle, var(--color) 15%, transparent 15%) 6px -1px,
@@ -141,41 +107,41 @@
 
 	.loader-wrapper {
 		position: absolute;
-		top: 50%;
+		bottom: 40px;
 		left: 50%;
-		transform: translate(-50%, -50%);
+		transform: translateX(-50%);
 		z-index: 1;
 	}
 
 	.loader {
-		width: 160px;
-		height: 185px;
+		width: 420px;
+		height: 487px;
 		position: relative;
 		background: #fff;
-		border-radius: 100px 100px 0 0;
+		border-radius: 262px 262px 0 0;
 	}
 
 	.loader:after {
 		content: "";
 		position: absolute;
-		width: 100px;
-		height: 125px;
+		width: 262px;
+		height: 328px;
 		left: 50%;
-		top: 25px;
+		top: 66px;
 		transform: translateX(-50%);
 		background-image: radial-gradient(circle, #000 48%, transparent 55%),
 			radial-gradient(circle, #000 48%, transparent 55%),
 			radial-gradient(circle, #fff 30%, transparent 45%),
 			radial-gradient(circle, #000 48%, transparent 51%),
-			linear-gradient(#000 20px, transparent 0),
-			linear-gradient(#cfecf9 60px, transparent 0),
+			linear-gradient(#000 52px, transparent 0),
+			linear-gradient(#cfecf9 157px, transparent 0),
 			radial-gradient(circle, #cfecf9 50%, transparent 51%),
 			radial-gradient(circle, #cfecf9 50%, transparent 51%);
 		background-repeat: no-repeat;
-		background-size: 16px 16px, 16px 16px, 10px 10px, 42px 42px, 12px 3px,
-			50px 25px, 70px 70px, 70px 70px;
-		background-position: 25px 10px, 55px 10px, 36px 44px, 50% 30px, 50% 85px,
-			50% 50px, 50% 22px, 50% 45px;
+		background-size: 42px 42px, 42px 42px, 26px 26px, 110px 110px, 31px 8px,
+			131px 66px, 184px 184px, 184px 184px;
+		background-position: 66px 26px, 144px 26px, 94px 115px, 50% 79px, 50% 223px,
+			50% 131px, 50% 58px, 50% 118px;
 		animation: faceLift 3s linear infinite alternate;
 	}
 
@@ -183,14 +149,14 @@
 		content: "";
 		position: absolute;
 		width: 140%;
-		height: 125px;
+		height: 328px;
 		left: -20%;
 		top: 0;
 		background-image: radial-gradient(circle, #fff 48%, transparent 50%),
 			radial-gradient(circle, #fff 48%, transparent 50%);
 		background-repeat: no-repeat;
-		background-size: 65px 65px;
-		background-position: 0px 12px, 145px 12px;
+		background-size: 171px 171px;
+		background-position: 0px 31px, 381px 31px;
 		animation: earLift 3s linear infinite alternate;
 	}
 
@@ -198,7 +164,6 @@
 		0% {
 			transform: translateX(-60%);
 		}
-
 		100% {
 			transform: translateX(-30%);
 		}
@@ -208,14 +173,39 @@
 		0% {
 			transform: translateX(10px);
 		}
-
 		100% {
 			transform: translateX(0px);
 		}
 	}
 
 	.content-wrapper {
-		position: relative;
+		position: absolute;
+		top: 0px;
+		left: 50%;
+		transform: translateX(-50%);
 		z-index: 2;
+		max-width: 600px;
+		padding: 2rem;
+		color: white;
+		text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+	}
+
+	.error-box {
+		background: rgba(255, 255, 255, 0.15);
+		backdrop-filter: blur(10px);
+		border: 2px solid rgba(255, 255, 255, 0.3);
+		border-radius: 12px;
+		padding: 1.5rem;
+		margin-bottom: 2rem;
+		color: white;
+	}
+
+	.domains-box {
+		background: rgba(255, 255, 255, 0.15);
+		backdrop-filter: blur(10px);
+		border: 2px solid rgba(255, 255, 255, 0.3);
+		border-radius: 12px;
+		padding: 1.5rem;
+		color: white;
 	}
 </style>
