@@ -487,7 +487,7 @@
 		Share any grievance
 	</h1>
 
-	<div class="flex-grow flex items-start justify-center w-full">
+	<div class="flex-grow flex flex-col items-center justify-start w-full">
 		<PDA
 			pages={[
 				{
@@ -520,6 +520,7 @@
 			bind:currentPage
 			showBootSequence={false}
 		/>
+		<p class="pda-instruction">PRESS POWER BUTTON TO INITIALIZE</p>
 	</div>
 	<button
 		class="back-to-feed-btn"
@@ -858,5 +859,27 @@
 		width: 28px;
 		height: 28px;
 		stroke: #fff;
+	}
+	.pda-instruction {
+		margin-top: 1rem;
+		font-family: "Jersey 25", sans-serif;
+		font-size: 1.2rem;
+		color: rgba(255, 255, 255, 0.4);
+		letter-spacing: 2px;
+		text-transform: uppercase;
+		text-align: center;
+		/* Subtle flicker animation to mimic hardware */
+		animation: subtle-glow 3s infinite ease-in-out;
+	}
+
+	@keyframes subtle-glow {
+		0%,
+		100% {
+			opacity: 0.3;
+		}
+		50% {
+			opacity: 0.6;
+			color: #d06065;
+		} /* Fade to your AEGIS red */
 	}
 </style>
