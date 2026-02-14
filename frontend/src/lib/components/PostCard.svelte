@@ -108,22 +108,24 @@
 <style>
 	.card {
 		position: relative;
-		background-color: #30344c;
+		background-color: rgba(48, 52, 76, 0.3);
+		backdrop-filter: blur(10px);
 		padding: 1em;
 		z-index: 5;
-		box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.3);
-		border-radius: 10px;
+		box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+		border-radius: 0px;
 		max-width: 300px;
 		transition: 200ms ease-in-out;
-		border: none;
+		border: 2px solid rgba(198, 225, 237, 0.6);
 		cursor: pointer;
 		text-align: left;
 		width: 100%;
 	}
 
 	.card:hover {
-		transform: translateY(-2px);
-		box-shadow: 6px 6px 25px rgba(0, 0, 0, 0.4);
+		transform: translate(-2px, -2px);
+		box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.7);
+		border-color: rgba(198, 225, 237, 0.9);
 	}
 
 	.username {
