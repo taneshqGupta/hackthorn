@@ -6,16 +6,26 @@
 	console.log('[DASHBOARD] Page loaded');
 	
 	let currentUser: User | null = null;
+	let authCheckComplete = false;
 	
 	user.subscribe((value) => {
-		console.log('[DASHBOARD] User subscription triggered, user:', value);
+		console.log('[DASHBOARD] User subscription triggered');
+		console.log('[DASHBOARD] User value:', value);
+		console.log('[DASHBOARD] Previous currentUser:', currentUser);
+		
 		currentUser = value;
+		authCheckComplete = true;
 		
 		if (!value) {
-			console.log('[DASHBOARD] No user found, redirecting to /login');
-			goto('/login');
+			console.log('[DASHBOARD] No user found after auth check, redirecting to /login');
+			setTimeout(() => {
+				console.log('[DASHBOARD] Executing redirect to /login');
+				goto('/login');
+			}, 100);
 		} else {
 			console.log('[DASHBOARD] User authenticated:', value.email);
+			console.log('[DASHBOARD] User name:', value.name);
+			console.log('[DASHBOARD] User role:', value.role);
 		}
 	});
 </script>

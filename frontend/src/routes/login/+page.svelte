@@ -3,12 +3,25 @@
 	import { PUBLIC_BACKEND_URL } from '$env/static/public';
 	import { browser } from '$app/environment';
 	import { page } from '$app/stores';
+	import { user } from '$lib/auth';
+	import { goto } from '$app/navigation';
 
 	console.log('[LOGIN] Page loaded');
 	console.log('[LOGIN] Backend URL:', PUBLIC_BACKEND_URL);
 	
 	let loginUrl = '';
 	let error = '';
+	
+	// Redirect to dashboard if already logged in
+	user.subscribe((currentUser) => {
+		console.log('[LOGIN] User subscription update:', currentUser);
+		if (currentUser) {
+			console.log('[LOGIN] User is already authenticated, redirecting to /dashboard');
+			goto('/dashboard');
+		} else {
+			console.log('[LOGIN] No user, staying on login page');
+		}
+	});
 	
 	if (browser) {
 		const origin = window.location.origin;

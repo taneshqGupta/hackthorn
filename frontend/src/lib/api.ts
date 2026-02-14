@@ -3,15 +3,27 @@ import type { ApiResponse, UserResponse } from '$lib/types';
 
 // Check authentication status
 export async function checkAuth(): Promise<ApiResponse<UserResponse>> {
+    console.log('[API] checkAuth called');
+    console.log('[API] Backend URL:', PUBLIC_BACKEND_URL);
+    console.log('[API] Fetching:', `${PUBLIC_BACKEND_URL}auth/me`);
+    
     const response = await fetch(`${PUBLIC_BACKEND_URL}auth/me`, {
         method: "GET",
         credentials: "include",
     });
 
+    console.log('[API] checkAuth response status:', response.status);
+    console.log('[API] checkAuth response ok:', response.ok);
+    console.log('[API] checkAuth response headers:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
+        console.error('[API] checkAuth failed with status:', response.status);
         throw new Error(`Auth check failed: ${response.statusText}`);
     }
-    return response.json();
+    
+    const data = await response.json();
+    console.log('[API] checkAuth response data:', data);
+    return data;
 }
 
 // Logout user

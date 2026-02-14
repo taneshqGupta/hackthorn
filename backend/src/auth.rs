@@ -292,17 +292,39 @@ pub async fn get_current_user(
     session: TowerSession,
     State(pool): State<PgPool>,
 ) -> Result<Json<ApiResponse<UserResponse>>, AppError> {
-    let user_id = session.get::<Uuid>(SESSION_USER_ID_KEY).await
-        .map_err(|e| AppError::Internal(e.into()))?
-        .ok_or_else(|| AppError::HttpError(StatusCode::UNAUTHORIZED, anyhow::anyhow!("Not authenticated")))?;
+    tracing::info!("GET_CURRENT_USER: Request received");
+    tracing::info!("GET_CURRENT_USER: Attempting to retrieve user_id from session");
+    
+    let user_id_result = session.get::<Uuid>(SESSION_USER_ID_KEY).await;
+    tracing::info!("GET_CURRENT_USER: Session get result: {:?}", user_id_result);
+    
+    let user_id = user_id_result
+        .map_err(|e| {
+            tracing::error!("GET_CURRENT_USER: Session error: {}", e);
+            AppError::Internal(e.into())
+        })?
+        .ok_or_else(|| {
+            tracing::warn!("GET_CURRENT_USER: No user_id in session, user not authenticated");
+            AppError::HttpError(StatusCode::UNAUTHORIZED, anyhow::anyhow!("Not authenticated"))
+        })?;
 
+    tracing::info!("GET_CURRENT_USER: Found user_id in session: {}", user_id);
+    tracing::info!("GET_CURRENT_USER: Fetching user from database");
+    
     let user = sqlx::query_as::<_, User>(
         "SELECT * FROM users WHERE id = $1"
     )
     .bind(user_id)
     .fetch_one(&pool)
-    .await?;
+    .await
+    .map_err(|e| {
+        tracing::error!("GET_CURRENT_USER: Database error: {}", e);
+        e
+    })?;
 
+    tracing::info!("GET_CURRENT_USER: User found: email={}", user.email);
+    tracing::info!("GET_CURRENT_USER: Returning user data");
+    
     Ok(Json(ApiResponse {
         success: true,
         data: Some(UserResponse::from(user)),
