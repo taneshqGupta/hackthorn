@@ -393,3 +393,50 @@ pub async fn get_system_stats(
         message: None,
     }))
 }
+
+// ============================================================================
+// SEED DUMMY USERS (Dev only)
+// ============================================================================
+pub async fn seed_dummy_users(
+    State(pool): State<PgPool>,
+) -> Result<Json<ApiResponse<String>>, AppError> {
+    let dummy_users = vec![
+        ("Dr. Strange", "strange@iitmandi.ac.in", UserRole::Faculty),
+        ("Tony Stark", "stark@iitmandi.ac.in", UserRole::Authority),
+        ("Steve Rogers", "rogers@students.iitmandi.ac.in", UserRole::Student),
+    ];
+
+    for (name, email, role) in dummy_users {
+        // Check if exists
+        let exists = sqlx::query_scalar::<_, bool>("SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)")
+            .bind(email)
+            .fetch_one(&pool)
+            .await?;
+
+        if !exists {
+            let parts: Vec<&str> = name.split_whitespace().collect();
+            let first_name = parts[0];
+            let last_name = parts.get(1).unwrap_or(&"");
+
+            sqlx::query(
+                r#"
+                INSERT INTO users (email, google_id, role, status, first_name, last_name, profile_picture)
+                VALUES ($1, $2, $3, 'active', $4, $5, '')
+                "#
+            )
+            .bind(email)
+            .bind(Uuid::new_v4().to_string()) // Random dummy google_id
+            .bind(role)
+            .bind(first_name)
+            .bind(last_name)
+            .execute(&pool)
+            .await?;
+        }
+    }
+
+    Ok(Json(ApiResponse {
+        success: true,
+        data: Some("Dummy users created. You can now assign them tasks.".to_string()),
+        message: None,
+    }))
+}

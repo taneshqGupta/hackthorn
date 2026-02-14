@@ -9,7 +9,7 @@ mod telemetry;
 
 use admin::{
     get_all_users, get_audit_logs, get_system_stats, get_user_by_id, update_own_role,
-    update_user_role, update_user_status,
+    update_user_role, update_user_status, seed_dummy_users,
 };
 use auth::{get_current_user, google_callback, google_login_initiate, logout};
 use grievances::{
@@ -94,6 +94,7 @@ async fn main() -> Result<(), AppError> {
         .route("/api/admin/stats", get(get_system_stats))
         // Dev/Testing route - allows users to change their own role
         .route("/api/user/role", put(update_own_role))
+        .route("/api/dev/seed", post(seed_dummy_users))
         .with_state(pool)
         .layer(session_layer)
         .layer(middleware::from_fn(add_partitioned_attribute))
