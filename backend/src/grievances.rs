@@ -365,27 +365,48 @@ pub async fn update_grievance_status(
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateGrievanceStatusRequest>,
 ) -> Result<Json<ApiResponse<GrievanceResponse>>, AppError> {
-    let user = get_session_user(&session, &pool).await?;
+    tracing::info!("==== [START] update_grievance_status ====");
+    tracing::info!("Target Grievance ID: {}", id);
+    tracing::info!("Payload: {:?}", payload);
+
+    let user = get_session_user(&session, &pool).await.map_err(|e| {
+        tracing::error!("Auth error in update_status: {:?}", e);
+        e
+    })?;
+
+    tracing::info!("User {} ({:?}) is attempting update", user.id, user.role);
 
     // Only Authority and Admin can update status
     if !matches!(user.role, UserRole::Authority | UserRole::Admin) {
+        tracing::error!("Forbidden: Role {:?} cannot update status", user.role);
         return Err(AppError::Forbidden);
     }
 
     let grievance = sqlx::query_as::<_, Grievance>("SELECT * FROM grievances WHERE id = $1")
         .bind(id)
         .fetch_optional(&pool)
-        .await?
-        .ok_or(AppError::NotFound)?;
+        .await
+        .map_err(|e| {
+            tracing::error!("DB Error fetching grievance: {:?}", e);
+            e
+        })?
+        .ok_or_else(|| {
+            tracing::error!("Grievance {} not found", id);
+            AppError::NotFound
+        })?;
 
-    // Update status
+    tracing::info!("Updating grievance status in DB...");
     sqlx::query("UPDATE grievances SET status = $1 WHERE id = $2")
         .bind(&payload.status)
         .bind(id)
         .execute(&pool)
-        .await?;
+        .await
+        .map_err(|e| {
+            tracing::error!("SQLX Error updating status: {:?}", e);
+            e
+        })?;
 
-    // Log status change with remarks
+    tracing::info!("Inserting status history...");
     sqlx::query(
         r#"
         INSERT INTO grievance_status_history 
@@ -400,14 +421,24 @@ pub async fn update_grievance_status(
     .bind(user.id)
     .bind(&user.role)
     .execute(&pool)
-    .await?;
+    .await
+    .map_err(|e| {
+        tracing::error!("SQLX Error inserting status history: {:?}", e);
+        e
+    })?;
 
-    // Get updated grievance
+    tracing::info!("Fetching updated grievance to return...");
     let updated = sqlx::query_as::<_, Grievance>("SELECT * FROM grievances WHERE id = $1")
         .bind(id)
         .fetch_one(&pool)
-        .await?;
+        .await
+        .map_err(|e| {
+            tracing::error!("SQLX Error fetching updated grievance: {:?}", e);
+            e
+        })?;
 
+    tracing::info!("==== [SUCCESS] update_grievance_status ====");
+    
     let response = GrievanceResponse {
         id: updated.id,
         submitter: None,
@@ -447,30 +478,48 @@ pub async fn assign_grievance(
     Path(id): Path<Uuid>,
     Json(payload): Json<AssignGrievanceRequest>,
 ) -> Result<Json<ApiResponse<GrievanceResponse>>, AppError> {
-    let user = get_session_user(&session, &pool).await?;
+    tracing::info!("==== [START] assign_grievance ====");
+    tracing::info!("Target Grievance ID: {}", id);
+    tracing::info!("Payload: {:?}", payload);
+
+    let user = get_session_user(&session, &pool).await.map_err(|e| {
+        tracing::error!("Auth error in assign: {:?}", e);
+        e
+    })?;
 
     if !matches!(user.role, UserRole::Authority | UserRole::Admin) {
+        tracing::error!("Forbidden: Role {:?} cannot assign", user.role);
         return Err(AppError::Forbidden);
     }
 
     // Verify assigned user exists and has appropriate role
     if let Some(assigned_id) = payload.assigned_to {
+        tracing::info!("Verifying assignee {} exists...", assigned_id);
         let assigned_user = sqlx::query_as::<_, User>("SELECT * FROM users WHERE id = $1")
             .bind(assigned_id)
             .fetch_optional(&pool)
-            .await?
-            .ok_or(AppError::NotFound)?;
+            .await
+            .map_err(|e| {
+                tracing::error!("DB error looking up assignee: {:?}", e);
+                e
+            })?
+            .ok_or_else(|| {
+                tracing::error!("Assignee {} not found", assigned_id);
+                AppError::NotFound
+            })?;
 
         if !matches!(
             assigned_user.role,
             UserRole::Authority | UserRole::Admin | UserRole::Faculty
         ) {
+            tracing::error!("Invalid assignee role: {:?}", assigned_user.role);
             return Err(AppError::BadRequest(
                 "Can only assign to Authority, Admin, or Faculty".to_string(),
             ));
         }
     }
 
+    tracing::info!("Updating grievance assignment in DB...");
     sqlx::query(
         "UPDATE grievances SET assigned_to = $1, assigned_department = $2 WHERE id = $3",
     )
@@ -478,9 +527,13 @@ pub async fn assign_grievance(
     .bind(&payload.assigned_department)
     .bind(id)
     .execute(&pool)
-    .await?;
+    .await
+    .map_err(|e| {
+        tracing::error!("SQLX Error updating assignment: {:?}", e);
+        e
+    })?;
 
-    // Log the assignment
+    tracing::info!("Logging assignment to audit_logs...");
     sqlx::query("INSERT INTO audit_logs (user_id, action, metadata) VALUES ($1, $2, $3)")
         .bind(user.id)
         .bind("ASSIGN_GRIEVANCE")
@@ -490,13 +543,23 @@ pub async fn assign_grievance(
             "assigned_department": payload.assigned_department,
         }))
         .execute(&pool)
-        .await?;
+        .await
+        .map_err(|e| {
+            tracing::error!("SQLX Error inserting audit log: {:?}", e);
+            e
+        })?;
 
     let updated = sqlx::query_as::<_, Grievance>("SELECT * FROM grievances WHERE id = $1")
         .bind(id)
         .fetch_one(&pool)
-        .await?;
+        .await
+        .map_err(|e| {
+            tracing::error!("SQLX Error fetching updated grievance: {:?}", e);
+            e
+        })?;
 
+    tracing::info!("==== [SUCCESS] assign_grievance ====");
+    
     let response = GrievanceResponse {
         id: updated.id,
         submitter: None,

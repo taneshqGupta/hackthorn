@@ -162,7 +162,9 @@
             if (selectedStatus !== grievance.status) {
                 await api.put(`/api/grievances/${grievanceId}/status`, {
                     status: selectedStatus,
-                    remarks: adminRemarks || undefined,
+                    // FIX: Ensure empty strings become strict null for Rust
+                    remarks:
+                        adminRemarks.trim() === "" ? null : adminRemarks.trim(),
                 });
             }
 
@@ -170,8 +172,10 @@
             const currentAssigneeId = grievance.assigned_to?.id || "";
             if (selectedAssignee !== currentAssigneeId) {
                 await api.put(`/api/grievances/${grievanceId}/assign`, {
-                    assigned_to: selectedAssignee || null,
-                    assigned_department: "General", // You can add a department picker later
+                    // FIX: Ensure empty strings become strict null for Rust
+                    assigned_to:
+                        selectedAssignee === "" ? null : selectedAssignee,
+                    assigned_department: "General",
                 });
             }
 
@@ -414,6 +418,7 @@
                 </div>
 
                 <div class="field">
+                    <!-- svelte-ignore a11y_label_has_associated_control -->
                     <label>ASSIGN TO</label>
                     <select bind:value={selectedAssignee}>
                         <option value="">-- UNASSIGNED --</option>
