@@ -43,7 +43,7 @@
 			if (showOnlyMine) params.append('submitter_id', currentUser?.id || '');
 
 			const response = await api.get(`/api/grievances?${params.toString()}`);
-		grievances = response.data || response || [];
+			grievances = response.data || [];
 		} catch (err: any) {
 			error = err.message || 'Failed to load grievances';
 			grievances = [];
@@ -54,7 +54,8 @@
 
 	async function loadDepartments() {
 		try {
-			departments = await api.get('/api/departments');
+			const response = await api.get('/api/departments');
+			departments = response.data || [];
 		} catch (err) {
 			console.error('Failed to load departments:', err);
 		}
