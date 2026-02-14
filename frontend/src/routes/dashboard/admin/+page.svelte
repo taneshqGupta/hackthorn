@@ -263,16 +263,39 @@
 		color: #2b0b0b;
 		margin-top: 3rem;
 	}
-	.nav-link {
+	.nav-tab {
+		flex: 1;
+		padding: 10px 0;
 		font-family: "Jersey 25", sans-serif;
-		font-size: 14px;
-		color: #666;
+		font-size: 16px;
+		color: #2b0b0b;
+		background: transparent;
+		cursor: pointer;
+		transition: all 0.2s ease;
 		text-transform: uppercase;
 		letter-spacing: 1px;
-		cursor: pointer;
+		text-align: center;
 	}
-	.nav-link:hover {
-		color: #b31b34;
-		text-decoration: underline;
+
+	.nav-tab:hover {
+		background: rgba(179, 27, 52, 0.1); /* Subtle red tint */
+	}
+
+	.nav-tab.active {
+		background: #2b0b0b;
+		color: white;
+	}
+
+	/* Health indicator refinement */
+	.health-indicator {
+		width: 100%;
+		text-align: center;
+		font-family: "Jersey 25", sans-serif;
+		font-size: 12px;
+		padding: 4px;
+		margin-bottom: 12px;
+		text-transform: uppercase;
+		letter-spacing: 2px;
+		border-bottom: 1px solid rgba(198, 225, 237, 0.6);
 	}
 </style>
