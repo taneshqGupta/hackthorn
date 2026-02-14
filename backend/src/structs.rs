@@ -85,6 +85,6 @@ pub struct GoogleUserInfo {
     pub sub: String,
     pub email: String,
     pub given_name: String,
-    pub family_name: String,
+    pub family_name: Option<String>,
     pub picture: Option<String>,
 }

@@ -191,7 +191,7 @@ pub async fn google_callback(
             .bind(default_role)
             .bind(UserStatus::Active)
             .bind(&user_info.given_name)
-            .bind(&user_info.family_name)
+            .bind(&user_info.family_name.as_deref().unwrap_or(""))
             .bind(&user_info.picture)
             .fetch_one(&pool)
             .await?
