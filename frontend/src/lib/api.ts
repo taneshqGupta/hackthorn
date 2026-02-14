@@ -59,41 +59,57 @@ export function getGoogleLoginUrl(): string {
 }
 
 // Generic API helper
-export const api = {
-    async get<T = any>(path: string): Promise<ApiResponse<T>> {
+const api = {
+    async get<T = any>(path: string): Promise<T> {
         const response = await fetch(`${PUBLIC_BACKEND_URL}${path.startsWith('/') ? path.slice(1) : path}`, {
             method: 'GET',
             credentials: 'include',
         });
-        if (!response.ok) throw new Error(`GET ${path} failed`);
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(error.message || `GET ${path} failed`);
+        }
         return response.json();
     },
-    async post<T = any>(path: string, data?: any): Promise<ApiResponse<T>> {
+    async post<T = any>(path: string, data?: any): Promise<T> {
+        const isFormData = data instanceof FormData;
         const response = await fetch(`${PUBLIC_BACKEND_URL}${path.startsWith('/') ? path.slice(1) : path}`, {
             method: 'POST',
             credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
+            headers: isFormData ? {} : { 'Content-Type': 'application/json' },
+            body: isFormData ? data : JSON.stringify(data),
         });
-        if (!response.ok) throw new Error(`POST ${path} failed`);
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(error.message || `POST ${path} failed`);
+        }
         return response.json();
     },
-    async put<T = any>(path: string, data?: any): Promise<ApiResponse<T>> {
+    async put<T = any>(path: string, data?: any): Promise<T> {
         const response = await fetch(`${PUBLIC_BACKEND_URL}${path.startsWith('/') ? path.slice(1) : path}`, {
             method: 'PUT',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
         });
-        if (!response.ok) throw new Error(`PUT ${path} failed`);
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(error.message || `PUT ${path} failed`);
+        }
         return response.json();
     },
-    async delete<T = any>(path: string): Promise<ApiResponse<T>> {
+    async delete<T = any>(path: string): Promise<T> {
         const response = await fetch(`${PUBLIC_BACKEND_URL}${path.startsWith('/') ? path.slice(1) : path}`, {
             method: 'DELETE',
             credentials: 'include',
         });
-        if (!response.ok) throw new Error(`DELETE ${path} failed`);
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(error.message || `DELETE ${path} failed`);
+        }
         return response.json();
     },
 };
+
+export default api;
+export { api };
