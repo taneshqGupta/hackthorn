@@ -263,12 +263,12 @@
 </div>
 
 <style>
-    /* 1. Remove font-family override so it uses Jersey 25 */
-    :global(body) { background-color: #f0f2f5; }
+    :global(body) { 
+        background-color: transparent; /* Changed to transparent for notebook bg */
+    }
 
     .page-container {
-        /* 2. Constrain width to prevent it being too large */
-        max-width: 900px; 
+        max-width: 1000px;
         margin: 0 auto;
         padding: 20px;
     }
@@ -286,8 +286,7 @@
         color: #666;
         cursor: pointer;
         font-weight: 600;
-        font-size: 1.1em; /* Slight bump for readability */
-        font-family: inherit;
+        font-size: 14px;
     }
     .back-btn:hover { text-decoration: underline; }
 
@@ -298,7 +297,6 @@
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        font-family: sans-serif; /* Keep badge legible */
     }
     /* Status Colors */
     .submitted { background: #e0f2fe; color: #0284c7; }
@@ -310,14 +308,14 @@
     /* Layout */
     .grid-layout {
         display: grid;
-        grid-template-columns: 1fr 320px; /* Slightly narrower sidebar */
+        grid-template-columns: 1fr 340px;
         gap: 20px;
     }
     @media (max-width: 800px) {
         .grid-layout { grid-template-columns: 1fr; }
     }
 
-    /* Main Card - Kept exactly as you liked it */
+    /* Main Card */
     .main-card {
         background: transparent;
         border: 2px solid rgba(198, 225, 237, 0.6);
@@ -327,16 +325,14 @@
     .title {
         margin: 0 0 10px 0;
         color: #2b0b0b;
-        font-size: 2.5rem; /* Larger for Jersey 25 */
-        line-height: 1;
+        font-size: 22px;
     }
     .meta-row {
-        font-size: 14px;
+        font-size: 12px;
         color: #666;
         display: flex;
         align-items: center;
         gap: 8px;
-        font-family: sans-serif; /* Keep meta readable */
     }
     .category-tag { color: #b31b34; font-weight: 700; }
     .description {
@@ -344,19 +340,17 @@
         line-height: 1.6;
         color: #333;
         white-space: pre-wrap;
-        font-size: 1.2rem;
     }
 
-    /* 3. Match Info Box to Main Card Style */
     .info-box {
         margin-top: 20px;
-        background: transparent; /* Match main card */
+        background: transparent; /* Changed to transparent */
         border: 2px solid rgba(198, 225, 237, 0.6); /* Match main card border */
-        /* box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.05); Optional subtle shadow */
         padding: 12px;
-        font-size: 1rem;
+        border-radius: 4px;
+        font-size: 13px;
     }
-    .info-item .label { font-weight: 700; color: #64748b; margin-right: 5px; font-family: sans-serif; font-size: 0.8em; }
+    .info-item .label { font-weight: 700; color: #64748b; margin-right: 5px; }
 
     .photos-grid {
         margin-top: 20px;
@@ -368,10 +362,11 @@
         width: 100%;
         height: 100px;
         object-fit: cover;
-        border: 2px solid rgba(198, 225, 237, 0.6);
+        border-radius: 4px;
+        border: 1px solid #eee;
     }
 
-    .divider { height: 2px; background: rgba(198, 225, 237, 0.6); margin: 20px 0; }
+    .divider { height: 1px; background: #eee; margin: 20px 0; }
 
     .card-footer {
         display: flex;
@@ -386,95 +381,90 @@
         background: transparent;
         border: none;
         cursor: pointer;
-        font-size: 1.2rem;
+        font-size: 14px;
         font-weight: 600;
         color: #666;
-        font-family: inherit;
+        transition: transform 0.1s;
     }
-    .upvote-btn:hover { color: #b31b34; }
+    .upvote-btn:hover { color: #b31b34; transform: scale(1.05); }
     .upvote-btn.active { color: #e11d48; }
-    .upvote-btn svg { width: 24px; height: 24px; }
+    .upvote-btn svg { width: 20px; height: 20px; }
 
     .btn-admin {
         background: #1e293b;
         color: white;
         border: none;
         padding: 6px 12px;
+        border-radius: 4px;
         font-size: 12px;
         cursor: pointer;
-        font-family: sans-serif;
     }
 
     /* Sidebar */
     .sidebar { display: flex; flex-direction: column; gap: 20px; }
 
-    /* 4. Match Sidebar Cards to Main Card Style */
     .section-card {
-        background: transparent;
-        border: 2px solid rgba(198, 225, 237, 0.6); /* Match main card */
-        box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1); /* Match main card */
+        background: transparent; /* Changed to transparent */
+        border: 2px solid rgba(198, 225, 237, 0.6); /* Match main card border */
+        box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1); /* Match main card shadow */
         padding: 16px;
+        border-radius: 4px;
     }
-    h3 { 
-        font-size: 1.5rem; 
-        color: #64748b; 
-        margin: 0 0 12px 0; 
-        line-height: 1;
-    }
+    h3 { font-size: 14px; text-transform: uppercase; color: #64748b; margin: 0 0 12px 0; }
 
     .resolution-banner {
-        background: rgba(236, 253, 245, 0.8);
-        border: 2px solid #10b981;
-        box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+        background: transparent; /* Changed to transparent */
+        border: 2px solid #10b981; /* Keep green border */
+        box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1); /* Match shadow */
         padding: 16px;
+        border-radius: 4px;
     }
     .resolution-banner h3 { color: #047857; margin-bottom: 5px; }
-    .resolution-banner p { margin: 0 0 8px 0; font-size: 1rem; color: #065f46; font-family: sans-serif; }
-    .resolution-banner small { font-size: 0.8rem; color: #059669; font-family: sans-serif; }
+    .resolution-banner p { margin: 0 0 8px 0; font-size: 13px; color: #065f46; }
+    .resolution-banner small { font-size: 11px; color: #059669; }
 
     /* Comments */
     .comment-input-area textarea {
         width: 100%;
-        background: transparent;
-        border: 2px solid rgba(198, 225, 237, 0.6);
+        background: transparent; /* Changed to transparent */
+        border: 2px solid rgba(198, 225, 237, 0.6); /* Match border style */
+        border-radius: 4px;
         padding: 8px;
         font-family: inherit;
-        font-size: 1.2rem;
         resize: vertical;
         margin-bottom: 5px;
-        box-sizing: border-box; /* Fix width issues */
+        box-sizing: border-box; /* FIX: Ensures padding doesn't push width over 100% */
     }
     .comment-input-area button {
         background: #b31b34;
-        color: #fff; /* Fix transparent text */
+        color: white; /* FIX: Changed from transparent to white */
         border: none;
         padding: 4px 12px;
-        font-size: 1rem;
+        border-radius: 2px;
+        font-size: 12px;
         cursor: pointer;
         float: right;
-        font-family: inherit;
     }
 
     .comments-list { margin-top: 40px; display: flex; flex-direction: column; gap: 12px; }
-    .comment-item { border-bottom: 1px solid rgba(198, 225, 237, 0.6); padding-bottom: 8px; }
+    .comment-item { font-size: 13px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
     .comment-item:last-child { border-bottom: none; }
-    .comment-header { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; font-family: sans-serif; font-size: 0.9em;}
+    .comment-header { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
     .c-name { font-weight: 700; color: #334155; }
-    .c-time { font-size: 0.8em; color: #94a3b8; }
-    .badge-internal { background: #fef3c7; color: #b45309; font-size: 9px; padding: 1px 4px; }
-    .comment-body { font-size: 1.1rem; }
+    .c-time { font-size: 11px; color: #94a3b8; }
+    .badge-internal { background: #fef3c7; color: #b45309; font-size: 9px; padding: 1px 4px; border-radius: 2px; }
 
     /* Timeline */
     .timeline { position: relative; padding-left: 8px; }
-    .timeline-item { position: relative; padding-left: 20px; padding-bottom: 20px; border-left: 2px solid rgba(198, 225, 237, 0.6); }
+    .timeline-item { position: relative; padding-left: 20px; padding-bottom: 20px; border-left: 2px solid #e2e8f0; }
     .timeline-item:last-child { border-left: none; padding-bottom: 0; }
     .t-dot { position: absolute; left: -5px; top: 0; width: 8px; height: 8px; background: #cbd5e1; border-radius: 50%; }
-    .t-status { font-size: 1.1rem; color: #334155; }
-    .t-meta { font-size: 0.8em; color: #94a3b8; margin-top: 2px; font-family: sans-serif; }
-    .t-remarks { margin-top: 4px; font-style: italic; color: #64748b; font-size: 0.9em; background: rgba(255,255,255,0.5); padding: 4px; font-family: sans-serif; }
+    .t-status { font-size: 12px; color: #334155; }
+    .t-meta { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .t-remarks { margin-top: 4px; font-style: italic; color: #64748b; font-size: 12px; background: transparent; padding: 4px; }
     
     .loading-state, .error-state {
-        text-align: center; margin-top: 50px; font-size: 2rem; color: #666;
+        text-align: center; margin-top: 50px; font-size: 16px; color: #666;
     }
     .error-state { color: #dc2626; }
 </style>
