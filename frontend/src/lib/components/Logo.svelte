@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 </script>
 
-<button on:click={() => goto('/')} class="cursor-pointer bg-transparent border-none p-2">
+<button on:click={() => goto('/')} class="cursor-pointer bg-transparent border-none p-4">
 	<h1 class="logo">AEGIS</h1>
 </button>
 
