@@ -40,7 +40,7 @@
 
 <div class="dashboard-container">
 	<h1 class="text-6xl font-bold mb-8 text-[#2b0b0b] tracking-tighter">
-		HIGH COMMAND
+		ADMIN PANEL
 	</h1>
 
 	{#if loading}
