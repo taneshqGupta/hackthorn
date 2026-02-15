@@ -253,9 +253,4 @@
         box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.7);
         background-color: rgba(179, 27, 52, 1);
     }
-    .submit-btn svg {
-        width: 28px;
-        height: 28px;
-        stroke: #fff;
-    }
 </style>
