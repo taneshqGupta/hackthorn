@@ -236,6 +236,7 @@ Notes:
 ## Known limitations and future scope
 
 Known limitations (from code review):
+- Photo uploads for grievance posts are working completely fine on computer. but they are not working well on phones.
 - Some SQL string composition uses direct interpolation for filters (e.g., `format!(" AND semester = '{}'", semester)` in `get_courses`) — in production this should use bound parameters to avoid SQL injection risk.
 - No explicit rate limiting or brute-force protections in current server code.
 - Email notifications/alerts (bonus features like daily summaries and high-priority alerts) are not implemented (placeholders only).
