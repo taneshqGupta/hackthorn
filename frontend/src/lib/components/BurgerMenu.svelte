@@ -83,8 +83,8 @@
 
     /* BURGER BUTTON STYLES */
     .burger {
-        width: 30px;
-        height: 24px;
+        width: 24px;
+        height: 16px;
         background: transparent;
         border: none;
         cursor: pointer;
