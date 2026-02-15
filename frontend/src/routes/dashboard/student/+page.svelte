@@ -37,16 +37,16 @@
             class="gateway-card yellow"
         >
             <div class="card-inner">
-                <p>ENROLLMENTS, CREDITS, & ATTENDANCE LOGS.</p>
+                <p>TRACK COURSES & CREDITS</p>
             </div>
         </button>
 
         <button
-            onclick={() => goto("/dashboard/student/vault")}
+            onclick={() => goto("/dashboard/student/courses/attendance")}
             class="gateway-card pink"
         >
             <div class="card-inner">
-                <p>RECORDS, PYQS, & ACADEMIC ARTIFACTS.</p>
+                <p>Attendance Logs</p>
             </div>
         </button>
     </div>
