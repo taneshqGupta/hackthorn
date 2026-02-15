@@ -103,9 +103,6 @@
                         >
                             Attendance
                         </button>
-                        <button class="action-btn secondary">
-                            Resources
-                        </button>
                      </div>
                 </div>
             {/each}
