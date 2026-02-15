@@ -128,7 +128,6 @@
         padding: 2rem 1rem;
         min-height: 100vh;
         max-width: 400px;
-        margin: 0 auto;
         color: #2b0b0b;
     }
 
