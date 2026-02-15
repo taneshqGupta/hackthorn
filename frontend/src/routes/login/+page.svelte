@@ -51,7 +51,7 @@
 	.login-container {
 		display: flex;
 		flex-direction: column;
-		min-height: 300px;
+		max-height: 200px;
 		height: 100%;
 		justify-content: space-between;
 	}
