@@ -1,9 +1,8 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { user, logout } from '$lib/auth'; // Ensure logout is imported from your auth/api
-
+    import { user } from '$lib/auth';
+	import { logout } from '$lib/api';
     let isOpen = $state(false);
-    // In Svelte 5 with stores, we use $derived to read the store value
     let currentUser = $derived($user);
 
     function toggleMenu() {
