@@ -12,6 +12,10 @@ AEGIS is built to unify campus services into a single web platform. It addresses
 
 This repository contains a Rust/Axum backend and a Svelte frontend. It is deployed live at: https://aegis.taneshq.iitmandi.in.net (mobile-first and PWA-ready).
 
+Youtube Video Link:
+- Part 1: https://www.youtube.com/watch?v=cF6pgvcurJg&t=2s
+- Part 2: https://www.youtube.com/shorts/PGl2eg64948
+
 ---
 
 ## Complete feature list (implemented)
