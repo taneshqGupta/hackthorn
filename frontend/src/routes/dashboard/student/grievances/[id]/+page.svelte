@@ -215,8 +215,9 @@
         <div class="error-state">{error}</div>
     {:else if grievance}
         <div class="header">
-            <button onclick={() => goto("/dashboard/student/grievances")} class="back-btn"
-                >← Back to Feed</button
+            <button
+                onclick={() => goto("/dashboard/student/grievances")}
+                class="back-btn">← Back to Feed</button
             >
             <div class="status-badge {grievance.status}">
                 {grievance.status.replace("_", " ")}
@@ -805,10 +806,13 @@
         backdrop-filter: blur(2px);
     }
     .modal-box {
-        background: #f0f2f5; /* Opaque background for readability */
+        background: #f0f2f5;
         width: 90%;
         max-width: 500px;
         color: #2b0b0b;
+        border: 4px solid #2b0b0b; /* Add a thick border */
+        box-shadow: 10px 10px 0px #000; /* Add a heavy shadow */
+        padding: 2rem;
     }
     .field {
         margin-bottom: 16px;
