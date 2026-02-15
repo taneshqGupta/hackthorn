@@ -45,9 +45,9 @@
 			onclick={() => setRole("admin")}
 			class:active={$user?.role === "admin"}>ADM</button
 		>
-		<button onclick={seedDB} style="color: cyan; border-color: cyan;"
+		<!-- <button onclick={seedDB} style="color: cyan; border-color: cyan;"
 			>SEED USERS</button
-		>
+		> -->
 	</div>
 </div>
 
