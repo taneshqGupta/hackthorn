@@ -129,11 +129,28 @@ export interface Course {
     semester: string;
 }
 
+export interface CourseResponse {
+    id: string;
+    code: string;
+    title: string;
+    description?: string;
+    credits: number;
+    department: string;
+    course_type: 'core' | 'elective' | 'major' | 'minor';
+    instructor?: {
+        first_name: string;
+        last_name: string;
+    };
+    semester: string;
+}
+
 export interface AttendanceLog {
     id: string;
-    date: string;
-    status: AttendanceStatus;
-    remarks: string | null;
+    enrollment_id: string;
+    date: string; // YYYY-MM-DD
+    status: 'present' | 'absent' | 'cancelled';
+    remarks?: string;
+    created_at: string;
 }
 
 export interface AttendanceSummary {
