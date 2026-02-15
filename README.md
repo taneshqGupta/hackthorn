@@ -79,6 +79,10 @@ Youtube Video Link:
 
 ---
 
+###### We faced many problems during development, especially while figuring out the login/logout system, authentication fiasco, and rust svelte types mismatches. Regardless, ALL the errors were solved only through logging, logging and logging. In rust I had put in place a central tracing system in telemetry.rs and main.rs. In frontend, we put console logs everywhere. Closely monitoring the logs in backend logs and frontend console logs was the only way to maintain sanity. 
+
+---
+
 ## Database schema (summary)
 
 The SQL migrations and `structs.rs` define the schema. Key tables and enums:
