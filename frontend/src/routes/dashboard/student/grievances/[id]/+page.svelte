@@ -18,7 +18,8 @@
     let loading = $state(true);
     let error = $state("");
 
-    let showAdminModal = $state(false);
+    // --- State for the Inline Form (Replaces Modal) ---
+    let showAdminPanel = $state(false);
     let eligibleAssignees = $state<UserResponse[]>([]);
     let selectedStatus = $state("");
     let selectedAssignee = $state("");
@@ -72,6 +73,52 @@
         }
     }
 
+    async function toggleAdminPanel() {
+        if (!showAdminPanel) {
+            selectedStatus = grievance?.status || "submitted";
+            selectedAssignee = grievance?.assigned_to?.id || "";
+            if (eligibleAssignees.length === 0) {
+                const res = await api.get("/api/admin/users?limit=100");
+                eligibleAssignees = res.data.filter(
+                    (u: UserResponse) =>
+                        u.role === "faculty" ||
+                        u.role === "authority" ||
+                        u.role === "admin",
+                );
+            }
+        }
+        showAdminPanel = !showAdminPanel;
+    }
+
+    async function saveAdminChanges() {
+        if (!grievance) return;
+        isSaving = true;
+        try {
+            if (selectedStatus !== grievance.status) {
+                await api.put(`/api/grievances/${grievanceId}/status`, {
+                    status: selectedStatus,
+                    remarks:
+                        adminRemarks.trim() === "" ? null : adminRemarks.trim(),
+                });
+            }
+            const currentAssigneeId = grievance.assigned_to?.id || "";
+            if (selectedAssignee !== currentAssigneeId) {
+                await api.put(`/api/grievances/${grievanceId}/assign`, {
+                    assigned_to:
+                        selectedAssignee === "" ? null : selectedAssignee,
+                    assigned_department: "General",
+                });
+            }
+            await loadAllData();
+            showAdminPanel = false;
+        } catch (e) {
+            alert("Failed to update");
+        } finally {
+            isSaving = false;
+        }
+    }
+
+    // Existing helper functions
     async function handleUpvote() {
         if (!grievance) return;
         const previousState = isUpvoted;
@@ -104,56 +151,6 @@
             alert(e.message || "Failed to post comment");
         } finally {
             submittingComment = false;
-        }
-    }
-
-    async function openAdminModal() {
-        if (!isAdmin) return;
-        selectedStatus = grievance?.status || "submitted";
-        selectedAssignee = grievance?.assigned_to?.id || "";
-        showAdminModal = true;
-        if (eligibleAssignees.length === 0) {
-            try {
-                const res = await api.get("/api/admin/users?limit=100");
-                if (res.data) {
-                    eligibleAssignees = res.data.filter(
-                        (u: UserResponse) =>
-                            u.role === "faculty" ||
-                            u.role === "authority" ||
-                            u.role === "admin",
-                    );
-                }
-            } catch (e) {
-                console.error(e);
-            }
-        }
-    }
-
-    async function saveAdminChanges() {
-        if (!grievance) return;
-        isSaving = true;
-        try {
-            if (selectedStatus !== grievance.status) {
-                await api.put(`/api/grievances/${grievanceId}/status`, {
-                    status: selectedStatus,
-                    remarks:
-                        adminRemarks.trim() === "" ? null : adminRemarks.trim(),
-                });
-            }
-            const currentAssigneeId = grievance.assigned_to?.id || "";
-            if (selectedAssignee !== currentAssigneeId) {
-                await api.put(`/api/grievances/${grievanceId}/assign`, {
-                    assigned_to:
-                        selectedAssignee === "" ? null : selectedAssignee,
-                    assigned_department: "General",
-                });
-            }
-            await loadAllData();
-            showAdminModal = false;
-        } catch (e) {
-            alert("Failed to update");
-        } finally {
-            isSaving = false;
         }
     }
 
@@ -246,14 +243,75 @@
                         >
                         <span>{localUpvoteCount}</span>
                     </button>
-                    {#if isAdmin}<button
-                            class="btn-admin"
-                            onclick={openAdminModal}>Manage Status</button
-                        >{/if}
                 </div>
             </div>
 
             <div class="sidebar">
+                {#if isAdmin}
+                    <div class="section-card admin-inline-card">
+                        <div class="sidebar-header">
+                            <h3>Admin Control</h3>
+                            <button
+                                class="toggle-link"
+                                onclick={toggleAdminPanel}
+                            >
+                                {showAdminPanel ? "[ CLOSE ]" : "[ OPEN ]"}
+                            </button>
+                        </div>
+                        {#if showAdminPanel}
+                            <div class="admin-form">
+                                <div class="field">
+                                    <label>Status</label>
+                                    <select bind:value={selectedStatus}>
+                                        <option value="submitted"
+                                            >SUBMITTED</option
+                                        >
+                                        <option value="under_review"
+                                            >UNDER REVIEW</option
+                                        >
+                                        <option value="in_progress"
+                                            >IN PROGRESS</option
+                                        >
+                                        <option value="resolved"
+                                            >RESOLVED</option
+                                        >
+                                        <option value="closed">CLOSED</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Assign To</label>
+                                    <select bind:value={selectedAssignee}>
+                                        <option value=""
+                                            >-- UNASSIGNED --</option
+                                        >
+                                        {#each eligibleAssignees as user}
+                                            <option value={user.id}
+                                                >[{user.role.toUpperCase()}] {user.first_name}
+                                                {user.last_name}</option
+                                            >
+                                        {/each}
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Remarks</label>
+                                    <textarea
+                                        bind:value={adminRemarks}
+                                        rows="3"
+                                        placeholder="Notes..."
+                                    ></textarea>
+                                </div>
+                                <button
+                                    class="retro-btn execute"
+                                    onclick={saveAdminChanges}
+                                    disabled={isSaving}
+                                >
+                                    {isSaving ? "SAVING..." : "CONFIRM_CHANGES"}
+                                </button>
+                            </div>
+                        {/if}
+                    </div>
+                {/if}
+
                 {#if grievance.status === "resolved"}
                     <div class="resolution-banner">
                         <h3>✓ Resolved</h3>
@@ -304,74 +362,6 @@
     {/if}
 </div>
 
-{#if showAdminModal}
-    <div class="modal-overlay">
-        <div class="brutalist-card modal-box">
-            <h3 class="font-black border-b-2 border-black mb-4 uppercase">
-                Admin Command
-            </h3>
-            <div class="mb-4">
-                <!-- svelte-ignore a11y_label_has_associated_control -->
-                <label class="block text-[10px] font-black uppercase mb-1"
-                    >Status</label
-                >
-                <select
-                    bind:value={selectedStatus}
-                    class="w-full border-2 border-black p-2 bg-transparent"
-                >
-                    <option value="submitted">SUBMITTED</option>
-                    <option value="under_review">UNDER REVIEW</option>
-                    <option value="in_progress">IN PROGRESS</option>
-                    <option value="resolved">RESOLVED</option>
-                    <option value="closed">CLOSED</option>
-                </select>
-            </div>
-            <div class="mb-4">
-                <!-- svelte-ignore a11y_label_has_associated_control -->
-                <label class="block text-[10px] font-black uppercase mb-1"
-                    >Assign To</label
-                >
-                <select
-                    bind:value={selectedAssignee}
-                    class="w-full border-2 border-black p-2 bg-transparent"
-                >
-                    <option value="">-- UNASSIGNED --</option>
-                    {#each eligibleAssignees as user}
-                        <option value={user.id}
-                            >[{user.role.toUpperCase()}] {user.first_name}
-                            {user.last_name}</option
-                        >
-                    {/each}
-                </select>
-            </div>
-            <div class="mb-6">
-                <!-- svelte-ignore a11y_label_has_associated_control -->
-                <label class="block text-[10px] font-black uppercase mb-1"
-                    >Remarks</label
-                >
-                <textarea
-                    bind:value={adminRemarks}
-                    rows="3"
-                    class="w-full border-2 border-black p-2 bg-transparent"
-                ></textarea>
-            </div>
-            <div class="modal-actions">
-                <button
-                    class="retro-btn"
-                    onclick={() => (showAdminModal = false)}>Cancel</button
-                >
-                <button
-                    class="retro-btn admin"
-                    onclick={saveAdminChanges}
-                    disabled={isSaving}
-                >
-                    {isSaving ? "SAVING..." : "CONFIRM"}
-                </button>
-            </div>
-        </div>
-    </div>
-{/if}
-
 <style>
     :global(body) {
         background-color: transparent;
@@ -411,6 +401,7 @@
         background: #d1fae5;
         color: #047857;
     }
+
     .grid-layout {
         display: grid;
         grid-template-columns: 1fr 340px;
@@ -421,6 +412,7 @@
             grid-template-columns: 1fr;
         }
     }
+
     .main-card,
     .section-card,
     .resolution-banner {
@@ -429,6 +421,59 @@
         padding: 20px;
         background: transparent;
     }
+
+    /* Admin Inline Form Styles */
+    .admin-inline-card {
+        border: 2px solid #2b0b0b !important;
+        box-shadow: 4px 4px 0px #000 !important;
+    }
+    .sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .toggle-link {
+        background: none;
+        border: none;
+        font-weight: 900;
+        color: #b31b34;
+        cursor: pointer;
+        font-size: 10px;
+    }
+    .admin-form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 15px;
+        border-top: 2px dashed rgba(0, 0, 0, 0.1);
+        padding-top: 15px;
+    }
+    .field label {
+        display: block;
+        font-size: 9px;
+        font-weight: 900;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+    .field select,
+    .field textarea {
+        width: 100%;
+        border: 2px solid #2b0b0b;
+        background: transparent;
+        padding: 8px;
+        font-family: inherit;
+        font-size: 12px;
+    }
+    .retro-btn.execute {
+        background: #b31b34;
+        color: white;
+        border: 2px solid #2b0b0b;
+        padding: 10px;
+        font-weight: 900;
+        box-shadow: 4px 4px 0px #000;
+        cursor: pointer;
+    }
+
     .title {
         color: #2b0b0b;
         font-size: 24px;
@@ -486,19 +531,13 @@
         gap: 4px;
         font-weight: 900;
         color: #666;
+        background: none;
+        border: none;
     }
     .upvote-btn.active {
         color: #e11d48;
     }
-    .btn-admin {
-        background: #2b0b0b;
-        color: white;
-        padding: 6px 12px;
-        font-size: 10px;
-        font-weight: 900;
-        text-transform: uppercase;
-        box-shadow: 3px 3px 0px #000;
-    }
+
     .sidebar {
         display: flex;
         flex-direction: column;
@@ -511,6 +550,7 @@
         padding: 10px;
         font-family: inherit;
         font-size: 13px;
+        box-sizing: border-box;
     }
     .comment-input-area button {
         background: #b31b34;
@@ -538,48 +578,5 @@
         height: 10px;
         background: #2b0b0b;
         border-radius: 50%;
-    }
-
-    /* BULLETPROOF MODAL FIX */
-    .modal-overlay {
-        position: fixed !important;
-        inset: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        background: rgba(0, 0, 0, 0.8) !important;
-        display: grid !important;
-        place-items: center !important;
-        z-index: 99999 !important;
-        backdrop-filter: blur(4px);
-    }
-    .modal-box {
-        position: relative !important;
-        background: #f0f2f5 !important;
-        color: #2b0b0b !important;
-        width: 90%;
-        max-width: 400px;
-        padding: 2rem;
-        border: 4px solid #2b0b0b;
-        box-shadow: 10px 10px 0px #000;
-        z-index: 100000;
-    }
-    .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 20px;
-    }
-    .retro-btn {
-        padding: 8px 16px;
-        font-weight: 900;
-        border: 2px solid #2b0b0b;
-        cursor: pointer;
-        text-transform: uppercase;
-        background: transparent;
-    }
-    .retro-btn.admin {
-        background: #b31b34;
-        color: white;
-        box-shadow: 4px 4px 0px #000;
     }
 </style>
