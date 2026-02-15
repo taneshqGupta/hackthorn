@@ -40,6 +40,8 @@ This repository contains a Rust/Axum backend and a Svelte frontend. It is deploy
   - Cloudinary integration helper for image uploads (profile/resources)
   - Audit logging on login/logout and admin actions
 
+- Please Note: Photo uploads for grievance posts are working completely fine on computer. but they are not working well on phones.
+
 ---
 
 ## Technology stack
