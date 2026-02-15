@@ -1,174 +1,222 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import { logout } from '$lib/api';
-	import { user } from '$lib/auth';
+    import { goto } from '$app/navigation';
+    import { user, logout } from '$lib/auth'; // Ensure logout is imported from your auth/api
 
-	let isOpen = $state(false);
-	let currentUser = $derived($user);
+    let isOpen = $state(false);
+    // In Svelte 5 with stores, we use $derived to read the store value
+    let currentUser = $derived($user);
 
-	function toggleMenu() {
-		isOpen = !isOpen;
-	}
+    function toggleMenu() {
+        isOpen = !isOpen;
+    }
 
-	function closeMenu() {
-		isOpen = false;
-	}
+    function closeMenu() {
+        isOpen = false;
+    }
 
-	async function handleLogout() {
-		try {
-			await logout();
-			user.set(null); // Clear the user store
-			closeMenu();
-			goto('/login');
-		} catch (err) {
-			console.error('Logout failed:', err);
-		}
-	}
+    async function handleLogout() {
+        try {
+            await logout();
+            closeMenu();
+            goto('/login');
+        } catch (err) {
+            console.error('Logout failed:', err);
+        }
+    }
 
-	function navigate(path: string) {
-		goto(path);
-		closeMenu();
-	}
+    function navigate(path: string) {
+        closeMenu();
+        goto(path);
+    }
 </script>
 
-<div class="menu-container">
-	<button class="burger" onclick={toggleMenu} aria-label="Menu">
-		<span class:open={isOpen}></span>
-		<span class:open={isOpen}></span>
-		<span class:open={isOpen}></span>
-	</button>
+<div class="menu-wrapper">
+    <button class="burger" class:active={isOpen} onclick={toggleMenu} aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
 
-	{#if isOpen}
-		<!-- svelte-ignore a11y_click_events_have_key_events -->
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div class="dropdown" onclick={closeMenu}>
-			<!-- svelte-ignore a11y_click_events_have_key_events -->
-			<!-- svelte-ignore a11y_no_static_element_interactions -->
-			<div class="dropdown-content" onclick={(e) => e.stopPropagation()}>
-				{#if currentUser}
-					<button class="menu-item" onclick={() => navigate('/profile')}>
-						<img
-							src={currentUser.profile_picture ||
-								`https://ui-avatars.com/api/?name=${currentUser.first_name}&background=random&size=32`}
-							alt="avatar"
-							class="avatar-small"
-						/>
-						<span>My Profile</span>
-					</button>
-				{/if}
-				<button class="menu-item" onclick={() => navigate('/about')}>About</button>
-				<button class="menu-item" onclick={() => navigate('/terms')}>Terms of Service</button>
-				<button class="menu-item" onclick={() => navigate('/privacy')}>Privacy Policy</button>
-				{#if currentUser}
-					<button class="menu-item logout" onclick={handleLogout}>Logout</button>
-				{/if}
-			</div>
-		</div>
-	{/if}
+    {#if isOpen}
+        <div class="backdrop" onclick={closeMenu}></div>
+
+        <div class="dropdown">
+            {#if currentUser}
+                <button class="menu-item profile-item" onclick={() => navigate('/profile')}>
+                    <img
+                        src={currentUser.profile_picture ||
+                            `https://ui-avatars.com/api/?name=${currentUser.first_name}&background=random&size=32`}
+                        alt="avatar"
+                        class="avatar"
+                    />
+                    <div class="user-info">
+                        <span class="name">Profile</span>
+                        <span class="email">{currentUser.email || 'My Account'}</span>
+                    </div>
+                </button>
+            {/if}
+
+            <button class="menu-item" onclick={() => navigate('/terms')}>
+                Terms of Service
+            </button>
+            
+            <button class="menu-item" onclick={() => navigate('/privacy')}>
+                Privacy Policy
+            </button>
+
+            {#if currentUser}
+                <div class="divider"></div>
+                <button class="menu-item logout" onclick={handleLogout}>
+                    Logout
+                </button>
+            {/if}
+        </div>
+    {/if}
 </div>
 
 <style>
-	.menu-container {
-		position: relative;
-	}
+    /* Container keeps the menu anchored to the button */
+    .menu-wrapper {
+        position: relative;
+        display: inline-block;
+        z-index: 50;
+    }
 
-	.burger {
-		position: relative;
-		width: 20px;
-		height: 16px;
-		background: transparent;
-		cursor: pointer;
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		padding: 0;
-		border: none;
-		margin-right: 8px;
-	}
+    /* BURGER BUTTON STYLES */
+    .burger {
+        width: 30px;
+        height: 24px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 0;
+        margin-right: 1rem;
+        z-index: 52; /* Above backdrop */
+        position: relative;
+    }
 
-	.burger span {
-		display: block;
-		height: 2px;
-		width: 100%;
-		background: #7a1a1a;
-		border-radius: 2px;
-		transition: all 0.3s ease;
-	}
+    .burger span {
+        display: block;
+        width: 100%;
+        height: 3px;
+        background: #000;
+        transition: all 0.3s ease;
+    }
 
-	.burger span.open:nth-child(1) {
-		transform: rotate(45deg) translate(6px, 6px);
-	}
+    /* Animate into X */
+    .burger.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 6px);
+    }
+    .burger.active span:nth-child(2) {
+        opacity: 0;
+    }
+    .burger.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(5px, -6px);
+    }
 
-	.burger span.open:nth-child(2) {
-		opacity: 0;
-	}
+    /* BACKDROP */
+    /* Invisible layer that covers screen to detect outside clicks */
+    .backdrop {
+        position: fixed;
+        inset: 0;
+        background: transparent;
+        z-index: 50;
+        cursor: default;
+    }
 
-	.burger span.open:nth-child(3) {
-		transform: rotate(-45deg) translate(6px, -6px);
-	}
+    /* DROPDOWN CONTAINER */
+    .dropdown {
+        position: absolute;
+        top: 130%; /* Pushes it slightly below the header */
+        right: 1rem;
+        width: 240px;
+        background: #fff;
+        border: 2px solid #000;
+        /* The hard shadow (Neobrutalist style) */
+        box-shadow: 6px 6px 0 #d06065; 
+        padding: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        z-index: 51; /* Above backdrop, below burger */
+    }
 
-	.dropdown {
-		position: fixed;
-		inset: 0;
-		background: rgba(0, 0, 0, 0.3);
-		z-index: 50;
-		display: flex;
-		justify-content: flex-end;
-		align-items: flex-start;
-		padding: 60px 16px 16px;
-	}
+    /* MENU ITEMS */
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+        padding: 0.75rem;
+        border: none;
+        background: transparent;
+        color: #000;
+        font-family: 'Oswald', sans-serif; /* Matching your theme */
+        font-weight: 600;
+        font-size: 1rem;
+        text-transform: uppercase;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.2s, transform 0.1s;
+    }
 
-	.dropdown-content {
-		background: #fff;
-		border: 4px solid #000;
-		box-shadow: 8px 8px 0 #d06065;
-		padding: 8px;
-		min-width: 220px;
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-	}
+    .menu-item:hover {
+        background: #ffb3ba; /* Light pink hover */
+        transform: translateX(2px);
+    }
 
-	.menu-item {
-		padding: 12px 16px;
-		background: #ffb3ba;
-		border: 3px solid #000;
-		color: #000;
-		font-weight: 700;
-		font-size: 14px;
-		text-align: left;
-		cursor: pointer;
-		transition: all 0.15s;
-		display: flex;
-		align-items: center;
-		gap: 12px;
-		text-transform: uppercase;
-	}
+    /* Profile Specifics */
+    .profile-item {
+        background: #f4f4f5;
+        border: 2px solid #000;
+        margin-bottom: 0.25rem;
+    }
 
-	.menu-item:hover {
-		background: #d06065;
-		color: #fff;
-		transform: translate(2px, 2px);
-	}
+    .profile-item:hover {
+        background: #e4e4e7;
+    }
 
-	.menu-item:active {
-		transform: translate(4px, 4px);
-	}
+    .user-info {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+    }
 
-	.menu-item.logout {
-		background: #ffa5ab;
-		margin-top: 8px;
-	}
+    .user-info .name {
+        font-size: 0.9rem;
+    }
 
-	.menu-item.logout:hover {
-		background: #ff6b7a;
-	}
+    .user-info .email {
+        font-size: 0.7rem;
+        opacity: 0.6;
+        text-transform: none;
+    }
 
-	.avatar-small {
-		width: 32px;
-		height: 32px;
-		border-radius: 50%;
-		object-fit: cover;
-		border: 2px solid #000;
-	}
+    .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 2px solid #000;
+    }
+
+    /* Divider Line */
+    .divider {
+        height: 2px;
+        background: #000;
+        margin: 0.25rem 0;
+        opacity: 0.1;
+    }
+
+    /* Logout Button */
+    .logout {
+        color: #d06065;
+    }
+    
+    .logout:hover {
+        background: #d06065;
+        color: #fff;
+    }
 </style>
