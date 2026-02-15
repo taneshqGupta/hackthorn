@@ -56,7 +56,7 @@ Youtube Video Link:
   - Uses UUID primary keys and ENUM types for domain constraints (roles, statuses, course types, attendance, etc.).
 - Frontend: Svelte + Vite, with a PWA-capable frontend and Svelte stores for auth.
   - Justification: lightweight reactive UI, fast dev feedback and small bundle sizes suitable for mobile/PWA.
-- Hosting: Live site at https://aegis.taneshq.iitmandi.in.net (as provided).
+- Hosting: Live site at https://aegis.taneshq.iitmandi.in.net.
 
 ---
 
