@@ -41,7 +41,7 @@
 
         <div class="dropdown">
             {#if currentUser}
-                <button class="menu-item profile-item" onclick={() => navigate('/profile')}>
+                <button class="menu-item profile-item" onclick={() => navigate('/dashboard/student/profile')}>
                     <img
                         src={currentUser.profile_picture ||
                             `https://ui-avatars.com/api/?name=${currentUser.first_name}&background=random&size=32`}
