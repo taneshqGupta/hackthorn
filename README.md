@@ -14,7 +14,7 @@ This repository contains a Rust/Axum backend and a Svelte frontend. It is deploy
 
 Youtube Video Link:
 - Part 1: https://www.youtube.com/watch?v=cF6pgvcurJg&t=2s
-- Part 2: https://www.youtube.com/shorts/PGl2eg64948
+- Part 2: https://youtu.be/NsCQkDazmLI
 `Had to upload a part 2 because I wasnt able to figure out in time how to join two videos together. Both were uploaded within the deadline.`
 ---
 
