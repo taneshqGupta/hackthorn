@@ -105,4 +105,27 @@
             padding: 25px;
         }
     }
+    /* Hover Reactivity */
+    .gateway-card:hover {
+        transform: translate(-4px, -4px);
+        box-shadow: 12px 12px 0px #2b0b0b;
+    }
+
+    .gateway-card:active {
+        transform: translate(2px, 2px);
+        box-shadow: 4px 4px 0px #2b0b0b;
+    }
+
+    /* Identity Colors on Hover */
+    .red:hover {
+        background-color: #ff4d4d;
+    }
+
+    .yellow:hover {
+        background-color: #ffbc42;
+    }
+
+    .pink:hover {
+        background-color: #ff8fa3;
+    }
 </style>
