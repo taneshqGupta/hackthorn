@@ -94,9 +94,11 @@
         width: 100%;
         max-width: 450px;
 
-        /* The Transparent Look */
-        background-color: rgba(255, 255, 255, 0.4); /* See-through initially */
-        backdrop-filter: blur(2px); /* Slight blur for legibility */
+        /* UPDATED: Much higher transparency (0.15 alpha) */
+        background-color: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(
+            4px
+        ); /* Blur helps text read over notebook lines */
 
         /* Hard Borders & Shadows */
         border: 3px solid #000;
@@ -117,9 +119,14 @@
         text-align: center;
     }
 
-    /* HOVER STATE: More opaque, pops up, bigger shadow */
+    /* HOVER STATE: Pops up and becomes semi-solid white */
     .neo-card:hover {
-        background-color: rgba(255, 255, 255, 0.95); /* Solid white on hover */
+        background-color: rgba(
+            255,
+            255,
+            255,
+            0.85
+        ); /* Increases opacity on hover */
         transform: translate(-4px, -4px);
         box-shadow: 12px 12px 0 rgba(0, 0, 0, 1);
         border-color: #000;
@@ -150,7 +157,7 @@
     }
 
     .user-name {
-        font-family: "Oswald", sans-serif; /* Or your preferred font */
+        font-family: "Oswald", sans-serif;
         font-size: 2rem;
         font-weight: 800;
         text-transform: uppercase;
@@ -176,8 +183,8 @@
         display: flex;
         flex-direction: column;
         gap: 0.8rem;
-        border-top: 2px dashed rgba(0, 0, 0, 0.3);
-        border-bottom: 2px dashed rgba(0, 0, 0, 0.3);
+        border-top: 2px dashed rgba(0, 0, 0, 0.5); /* Darker dash for contrast on transparent bg */
+        border-bottom: 2px dashed rgba(0, 0, 0, 0.5);
         padding: 1.5rem 0;
     }
 
@@ -190,9 +197,10 @@
 
     .label {
         font-weight: 800;
-        opacity: 0.6;
+        opacity: 0.8; /* Increased opacity for readability */
         font-size: 0.85rem;
         text-transform: uppercase;
+        color: #000;
     }
 
     .value {
@@ -233,7 +241,7 @@
     }
 
     .neo-btn.logout {
-        background: transparent;
+        background: rgba(255, 255, 255, 0.5); /* Semi-transparent button bg */
         color: #d06065;
         border-color: #d06065;
     }
