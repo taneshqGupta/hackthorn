@@ -28,8 +28,6 @@
             class="gateway-card red"
         >
             <div class="card-inner">
-                <span class="pillar-no">PILLAR_II</span>
-                <h2>THE_SILENT_SCROLL</h2>
                 <p>SUBMIT GRIEVANCES & TRACK RESOLUTIONS.</p>
             </div>
         </button>
@@ -39,8 +37,6 @@
             class="gateway-card yellow"
         >
             <div class="card-inner">
-                <span class="pillar-no">PILLAR_III</span>
-                <h2>THE_DESTINY_MANAGER</h2>
                 <p>ENROLLMENTS, CREDITS, & ATTENDANCE LOGS.</p>
             </div>
         </button>
@@ -50,8 +46,6 @@
             class="gateway-card pink"
         >
             <div class="card-inner">
-                <span class="pillar-no">PILLAR_III_EXTRA</span>
-                <h2>THE_VAULT</h2>
                 <p>RECORDS, PYQS, & ACADEMIC ARTIFACTS.</p>
             </div>
         </button>
