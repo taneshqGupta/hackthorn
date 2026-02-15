@@ -45,7 +45,7 @@
     }
 </script>
 
-<div class="container">
+<div class="container w-100 flex flex-col items-center gap-4 mb-8 px-2">
     <h1 class="page-title">ACADEMICS</h1>
 
     <div class="group-search">
