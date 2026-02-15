@@ -51,6 +51,7 @@
 	.login-container {
 		display: flex;
 		flex-direction: column;
+		min-height: 300px;
 		height: 100%;
 		justify-content: space-between;
 	}
@@ -520,7 +521,7 @@
 	}
 </style>
 
-<div class="flex items-center justify-center">
+<div class="min-h-screen flex items-center justify-center">
 	<div class="login-layout">
 		<div class="wheel-and-hamster" role="img" aria-label="Loading hamster">
 			<div class="wheel"></div>
