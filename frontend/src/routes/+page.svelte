@@ -1,15 +1,64 @@
 <script>
-	import { user } from '$lib/auth';
-	import { goto } from '$app/navigation';
+	import { user } from "$lib/auth";
+	import { goto } from "$app/navigation";
+	import { onMount } from "svelte";
 
 	function handleEnter() {
 		if ($user) {
-			goto('/dashboard');
+			goto("/dashboard");
 		} else {
-			goto('/login');
+			goto("/login");
 		}
 	}
+
+	onMount(() => {
+		// Check if device is mobile using User-Agent string
+		const isMobile =
+			/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+				navigator.userAgent,
+			);
+
+		// If mobile, trigger entry immediately
+		if (isMobile) {
+			handleEnter();
+		}
+	});
 </script>
+
+<div class="hero-section">
+	<div class="campus-image-frame">
+		<img src="/1000111266.webp" alt="Campus" />
+		<div class="loading">
+			<svg width="64px" height="48px">
+				<polyline
+					points="0.157 23.954, 14 23.954, 21.843 48, 43 0, 50 24, 64 24"
+					id="back"
+				></polyline>
+				<polyline
+					points="0.157 23.954, 14 23.954, 21.843 48, 43 0, 50 24, 64 24"
+					id="front"
+				></polyline>
+			</svg>
+		</div>
+	</div>
+
+	<div class="content-wrapper">
+		<h1 class="protocol-title">THE AEGIS PROTOCOL</h1>
+		<p class="protocol-text">
+			For years, the Great Institute has functioned in fragmented silence.
+			Knowledge is scattered across unofficial drives, grievances vanish
+			into administrative voids, and students wander lost between hostel
+			blocks and academic buildings. Scholars pool their resources for
+			transport in secret WhatsApp groups, research opportunities reach
+			only the chosen few, and lost belongings drift unclaimed in the
+			shadows of campus corners.
+		</p>
+	</div>
+	<button class="cosmic-portal-btn" onclick={handleEnter}>
+		<span class="btn-text">The chaos must end.</span>
+		<div class="portal-effect"></div>
+	</button>
+</div>
 
 <style>
 	.hero-section {
@@ -32,7 +81,14 @@
 		width: 60vw;
 		max-width: 800px;
 		height: 50vh;
-		clip-path: polygon(0% 0%, 100% 0%, 100% 70%, 90% 100%, 10% 100%, 0% 70%);
+		clip-path: polygon(
+			0% 0%,
+			100% 0%,
+			100% 70%,
+			90% 100%,
+			10% 100%,
+			0% 70%
+		);
 		border: 4px solid #000;
 		box-shadow: 12px 12px 0 #000;
 		z-index: 0;
@@ -97,7 +153,9 @@
 		color: #fff;
 		text-align: center;
 		margin-bottom: 2rem;
-		text-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 3px 3px 0 #000;
+		text-shadow:
+			0 0 20px rgba(0, 0, 0, 0.8),
+			3px 3px 0 #000;
 	}
 
 	.protocol-text {
@@ -132,7 +190,14 @@
 		cursor: pointer;
 		overflow: hidden;
 		transition: all 0.3s ease;
-		clip-path: polygon(0% 0%, 100% 0%, 100% 70%, 90% 100%, 10% 100%, 0% 70%);
+		clip-path: polygon(
+			0% 0%,
+			100% 0%,
+			100% 70%,
+			90% 100%,
+			10% 100%,
+			0% 70%
+		);
 		display: block;
 		margin: 0 auto;
 	}
@@ -232,32 +297,3 @@
 		}
 	}
 </style>
-
-<div class="hero-section">
-	<div class="campus-image-frame">
-		<img src="/1000111266.webp" alt="Campus" />
-		<div class="loading">
-			<svg width="64px" height="48px">
-				<polyline points="0.157 23.954, 14 23.954, 21.843 48, 43 0, 50 24, 64 24" id="back"></polyline>
-				<polyline points="0.157 23.954, 14 23.954, 21.843 48, 43 0, 50 24, 64 24" id="front"></polyline>
-			</svg>
-		</div>
-	</div>
-
-	<div class="content-wrapper">
-		<h1 class="protocol-title">THE AEGIS PROTOCOL</h1>
-		<p class="protocol-text">
-			For years, the Great Institute has functioned in fragmented
-			silence. Knowledge is scattered across unofficial drives,
-			grievances vanish into administrative voids, and students wander
-			lost between hostel blocks and academic buildings. Scholars pool
-			their resources for transport in secret WhatsApp groups,
-			research opportunities reach only the chosen few, and lost
-			belongings drift unclaimed in the shadows of campus corners.
-		</p>
-	</div>
-	<button class="cosmic-portal-btn" onclick={handleEnter}>
-		<span class="btn-text">The chaos must end.</span>
-		<div class="portal-effect"></div>
-	</button>
-</div>
